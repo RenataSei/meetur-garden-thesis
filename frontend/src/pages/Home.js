@@ -1,9 +1,9 @@
-const Home = () => {
+export default function Home() {
   return (
-    <div>
-      <h1>Home Page</h1>
-    </div>
+    <section className="hero">
+      <h1>Meetur Garden</h1>
+      <p className="lead">A clean, minimal UI to manage your plant database and care notes.</p>
+      <a className="btn" href="/plants">View Plants</a>
+    </section>
   );
-};
-
-export default Home;
+}

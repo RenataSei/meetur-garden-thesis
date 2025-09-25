@@ -1,23 +1,27 @@
-import {BrowserRouter as Router, Route, Routes, BrowserRouter} from 'react-router-dom';
+// App.js
 
-//Pages & Components
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './pages/Layout';
 import Home from './pages/Home';
+import PlantsList from './pages/PlantsList';
+import NewPlant from './pages/NewPlant';
+import EditPlant from './pages/EditPlant';
+import PlantDetail from './pages/PlantDetail';
+import NotFound from './pages/NotFound';
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-     <BrowserRouter>
-      <div className="pages">
-        <Routes>
-          <Route 
-            path="/"
-            element={<Home />}
-            />
-        </Routes>
-      </div>
-     </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="/plants" element={<PlantsList />} />
+          <Route path="/plants/new" element={<NewPlant />} />
+          <Route path="/plants/:id/edit" element={<EditPlant />} />
+          <Route path="/plants/:id" element={<PlantDetail />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
