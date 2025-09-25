@@ -23,6 +23,16 @@ export default function PlantsList() {
     }
   }
 
+  // Handle delete operation
+  async function handleDelete(id) {
+    try {
+      await PlantsAPI.delete(id); // Call the API to delete the plant
+      setPlants(plants.filter((plant) => plant._id !== id)); // Remove the deleted plant from state
+    } catch (e) {
+      setError('Failed to delete plant');
+    }
+  }
+
   useEffect(() => {
     load();  // Fetch data when the component mounts
   }, []);
@@ -33,7 +43,11 @@ export default function PlantsList() {
   return (
     <div className="plants-list">
       {plants.map((plant) => (
-        <PlantCard key={plant._id} plant={plant} />
+        <PlantCard 
+          key={plant._id} 
+          plant={plant} 
+          onDelete={handleDelete}  // Pass the handleDelete function to the PlantCard component
+        />
       ))}
     </div>
   );
