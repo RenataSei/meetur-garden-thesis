@@ -1,53 +1,53 @@
 // NewPlant.js
-
 import { useState } from 'react';
 import { PlantsAPI } from '../api';
+import SidebarMenu from '../components/SidebarMenu';
 
 export default function NewPlant() {
   const [name, setName] = useState('');
-  const [type, setType] = useState('');
+  const [species, setSpecies] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const newPlant = { name, type, description };
+    const newPlant = { name, species, description };
 
     try {
-      const data = await PlantsAPI.create(newPlant);  // Sending data to the API to create a new plant
-      console.log('Plant created:', data);
-      // Optionally redirect or reset form
-    } catch (e) {
-      setError('Failed to create plant');
+      await PlantsAPI.create(newPlant);
+      window.location.href = '/plants';
+    } catch (err) {
+      setError(err.message || 'Failed to create plant');
     }
   };
 
   return (
-    <div className="new-plant-form">
-      <h2>Add New Plant</h2>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Plant Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Plant Type"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-        />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <button type="submit">Add Plant</button>
-      </form>
+    <div className="app-grid">
+      <section>
+        <h1 style={{marginTop:0}}>New Plant</h1>
+        {error && <p className="error">{error}</p>}
+        <form onSubmit={handleSubmit} className="card">
+          <input
+            placeholder="Plant Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            placeholder="Species"
+            value={species}
+            onChange={(e) => setSpecies(e.target.value)}
+          />
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={5}
+          />
+          <button type="submit" className="btn">Add Plant</button>
+        </form>
+      </section>
+
+      <SidebarMenu />
     </div>
   );
 }

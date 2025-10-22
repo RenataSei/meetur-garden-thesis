@@ -1,8 +1,9 @@
-// frontend/src/pages/EditPlant.js
+// EditPlant.js
 import { useEffect, useState } from 'react';
 import PlantForm from '../components/PlantForm';
 import { PlantsAPI } from '../api';
 import { useNavigate, useParams } from 'react-router-dom';
+import SidebarMenu from '../components/SidebarMenu';
 
 export default function EditPlant() {
   const { id } = useParams();
@@ -16,31 +17,39 @@ export default function EditPlant() {
     setLoading(true);
     PlantsAPI.get(id)
       .then(setPlant)
-      .catch(e => setError(e.message))
+      .catch(e => setError(e.message || 'Failed to load'))
       .finally(() => setLoading(false));
   }, [id]);
 
-  async function handleSubmit(values) {
-    try {
+  async function handleSubmit(values){
+    try{
       setSubmitting(true);
-      await PlantsAPI.update(id, values);
+      await PlantsAPI.update(id, values); // PATCH to backend
       navigate(`/plants/${id}`);
-    } catch (e) {
-      alert(e.message);
-    } finally {
+    }catch(e){
+      setError(e.message || 'Update failed');
+    }finally{
       setSubmitting(false);
     }
   }
 
-  if (loading) return <p>Loading…</p>;
-  if (error) return <p className="error">{error}</p>;
-  if (!plant) return <p>Not found.</p>;
-
   return (
-    <section>
-      <h1>Edit Plant</h1>
-      {/* key ensures remount if id changes */}
-      <PlantForm key={plant._id} initial={plant} onSubmit={handleSubmit} submitting={submitting} />
-    </section>
+    <div className="app-grid">
+      <section>
+        <h1 style={{marginTop:0}}>Edit Plant</h1>
+        {loading && <p>Loading…</p>}
+        {error && <p className="error">{error}</p>}
+        {plant && (
+          <PlantForm
+            key={plant._id}
+            initial={plant}
+            onSubmit={handleSubmit}
+            submitting={submitting}
+          />
+        )}
+      </section>
+
+      <SidebarMenu />
+    </div>
   );
 }

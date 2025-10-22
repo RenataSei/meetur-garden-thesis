@@ -1,54 +1,58 @@
 // PlantsList.js
-
 import { useEffect, useState } from 'react';
 import PlantCard from '../components/PlantCard';
 import { PlantsAPI } from '../api';
+import SidebarMenu from '../components/SidebarMenu';
+import { Link } from 'react-router-dom';
 
 export default function PlantsList() {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Load plants data from the backend
   async function load() {
     try {
       setLoading(true);
-      const data = await PlantsAPI.list();  // Fetching plants from the API
+      const data = await PlantsAPI.list();
       setPlants(data);
       setError('');
     } catch (e) {
-      setError('Failed to load plants');
+      setError(e.message || 'Failed to load plants');
     } finally {
       setLoading(false);
     }
   }
 
-  // Handle delete operation
-  async function handleDelete(id) {
-    try {
-      await PlantsAPI.delete(id); // Call the API to delete the plant
-      setPlants(plants.filter((plant) => plant._id !== id)); // Remove the deleted plant from state
-    } catch (e) {
-      setError('Failed to delete plant');
+  useEffect(() => { load(); }, []);
+
+  async function handleDelete(id){
+    try{
+      await PlantsAPI.delete(id);
+      setPlants(plants => plants.filter(p => p._id !== id));
+    }catch(e){
+      alert(e.message || 'Delete failed');
     }
   }
 
-  useEffect(() => {
-    load();  // Fetch data when the component mounts
-  }, []);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
-
   return (
-    <div className="plants-list">
-      {plants.map((plant) => (
-        <PlantCard 
-          key={plant._id} 
-          plant={plant} 
-          onDelete={handleDelete}  // Pass the handleDelete function to the PlantCard component
-        />
-      ))}
+    <div className="app-grid">
+      <section>
+        <div className="row" style={{justifyContent:'space-between', marginBottom:10}}>
+          <h2 style={{margin:0}}>Garden</h2>
+          <Link className="btn" to="/plants/new" style={{boxShadow:'var(--shadow)'}}>Add Plant</Link>
+        </div>
+
+        {loading && <p>Loading…</p>}
+        {error && <p>{error}</p>}
+
+        <div className="plant-grid">
+          {plants.map(plant => (
+            <PlantCard key={plant._id} plant={plant} onDelete={handleDelete} />
+          ))}
+        </div>
+      </section>
+
+      <SidebarMenu />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PlantsAPI } from '../api';
 import { Link, useParams } from 'react-router-dom';
+import SidebarMenu from '../components/SidebarMenu';
 
 export default function PlantDetail() {
   const { id } = useParams();
@@ -15,19 +16,27 @@ export default function PlantDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <p>Loading…</p>;
-  if (error) return <p className="error">{error}</p>;
-  if (!plant) return <p>Not found.</p>;
-
   return (
-    <article className="prose">
-      <h1>{plant.name}</h1>
-      <p className="muted">{plant.species}</p>
-      <p>{plant.description}</p>
-      <div className="row gap">
-        <Link className="btn" to={`/plants/${plant._id}/edit`}>Edit</Link>
-        <Link className="btn secondary" to="/plants">Back to list</Link>
-      </div>
-    </article>
+    <div className="app-grid">
+      <section className="prose">
+        {loading && <p>Loading…</p>}
+        {error && <p className="error">{error}</p>}
+        {!loading && !plant && <p>Not found.</p>}
+
+        {plant && (
+          <>
+            <h1>{plant.name}</h1>
+            <p className="muted">{plant.species}</p>
+            <p>{plant.description}</p>
+            <div className="row gap">
+              <Link className="btn info" to={`/plants/${plant._id}/edit`}>Edit</Link>
+              <Link className="btn secondary" to="/plants">Back to list</Link>
+            </div>
+          </>
+        )}
+      </section>
+
+      <SidebarMenu />
+    </div>
   );
 }
