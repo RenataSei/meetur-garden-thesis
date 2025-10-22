@@ -1,23 +1,19 @@
-// PlantsList.js
 import { useEffect, useState } from 'react';
-import PlantCard from '../components/PlantCard';
-import { PlantsAPI } from '../api';
-import SidebarMenu from '../components/SidebarMenu';
 import { Link } from 'react-router-dom';
+import { PlantsAPI } from '../api';
+import PlantCard from '../components/PlantCard';
 
 export default function PlantsList() {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [err, setErr] = useState('');
 
   async function load() {
     try {
-      setLoading(true);
       const data = await PlantsAPI.list();
       setPlants(data);
-      setError('');
     } catch (e) {
-      setError(e.message || 'Failed to load plants');
+      setErr(e.message || 'Failed to load');
     } finally {
       setLoading(false);
     }
@@ -25,34 +21,37 @@ export default function PlantsList() {
 
   useEffect(() => { load(); }, []);
 
-  async function handleDelete(id){
-    try{
+  async function handleDelete(id) {
+    if (!window.confirm('Delete this plant?')) return;
+    try {
       await PlantsAPI.delete(id);
-      setPlants(plants => plants.filter(p => p._id !== id));
-    }catch(e){
+      setPlants((list) => list.filter((p) => p._id !== id));
+    } catch (e) {
       alert(e.message || 'Delete failed');
     }
   }
 
   return (
-    <div className="app-grid">
-      <section>
-        <div className="row" style={{justifyContent:'space-between', marginBottom:10}}>
-          <h2 style={{margin:0}}>Garden</h2>
-          <Link className="btn" to="/plants/new" style={{boxShadow:'var(--shadow)'}}>Add Plant</Link>
-        </div>
+    <div className="container">
+      <div className="header">
+        <h2>Your Garden</h2>
+        <Link className="btn brand" to="/plants/new">Add Plant</Link>
+      </div>
 
-        {loading && <p>Loading…</p>}
-        {error && <p>{error}</p>}
+      {loading && <p>Loading...</p>}
+      {err && <p className="error">{err}</p>}
 
-        <div className="plant-grid">
-          {plants.map(plant => (
-            <PlantCard key={plant._id} plant={plant} onDelete={handleDelete} />
+      {!loading && !err && plants.length === 0 && (
+        <div className="empty">No plants yet. Click Add Plant to create one.</div>
+      )}
+
+      {!loading && !err && plants.length > 0 && (
+        <div className="grid">
+          {plants.map((p) => (
+            <PlantCard key={p._id} plant={p} onDelete={handleDelete} />
           ))}
         </div>
-      </section>
-
-      <SidebarMenu />
+      )}
     </div>
   );
 }

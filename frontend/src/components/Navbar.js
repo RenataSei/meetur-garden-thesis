@@ -1,17 +1,12 @@
-// Navbar.js
-
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   return (
-    <header className="navbar">
-      <nav>
-        <NavLink to="/" className="brand">Meetur Garden</NavLink>
-        <div className="links">
-          <NavLink to="/plants">Plants</NavLink>
-          <NavLink to="/plants/new" className="btn">Add Plant</NavLink>
-        </div>
-      </nav>
-    </header>
+    <nav className="nav">
+      {/* Left brand only. No Main Menu on the right. */}
+      <Link className="brand" to="/">
+        MEETUR <span>GARDEN</span>
+      </Link>
+    </nav>
   );
 }

@@ -1,42 +1,36 @@
 import { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { PlantsAPI } from '../api';
-import { Link, useParams } from 'react-router-dom';
-import SidebarMenu from '../components/SidebarMenu';
 
 export default function PlantDetail() {
   const { id } = useParams();
   const [plant, setPlant] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [err, setErr] = useState('');
 
   useEffect(() => {
-    PlantsAPI.get(id)
-      .then(setPlant)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+    PlantsAPI.get(id).then(setPlant).catch((e) => setErr(e.message || 'Not found'));
   }, [id]);
 
   return (
-    <div className="app-grid">
-      <section className="prose">
-        {loading && <p>Loading…</p>}
-        {error && <p className="error">{error}</p>}
-        {!loading && !plant && <p>Not found.</p>}
+    <div className="container">
+      <div className="header">
+        <Link className="btn" to="/plants">Back</Link>
+        <span className="badge">Detail</span>
+      </div>
 
-        {plant && (
-          <>
-            <h1>{plant.name}</h1>
-            <p className="muted">{plant.species}</p>
-            <p>{plant.description}</p>
-            <div className="row gap">
-              <Link className="btn info" to={`/plants/${plant._id}/edit`}>Edit</Link>
-              <Link className="btn secondary" to="/plants">Back to list</Link>
-            </div>
-          </>
-        )}
-      </section>
+      {err && <p className="error">{err}</p>}
+      {!plant && !err && <p>Loading...</p>}
 
-      <SidebarMenu />
+      {plant && (
+        <>
+          <h2>{plant.name}</h2>
+          <p><b>Species: </b>{plant.species}</p>
+          <p>{plant.description}</p>
+          <div className="row">
+            <Link className="btn brand" to={`/plants/${plant._id}/edit`}>Edit</Link>
+          </div>
+        </>
+      )}
     </div>
   );
 }

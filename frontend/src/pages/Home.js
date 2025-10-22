@@ -1,17 +1,13 @@
-import SidebarMenu from '../components/SidebarMenu';
 import { Link } from 'react-router-dom';
 
-export default function Home(){
+export default function Home() {
   return (
-    <div className="app-grid">
-      <section>
-        <div className="card" style={{background:'#fff'}}>
-          <h2>Welcome to Meet-Ur Garden</h2>
-          <p className="muted">Manage your plants and keep your garden organized.</p>
-          <Link className="btn" to="/plants">Go to Garden</Link>
-        </div>
-      </section>
-      <SidebarMenu />
+    <div className="container">
+      <div className="header">
+        <h2>Welcome</h2>
+        <Link className="btn brand" to="/plants">Manage Garden</Link>
+      </div>
+      <p>Track and manage your plants with simple create, read, update, and delete actions.</p>
     </div>
   );
 }

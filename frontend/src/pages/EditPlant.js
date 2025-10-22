@@ -1,55 +1,41 @@
-// EditPlant.js
 import { useEffect, useState } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import PlantForm from '../components/PlantForm';
 import { PlantsAPI } from '../api';
-import { useNavigate, useParams } from 'react-router-dom';
-import SidebarMenu from '../components/SidebarMenu';
 
 export default function EditPlant() {
   const { id } = useParams();
+  const nav = useNavigate();
   const [plant, setPlant] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [err, setErr] = useState('');
 
   useEffect(() => {
-    setLoading(true);
-    PlantsAPI.get(id)
-      .then(setPlant)
-      .catch(e => setError(e.message || 'Failed to load'))
-      .finally(() => setLoading(false));
+    PlantsAPI.get(id).then(setPlant).catch((e) => setErr(e.message || 'Not found'));
   }, [id]);
 
-  async function handleSubmit(values){
-    try{
-      setSubmitting(true);
-      await PlantsAPI.update(id, values); // PATCH to backend
-      navigate(`/plants/${id}`);
-    }catch(e){
-      setError(e.message || 'Update failed');
-    }finally{
-      setSubmitting(false);
-    }
-  }
-
   return (
-    <div className="app-grid">
-      <section>
-        <h1 style={{marginTop:0}}>Edit Plant</h1>
-        {loading && <p>Loading…</p>}
-        {error && <p className="error">{error}</p>}
-        {plant && (
-          <PlantForm
-            key={plant._id}
-            initial={plant}
-            onSubmit={handleSubmit}
-            submitting={submitting}
-          />
-        )}
-      </section>
+    <div className="container">
+      <div className="header">
+        <Link className="btn" to={`/plants/${id}`}>Back</Link>
+        <span className="badge">Edit</span>
+      </div>
 
-      <SidebarMenu />
+      {err && <p className="error">{err}</p>}
+      {!plant && !err && <p>Loading...</p>}
+
+      {plant && (
+        <>
+          <h2>Edit Plant</h2>
+          <PlantForm
+            initial={plant}
+            submitText="Save changes"
+            onSubmit={async (values) => {
+              await PlantsAPI.update(id, values);
+              nav(`/plants/${id}`);
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }

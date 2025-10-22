@@ -1,54 +1,43 @@
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:3000/api';
+// frontend/src/api.js
+const API_BASE = process.env.REACT_APP_API_BASE || '/api';
+
+async function handle(res) {
+  const ct = res.headers.get('content-type') || '';
+  if (!res.ok) {
+    // Prefer JSON error if available
+    if (ct.includes('application/json')) {
+      const data = await res.json().catch(() => ({}));
+      const msg = data?.error || JSON.stringify(data) || `HTTP ${res.status}`;
+      throw new Error(msg);
+    } else {
+      const text = await res.text();
+      // surface first part so you can see if you got an HTML page
+      throw new Error(`Non-JSON response (status ${res.status}): ${text.slice(0, 200)}`);
+    }
+  }
+  if (ct.includes('application/json')) {
+    return res.json();
+  } else {
+    const text = await res.text();
+    throw new Error(`Expected JSON but got non-JSON: ${text.slice(0, 200)}`);
+  }
+}
 
 export const PlantsAPI = {
-  // list all plants
-  list: async () => {
-    const response = await fetch(`${API_BASE}/plants`);
-    if (!response.ok) throw new Error('Failed to fetch plants');
-    return await response.json();
-  },
-
-  // get one plant
-  get: async (id) => {
-    const response = await fetch(`${API_BASE}/plants/${id}`);
-    if (!response.ok) throw new Error('Failed to fetch plant');
-    return await response.json();
-  },
-
-  // create a plant
-  create: async (plantData) => {
-    const response = await fetch(`${API_BASE}/plants`, {
+  list: () => fetch(`${API_BASE}/plants`).then(handle),
+  get: (id) => fetch(`${API_BASE}/plants/${id}`).then(handle),
+  create: (payload) =>
+    fetch(`${API_BASE}/plants`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(plantData),
-    });
-    if (!response.ok) {
-      const t = await response.text().catch(() => '');
-      throw new Error(t || 'Failed to create plant');
-    }
-    return await response.json();
-  },
-
-  // update a plant
-  update: async (id, plantData) => {
-    const response = await fetch(`${API_BASE}/plants/${id}`, {
-      method: 'PATCH', // matches backend
+      body: JSON.stringify(payload)
+    }).then(handle),
+  update: (id, payload) =>
+    fetch(`${API_BASE}/plants/${id}`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(plantData),
-    });
-    if (!response.ok) {
-      const t = await response.text().catch(() => '');
-      throw new Error(t || 'Failed to update plant');
-    }
-    return await response.json();
-  },
-
-  // delete a plant
-  delete: async (id) => {
-    const response = await fetch(`${API_BASE}/plants/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('Failed to delete plant');
-    return await response.json();
-  }
+      body: JSON.stringify(payload)
+    }).then(handle),
+  delete: (id) =>
+    fetch(`${API_BASE}/plants/${id}`, { method: 'DELETE' }).then(handle)
 };
