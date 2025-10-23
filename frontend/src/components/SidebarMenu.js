@@ -1,11 +1,14 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 
-export default function SidebarMenu(){
+const linkClass = ({ isActive }) =>
+  ["menu-btn", isActive ? "active" : ""].filter(Boolean).join(" ");
+
+export default function SidebarMenu() {
   return (
     <aside className="sidebar">
-      <Link className="menu-btn" to="/plants">Manage Garden</Link>
-      <Link className="menu-btn" to="/settings">Settings</Link>
-      <Link className="menu-btn" to="/profile">View Profile</Link>
+      <NavLink className={linkClass} to="/plants">Manage Garden</NavLink>
+      <NavLink className={linkClass} to="/settings">Settings</NavLink>
+      <NavLink className={linkClass} to="/profile">View Profile</NavLink>
     </aside>
   );
 }

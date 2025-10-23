@@ -1,10 +1,21 @@
+// frontend/src/components/PlantForm.js
 import { useEffect, useState } from 'react';
 
-export default function PlantForm({ initial = { name: '', species: '', description: '' }, onSubmit, submitText = 'Save' }) {
+export default function PlantForm({
+  initial = { name: '', species: '', description: '' },
+  onSubmit,
+  submitText = 'Save'
+}) {
   const [values, setValues] = useState(initial);
   const [err, setErr] = useState('');
 
-  useEffect(() => setValues(initial), [initial]);
+  // Only re-seed values when editing an existing plant that has an _id
+  // This prevents resets while typing on the New Plant page
+  useEffect(() => {
+    if (initial && initial._id) {
+      setValues(initial);
+    }
+  }, [initial && initial._id]); // runs when the loaded record appears
 
   return (
     <form

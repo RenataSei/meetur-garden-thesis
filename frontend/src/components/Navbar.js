@@ -5,7 +5,7 @@ export default function Navbar() {
     <nav className="nav">
       {/* Left brand only. No Main Menu on the right. */}
       <Link className="brand" to="/">
-        MEETUR <span>GARDEN</span>
+        MEETUR<span>GARDEN</span>
       </Link>
     </nav>
   );
