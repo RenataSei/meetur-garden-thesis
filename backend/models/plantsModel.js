@@ -52,7 +52,7 @@ const plantSchema = new Schema({
             pests_diseases_notes:{type: String, required: false},
             propagation_notes:{type: String, required: false},
             invasive_species_notes:{type: String, required: false},
-            convervation_status_notes:{type: String, required: false},
+            conservation_status_notes:{type: String, required: false},
             local_permits_notes:{type: String, required: false}
         },
         required: false
