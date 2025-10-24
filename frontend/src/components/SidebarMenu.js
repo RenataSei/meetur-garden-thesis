@@ -1,113 +1,194 @@
-import { NavLink } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { Link } from "react-router-dom"; 
+import { useSidebar } from "../context/SidebarContext";
 
-const linkClass = ({ isActive }) =>
-  ['menu-btn', isActive ? 'active' : ''].filter(Boolean).join(' ');
+export default function SidebarMenu() {
+  const { isOpen, close } = useSidebar();
 
-export default function SidebarMenu({ open, onClose }) {
-  const drawerRef = useRef(null);
+  const styles = `
+    /* Overlay fade smoother */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
 
-  // Close with Esc key
-  useEffect(() => {
-    function handleKey(e) { if (e.key === 'Escape') onClose?.(); }
-    if (open) window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [open, onClose]);
+    /* Drawer panel smoother slide */
+    .drawer-panel {
+      position: fixed; top: 0; right: 0; height: 100vh;
+      width: min(88vw, 340px);
+      background: #111827; color: #e5e7eb;
+      transform: translateX(100%);
+      transition: transform .38s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1001;
+      display: flex; flex-direction: column;
+      box-shadow: -16px 0 40px rgba(0,0,0,.25);
+    }
+    .drawer-panel.open { transform: translateX(0%); }
 
-  // Click outside to close
-  function handleOverlayClick(e) {
-    if (e.target === e.currentTarget) onClose?.();
-  }
+    /* Header - lowered divider for better spacing with X */
+    .drawer-header {
+      padding: 24px 24px 16px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .drawer-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
 
-  // Overlay
-  const overlay = {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.5)',
-    opacity: 1,
-    transition: 'opacity 0.25s ease',
-    zIndex: 50
-  };
+    /* Menu list starts lower and boxes shorter */
+    .menu-list {
+      padding: 10px 32px 20px 20px;
+      display: grid;
+      gap: 10px;
+    }
 
-  // Drawer from right
-  const drawer = {
-    position: 'fixed',
-    top: 0,
-    right: 0,
-    height: '100vh',
-    width: 280,
-    background: '#0d1117',
-    borderLeft: '1px solid #2b3543',
-    padding: 16,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    transform: open ? 'translateX(0)' : 'translateX(100%)',
-    transition: 'transform 0.25s ease',
-    zIndex: 51
-  };
+    .menu-btn {
+      display: block;
+      text-decoration: none;
+      color: #f3f4f6;
+      background: linear-gradient(180deg, #1f2937, #111827);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 6px 18px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.04);
+      transition:
+        transform .25s ease,
+        background .3s ease,
+        box-shadow .3s ease,
+        border-color .3s ease;
+    }
+    .menu-btn:hover {
+      background: linear-gradient(180deg, #243042, #162232);
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 12px 26px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .menu-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 18px rgba(0,0,0,.2);
+    }
 
-  const title = { fontWeight: 800, marginBottom: 8, fontSize: 16 };
-  const closeBtn = {
-    alignSelf: 'flex-end',
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    border: '1px solid #2b3543',
-    background: '#111827',
-    color: 'inherit',
-    cursor: 'pointer',
-    marginBottom: 8,
-    fontSize: 18,
-    fontWeight: 700
-  };
+    /* Footer styled like navbar logo */
+    .drawer-footer {
+      margin-top: auto;
+      padding: 10px 20px 10px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+    .footer-brand {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+      user-select: none;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .footer-meetur {
+      color: #e5e7eb;
+      font-size: 17px;
+      text-shadow: 0 1px 0 rgba(0,0,0,.25);
+    }
+    .footer-garden {
+      color: #34d399; /* green like navbar */
+      font-size: 17px;
+      text-shadow: 0 0 10px rgba(52,211,153,.25);
+    }
 
-  const btn = {
-    display: 'block',
-    padding: '10px 12px',
-    borderRadius: 8,
-    border: '1px solid #2b3543',
-    textDecoration: 'none',
-    color: 'inherit'
-  };
-  const active = { background: '#0d2215', borderColor: '#164e2f' };
+    /* ✕ Close button (unchanged coordinates) */
+    .drawer-close-fixed {
+      position: fixed;
+      top: 16px;
+      right: 32px;
+      z-index: 1002;
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 12px;
+      background: #1f2937;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.9);
+      transition:
+        opacity .35s cubic-bezier(0.4, 0, 0.2, 1),
+        transform .35s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow .3s ease,
+        background .3s ease;
+    }
+    .drawer-close-fixed.visible {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .drawer-close-fixed:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,.22);
+    }
+    .close-icon {
+      font-size: 18px;
+      line-height: 1;
+      user-select: none;
+    }
+  `;
 
   return (
-    <div role="presentation" style={overlay} onMouseDown={handleOverlayClick}>
-      <aside
-        ref={drawerRef}
-        aria-hidden={!open}
-        aria-label="Sidebar menu"
-        style={drawer}
-      >
-        <button aria-label="Close menu" onClick={onClose} style={closeBtn}>×</button>
-        <div style={title}>Main Menu</div>
+    <>
+      <style>{styles}</style>
 
-        <NavLink
-          to="/plants"
-          className={linkClass}
-          style={({ isActive }) => ({ ...btn, ...(isActive ? active : {}) })}
-          onClick={onClose}
-        >
-          Manage Garden
-        </NavLink>
-        <NavLink
-          to="/settings"
-          className={linkClass}
-          style={({ isActive }) => ({ ...btn, ...(isActive ? active : {}) })}
-          onClick={onClose}
-        >
-          Settings
-        </NavLink>
-        <NavLink
-          to="/profile"
-          className={linkClass}
-          style={({ isActive }) => ({ ...btn, ...(isActive ? active : {}) })}
-          onClick={onClose}
-        >
-          View Profile
-        </NavLink>
+      <div
+        className={`drawer-overlay ${isOpen ? "open" : ""}`}
+        onClick={close}
+        aria-hidden="true"
+      />
+
+      <aside
+        className={`drawer-panel ${isOpen ? "open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Sidebar menu"
+      >
+        <div className="drawer-header">
+          <div className="drawer-title">Menu</div>
+        </div>
+
+        <nav className="menu-list" onClick={close}>
+          <Link className="menu-btn" to="/plants">Manage Garden</Link>
+          <Link className="menu-btn" to="/settings">Settings</Link>
+          <Link className="menu-btn" to="/profile">View Profile</Link>
+        </nav>
+
+        <div className="drawer-footer">
+          <span className="footer-brand">
+            <span className="footer-meetur">MEETUR</span>
+            <span className="footer-garden">GARDEN</span>
+          </span>
+        </div>
       </aside>
-    </div>
+
+      {/* Close button fixed in same coordinates as hamburger */}
+      <button
+        className={`drawer-close-fixed ${isOpen ? "visible" : ""}`}
+        onClick={close}
+        aria-label="Close menu"
+        type="button"
+      >
+        <span className="close-icon">✕</span>
+      </button>
+    </>
   );
 }
