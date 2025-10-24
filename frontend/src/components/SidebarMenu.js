@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"; 
-import { useSidebar } from "../context/SidebarContext";
+import { useSidebar } from "../contexts/SidebarContext";
 
 export default function SidebarMenu() {
   const { isOpen, close } = useSidebar();
@@ -28,7 +28,7 @@ export default function SidebarMenu() {
     }
     .drawer-panel.open { transform: translateX(0%); }
 
-    /* Header - lowered divider for better spacing with X */
+    /* Header */
     .drawer-header {
       padding: 24px 24px 16px 24px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -39,7 +39,7 @@ export default function SidebarMenu() {
       letter-spacing: 0.5px;
     }
 
-    /* Menu list starts lower and boxes shorter */
+    /* Menu list */
     .menu-list {
       padding: 10px 32px 20px 20px;
       display: grid;
@@ -74,10 +74,10 @@ export default function SidebarMenu() {
       box-shadow: 0 6px 18px rgba(0,0,0,.2);
     }
 
-    /* Footer styled like navbar logo */
+    /* Footer styled exactly like the navbar brand */
     .drawer-footer {
       margin-top: auto;
-      padding: 10px 20px 10px 20px;
+      padding: 12px 20px 16px 20px;
       border-top: 1px solid rgba(255,255,255,0.08);
       text-align: center;
     }
@@ -88,24 +88,27 @@ export default function SidebarMenu() {
       gap: 6px;
       user-select: none;
       text-decoration: none;
-      font-family: 'Inter', sans-serif;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       text-transform: uppercase;
-      letter-spacing: .06em;
+      letter-spacing: .12em;
       font-weight: 800;
       line-height: 1;
+      transition: transform .15s ease, opacity .2s ease;
     }
+    .footer-brand:hover { transform: translateY(-1px); }
     .footer-meetur {
-      color: #e5e7eb;
-      font-size: 17px;
+      color: #f9fafb;
+      font-size: 16px;
       text-shadow: 0 1px 0 rgba(0,0,0,.25);
     }
     .footer-garden {
-      color: #34d399; /* green like navbar */
-      font-size: 17px;
-      text-shadow: 0 0 10px rgba(52,211,153,.25);
+      color: #8fd081;
+      font-size: 16px;
+      text-shadow: 0 0 10px rgba(143,208,129,.25);
+      margin-left: 4px;
     }
 
-    /* ✕ Close button (unchanged coordinates) */
+    /* Close button */
     .drawer-close-fixed {
       position: fixed;
       top: 16px;
@@ -173,10 +176,11 @@ export default function SidebarMenu() {
         </nav>
 
         <div className="drawer-footer">
-          <span className="footer-brand">
+          {/* Brand link matching navbar styling */}
+          <a href="/" className="footer-brand" onClick={(e) => { e.preventDefault(); close(); }}>
             <span className="footer-meetur">MEETUR</span>
             <span className="footer-garden">GARDEN</span>
-          </span>
+          </a>
         </div>
       </aside>
 
