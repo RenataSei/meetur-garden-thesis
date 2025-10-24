@@ -23,7 +23,7 @@ const plantSchema = new Schema({
         },
         message: props => `${props.value} cannot be empty!`
     },
-    Family: { type: String, required: true },
+    family: { type: String, required: true },
     description: { type: String, required: true },
     height: { type: Number, required: true },
     maintenance_level: { type: String, required: true },
