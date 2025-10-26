@@ -1,50 +1,26 @@
-// frontend/src/pages/NewPlant.js
-import { useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
+// src/pages/NewPlant.js
+import { useNavigate } from "react-router-dom";
 import PlantForm from "../components/PlantForm";
-import { PlantsAPI } from "../api";
-import "./NewPlant.css";
+import { createPlant } from "../api/plants";
 
 export default function NewPlant() {
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
-  const initial = useMemo(
-    () => ({ name: "", species: "", description: "" }),
-    []
-  );
+  async function handleCreate(payload) {
+    await createPlant(payload);
+    navigate("/plants"); // adjust if your list route differs
+  }
 
   return (
-    <main className="new">
-      {/* floating accents */}
-      <span className="bubble bubble--green" />
-      <span className="bubble bubble--blue" />
-      <span className="bubble bubble--purple" />
-
-      <header className="new__header">
-        <div className="header__left">
-          <Link to="/plants" className="btn btn--ghost">
-            ← Back
-          </Link>
-        </div>
-      </header>
-
-      <section className="new__content">
-        <h2 className="new__title">Add Plant</h2>
-        <p className="new__subtitle">
-          Create a new plant record with its name, species, and notes.
-        </p>
-
-        <div className="new__formcard">
-          <PlantForm
-            initial={initial}
-            submitText="Create"
-            onSubmit={async (values) => {
-              await PlantsAPI.create(values);
-              nav("/plants");
-            }}
-          />
-        </div>
-      </section>
-    </main>
+    <div style={{ padding: "20px 16px" }}>
+      <PlantForm
+        mode="create"
+        title="Plant"
+        sub="Fill in all required fields"
+        simpleLayout={true}          // flat, compact, centered 'Other Notes'
+        onCancel={() => navigate("/plants")}
+        onSubmit={handleCreate}
+      />
+    </div>
   );
 }
