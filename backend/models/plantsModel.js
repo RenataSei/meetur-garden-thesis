@@ -29,33 +29,24 @@ const plantSchema = new Schema({
     maintenance_level: { type: String, required: true },
     life_cycle: { type: String, required: true },
     flower_descriptors: {
-        type:{
             color: {type: String, required: true},
             flower_inflorescence: {type: String, required: true},
             value: {type: String, required: true},
             bloom_time: {type: String, required: true}
-        },
-        required: true
     },
     ecological_descriptors: {
-        type: {
             luminance_level: {type: String, required: true},
             pH_level: {type: String, required: true},
             humidity_level: {type: String, required: true},
             water_frequency: {type: String, required: true},
             temperature_range: {type: String, required: true}
         },
-        required: true
-    },
     other_notes: {
-        type: {
             pests_diseases_notes:{type: String, required: false},
             propagation_notes:{type: String, required: false},
             invasive_species_notes:{type: String, required: false},
             conservation_status_notes:{type: String, required: false},
             local_permits_notes:{type: String, required: false}
-        },
-        required: false
     }
 }, {timestamps: true});
 

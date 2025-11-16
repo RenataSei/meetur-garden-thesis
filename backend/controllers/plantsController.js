@@ -44,69 +44,97 @@ const createPlant = async (req, res) => {
     if (!genus_name) {
         return res.status(400).json({ error: "genus_name is required to create a plant" });
     }
+    // Start a Mongoose session for transaction
+    const session = await mongoose.startSession();
 
-    // 1. Find or Create the Genus
-    let genus;
     try {
-        // Find the genus or create a new one if it doesn't exist
-        genus = await Genus.findOneAndUpdate(
+        // 2. Start the transaction
+        session.startTransaction();
+
+        // 3. Find or create the Genus *within the transaction*
+        // We find one, or if it doesn't exist ($setOnInsert), we create it (upsert: true)
+        const genus = await Genus.findOneAndUpdate(
             { genus_name: genus_name }, // Query
             { $setOnInsert: { genus_name: genus_name } }, // Fields to set if creating new
-            { new: true, upsert: true, runValidators: true } // Return new doc, insert if not found, run validators
+            { new: true, upsert: true, runValidators: true, session } // Return new doc, insert if not found, run validators
         );
+
+        //4. Create the Plant *within the transaction*, linking to the Genus
+        const newPlantArray = await Plant.create([plantData], { session });
+        const newPlant = newPlantArray[0]; // Since create returns an array
+
+        // 5. Link the new Plant's ID to the Genus's plants array
+        genus.plants.push(newPlant._id);
+        await genus.save({ session }); // <-- Pass the session here
+        
+        // 6. If all operations succeeded, commit the transaction
+        await session.commitTransaction();
+
+        res.status(200).json({newPlant, genus});
+
     } catch (error) {
-        // Handle errors in Genus creation/finding
-        return res
-            .status(400)
-            .json({ error: `Could not process genus: ${error.message}` });
-    }
+        // 7. If any error occurred, abort the transaction
+        await session.abortTransaction();
 
-    // 2. Create the Plant
-    try {
-        // Create the plant using the rest of the data
-        const plant = await Plant.create(plantData);
-
-        // 3. Link the new Plant's ID to the Genus's plants array
-        genus.plants.push(plant._id);
-        await genus.save();
-
-        // Return both the new plant and the Genus it was added to
-        res.status(200).json({ plant, genus });
-    } catch (error) {
         console.log(error);
-        // This catch block handles validation errors from the PlantSchema
-        res.status(400).json({ error: error.message });
+        const statusCode = error.name === 'ValidationError' ? 400 : 500;
+        res.status(statusCode).json({ error: error.message });
+    } finally {
+        // 8. End the session
+        session.endSession();
     }
 };
 
-//delete a plant
+//delete a plant (WITH TRANSACTION TO UPDATE GENUS)
 const deletePlant = async (req, res) => {
     const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: "No such plant" });
+    }
+
+    //1. Start a Mongoose session for transaction
+    const session = await mongoose.startSession();
+
+
     try {
-        //checks if id is valid
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(404).json({ error: "No such plant" });
+        // 2. Start the transaction
+        session.startTransaction();
+
+
+        // 3. Find and delete the plant within the transaction
+        const plant = await Plant.findOneAndDelete({_id : id}, { session });
+
+        if (!plant){
+            await session.abortTransaction(); // Abort if no plant found
+            session.endSession();
+            return  res.status(404).json({ error: "No such plant" });
         }
 
-        //finds plant by id and deletes it
-        const plant = await Plant.findOneAndDelete({ _id: id });
-
-        //if no plant found with that id returns 400
-        if (!plant) {
-            return res.status(400).json({ error: "No such plant" });
-        }
-
-        // Remove the plant ID from its Genus array
+        // 4. Update the Genus to remove the plant's ID from its plants array
         await Genus.findOneAndUpdate(
-            { plants: id }, // Find the Genus that contains this plant ID
-            { $pull: { plants: id } } // Remove the plant ID from the array
+            { plants: id }, // Find the genus that contains this plant
+            { $pull: { plants: id } }, // Remove the plant ID from the array
+            { session } // <-- Pass the session here
         );
-        //The Genus document is still left in the database.
 
-        res.status(200).json(plant);
+        // Note: We don't check if the Genus update was successful,
+        // because the plant might not have been linked to a genus yet.
+        // The $pull operation is safe to run either way.
+
+        // 5. If all operations succeeded, commit the transaction
+        await session.commitTransaction();
+
+        res.status(200).json(plant); //returns the deleted plant
     } catch (error) {
+        // 6. If any error occurred, abort the transaction
+        await session.abortTransaction();
+
+        console.log(error);
         res.status(500).json({ error: error.message });
+    } finally {
+        // 7. End the session
+        session.endSession();
     }
 };
 
