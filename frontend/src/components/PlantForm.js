@@ -2,29 +2,8 @@
 import { useEffect, useMemo, useState } from "react";
 
 /**
- * Form aligned with backend plantSchema:
- * - common_name: [String]
- * - scientific_name: String
- * - family: String
- * - description: String
- * - height: Number (centimeters)
- * - maintenance_level: String
- * - life_cycle: String
- * - flower_descriptors: { color, flower_inflorescence, value, bloom_time }
- * - ecological_descriptors: {
- *     luminance_level,
- *     pH_level,
- *     humidity_level,
- *     water_frequency,
- *     temperature_range
- *   }
- * - other_notes (all optional, behind checkbox): {
- *     pests_diseases_notes,
- *     propagation_notes,
- *     invasive_species_notes,
- *     conservation_status_notes,
- *     local_permits_notes
- *   }
+ * Form aligned with backend plantSchema.
+ * UPDATED: Now includes 'genus_name' required by the CreatePlant controller.
  */
 
 const styles = `
@@ -121,6 +100,7 @@ textarea.ta-sm {
 // [label, key, isMultiline]
 const fields = [
   // Basic info
+  ["Genus Name", "genus_name", false], // <--- ADDED THIS
   ["Common Name(s)", "common_name", false],
   ["Scientific Name", "scientific_name", false],
   ["Family", "family", false],
@@ -152,6 +132,7 @@ const fields = [
 
 // Keys that are required according to the backend schema
 const REQUIRED_KEYS = new Set([
+  "genus_name", // <--- ADDED THIS
   "common_name",
   "scientific_name",
   "family",
@@ -215,6 +196,9 @@ export default function PlantForm({
     if (!initialData) return;
 
     const next = { ...blank };
+
+    // <--- ADDED THIS: Handle Genus Name
+    next.genus_name = initialData.genus_name || ""; 
 
     next.common_name = Array.isArray(initialData.common_name)
       ? initialData.common_name.join(", ")
@@ -340,6 +324,7 @@ export default function PlantForm({
       }
 
       const payload = {
+        genus_name: data.genus_name.trim(), // <--- ADDED THIS: Required by backend
         common_name: commonNames,
         scientific_name: data.scientific_name.trim(),
         family: data.family.trim(),
@@ -423,6 +408,7 @@ export default function PlantForm({
           <div className="form-grid">
             <div className="section-title">Basic Information</div>
             {[
+              "genus_name", // <--- ADDED THIS: Renders the new field
               "common_name",
               "scientific_name",
               "family",
