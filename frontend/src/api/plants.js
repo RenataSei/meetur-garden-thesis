@@ -15,7 +15,7 @@ async function jsonOrThrow(res) {
   }
 }
 
-// --- 1. Get ALL Plants (Added this) ---
+// --- 1. Get All Plants ---
 export async function getAllPlants() {
   const res = await fetch(API_BASE, {
     method: "GET",
@@ -44,10 +44,10 @@ export async function getPlant(id) {
   return jsonOrThrow(res);
 }
 
-// --- 4. Update Plant (FIXED: Changed PUT to PATCH) ---
+// --- 4. Update Plant ---
 export async function updatePlant(id, payload) {
   const res = await fetch(`${API_BASE}/${id}`, {
-    method: "PATCH", // <--- IMPORTANT: Must match your backend route!
+    method: "PATCH", 
     headers: { "Content-Type": "application/json" },
     credentials: "omit",
     body: JSON.stringify(payload),
@@ -55,7 +55,7 @@ export async function updatePlant(id, payload) {
   return jsonOrThrow(res);
 }
 
-// --- 5. Delete Plant (Added this) ---
+// --- 5. Delete Plant ---
 export async function deletePlant(id) {
   const res = await fetch(`${API_BASE}/${id}`, {
     method: "DELETE",
