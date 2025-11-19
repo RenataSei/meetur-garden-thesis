@@ -2,9 +2,29 @@
 import { useEffect, useMemo, useState } from "react";
 
 /**
- * All fields required except other_notes (shown only if checkbox is ticked).
- * Compact textareas for long-text fields.
- * "Other Notes" is now centered for a more balanced visual layout.
+ * Form aligned with backend plantSchema:
+ * - common_name: [String]
+ * - scientific_name: String
+ * - family: String
+ * - description: String
+ * - height: Number (centimeters)
+ * - maintenance_level: String
+ * - life_cycle: String
+ * - flower_descriptors: { color, flower_inflorescence, value, bloom_time }
+ * - ecological_descriptors: {
+ *     luminance_level,
+ *     pH_level,
+ *     humidity_level,
+ *     water_frequency,
+ *     temperature_range
+ *   }
+ * - other_notes (all optional, behind checkbox): {
+ *     pests_diseases_notes,
+ *     propagation_notes,
+ *     invasive_species_notes,
+ *     conservation_status_notes,
+ *     local_permits_notes
+ *   }
  */
 
 const styles = `
@@ -62,22 +82,6 @@ textarea.ta-sm {
   font-size: 14px;
 }
 
-/* Centered “Other Notes” styling */
-.other-notes-section {
-  grid-column: span 2;
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-.other-notes-inner {
-  width: 100%;
-  max-width: 70%;
-  text-align: center;
-}
-@media (max-width: 860px) {
-  .other-notes-inner { max-width: 100%; }
-}
-
 .footer {
   padding: 12px 16px;
   border-top: 1px solid rgba(255,255,255,.10);
@@ -95,31 +99,50 @@ textarea.ta-sm {
 .btn.primary { background: linear-gradient(180deg, #6bd18a, #8fd081); color: #07141b; border: none; }
 .error { color: #ff8c8c; font-size: 12px; }
 .helper { font-size: 12px; opacity: .8; }
-.checkbox-row { display: flex; align-items: center; gap: 8px; justify-content: center; }
-.locked { opacity: .55; pointer-events: none; }
 .small { font-size: 12px; opacity: .9; }
+.section-title {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  opacity: .75;
+  margin-top: 4px;
+}
+.checkbox-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 8px;
+  font-size: 13px;
+}
 `;
 
+// [label, key, isMultiline]
 const fields = [
-  ["Genus Name", "genus_name", false],
-  ["Common Name", "common_name", false],
+  // Basic info
+  ["Common Name(s)", "common_name", false],
   ["Scientific Name", "scientific_name", false],
   ["Family", "family", false],
   ["Description", "description", true],
-  ["Height", "height", false],
+  ["Height (cm)", "height", false],
   ["Maintenance Level", "maintenance_level", false],
   ["Life Cycle", "life_cycle", false],
-  ["Flower Descriptors", "flower_descriptors", true],
+
+  // Flower descriptors
   ["Color", "color", false],
   ["Flower Inflorescence", "flower_inflorescence", false],
   ["Value", "value", false],
   ["Bloom Time", "bloom_time", false],
-  ["Ecological Descriptors", "ecological_descriptors", true],
+
+  // Ecological descriptors
   ["Luminance Level", "luminance_level", false],
   ["pH Level", "pH_level", false],
   ["Humidity Level", "humidity_level", false],
   ["Water Frequency", "water_frequency", false],
   ["Temperature Range", "temperature_range", false],
+
+  // Other notes (optional)
   ["Pests Diseases Notes", "pests_diseases_notes", true],
   ["Propagation Notes", "propagation_notes", true],
   ["Invasive Species Notes", "invasive_species_notes", true],
@@ -127,18 +150,43 @@ const fields = [
   ["Local Permits Notes", "local_permits_notes", true],
 ];
 
-const OPTIONAL_KEY = "other_notes";
+// Keys that are required according to the backend schema
+const REQUIRED_KEYS = new Set([
+  "common_name",
+  "scientific_name",
+  "family",
+  "description",
+  "height",
+  "maintenance_level",
+  "life_cycle",
+  "color",
+  "flower_inflorescence",
+  "value",
+  "bloom_time",
+  "luminance_level",
+  "pH_level",
+  "humidity_level",
+  "water_frequency",
+  "temperature_range",
+]);
+
+// Textareas that should be compact
 const COMPACT_TA = new Set([
   "description",
-  "flower_descriptors",
-  "ecological_descriptors",
   "pests_diseases_notes",
   "propagation_notes",
   "invasive_species_notes",
   "conservation_status_notes",
   "local_permits_notes",
-  OPTIONAL_KEY,
 ]);
+
+function parseCommonNames(raw) {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
 
 export default function PlantForm({
   mode = "create",
@@ -147,26 +195,71 @@ export default function PlantForm({
   onSubmit,
   title = "Plant",
   sub = "Please complete all required fields",
-  simpleLayout = false,
+  simpleLayout = false, // kept for compatibility
 }) {
   const blank = useMemo(() => {
     const obj = {};
-    fields.forEach(([, k]) => (obj[k] = ""));
-    obj[OPTIONAL_KEY] = "";
+    fields.forEach(([, k]) => {
+      obj[k] = "";
+    });
     return obj;
   }, []);
 
   const [data, setData] = useState(blank);
-  const [otherEnabled, setOtherEnabled] = useState(false);
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
+  const [otherEnabled, setOtherEnabled] = useState(false);
 
+  // Flatten initialData from backend schema for edit mode
   useEffect(() => {
-    if (initialData) {
-      const merged = { ...blank, ...initialData };
-      setData(merged);
-      setOtherEnabled(Boolean(merged[OPTIONAL_KEY]?.trim().length));
-    }
+    if (!initialData) return;
+
+    const next = { ...blank };
+
+    next.common_name = Array.isArray(initialData.common_name)
+      ? initialData.common_name.join(", ")
+      : initialData.common_name || "";
+
+    next.scientific_name = initialData.scientific_name || "";
+    next.family = initialData.family || "";
+    next.description = initialData.description || "";
+    next.height =
+      initialData.height !== undefined && initialData.height !== null
+        ? String(initialData.height)
+        : "";
+
+    next.maintenance_level = initialData.maintenance_level || "";
+    next.life_cycle = initialData.life_cycle || "";
+
+    const fd = initialData.flower_descriptors || {};
+    next.color = fd.color || "";
+    next.flower_inflorescence = fd.flower_inflorescence || "";
+    next.value = fd.value || "";
+    next.bloom_time = fd.bloom_time || "";
+
+    const ed = initialData.ecological_descriptors || {};
+    next.luminance_level = ed.luminance_level || "";
+    next.pH_level = ed.pH_level || "";
+    next.humidity_level = ed.humidity_level || "";
+    next.water_frequency = ed.water_frequency || "";
+    next.temperature_range = ed.temperature_range || "";
+
+    const on = initialData.other_notes || {};
+    next.pests_diseases_notes = on.pests_diseases_notes || "";
+    next.propagation_notes = on.propagation_notes || "";
+    next.invasive_species_notes = on.invasive_species_notes || "";
+    next.conservation_status_notes = on.conservation_status_notes || "";
+    next.local_permits_notes = on.local_permits_notes || "";
+
+    const hasOther =
+      (on.pests_diseases_notes && on.pests_diseases_notes.trim().length > 0) ||
+      (on.propagation_notes && on.propagation_notes.trim().length > 0) ||
+      (on.invasive_species_notes && on.invasive_species_notes.trim().length > 0) ||
+      (on.conservation_status_notes && on.conservation_status_notes.trim().length > 0) ||
+      (on.local_permits_notes && on.local_permits_notes.trim().length > 0);
+
+    setData(next);
+    setOtherEnabled(hasOther);
   }, [initialData, blank]);
 
   function setField(key, value) {
@@ -176,12 +269,28 @@ export default function PlantForm({
 
   function validate() {
     const next = {};
-    fields.forEach(([, key]) => {
-      if (!data[key]?.trim()) next[key] = "Required";
+
+    REQUIRED_KEYS.forEach((key) => {
+      const value = data[key];
+      if (!value || !String(value).trim()) {
+        next[key] = "Required";
+      }
     });
-    if (otherEnabled && !data[OPTIONAL_KEY]?.trim()) {
-      next[OPTIONAL_KEY] = "Please enter a note or untick the checkbox";
+
+    // Extra validation for common_name
+    const cnList = parseCommonNames(data.common_name);
+    if (cnList.length === 0) {
+      next.common_name = "Enter at least one common name (comma separated if multiple)";
     }
+
+    // Height as number in centimeters
+    if (!next.height) {
+      const num = Number(data.height);
+      if (Number.isNaN(num)) {
+        next.height = "Height must be a number in centimeters";
+      }
+    }
+
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -189,10 +298,60 @@ export default function PlantForm({
   async function handleSubmit(e) {
     e.preventDefault();
     if (!validate()) return;
+
     try {
       setBusy(true);
-      const payload = { ...data };
-      if (!otherEnabled) payload[OPTIONAL_KEY] = "";
+
+      const commonNames = parseCommonNames(data.common_name);
+      const heightNum = data.height ? Number(data.height) : undefined;
+
+      const flower_descriptors = {
+        color: data.color.trim(),
+        flower_inflorescence: data.flower_inflorescence.trim(),
+        value: data.value.trim(),
+        bloom_time: data.bloom_time.trim(),
+      };
+
+      const ecological_descriptors = {
+        luminance_level: data.luminance_level.trim(),
+        pH_level: data.pH_level.trim(),
+        humidity_level: data.humidity_level.trim(),
+        water_frequency: data.water_frequency.trim(),
+        temperature_range: data.temperature_range.trim(),
+      };
+
+      const other_notes = {};
+      if (otherEnabled) {
+        if (data.pests_diseases_notes.trim()) {
+          other_notes.pests_diseases_notes = data.pests_diseases_notes.trim();
+        }
+        if (data.propagation_notes.trim()) {
+          other_notes.propagation_notes = data.propagation_notes.trim();
+        }
+        if (data.invasive_species_notes.trim()) {
+          other_notes.invasive_species_notes = data.invasive_species_notes.trim();
+        }
+        if (data.conservation_status_notes.trim()) {
+          other_notes.conservation_status_notes = data.conservation_status_notes.trim();
+        }
+        if (data.local_permits_notes.trim()) {
+          other_notes.local_permits_notes = data.local_permits_notes.trim();
+        }
+      }
+
+      const payload = {
+        common_name: commonNames,
+        scientific_name: data.scientific_name.trim(),
+        family: data.family.trim(),
+        description: data.description.trim(),
+        height: heightNum,
+        maintenance_level: data.maintenance_level.trim(),
+        life_cycle: data.life_cycle.trim(),
+        flower_descriptors,
+        ecological_descriptors,
+        other_notes,
+      };
+
       await onSubmit(payload);
     } catch (err) {
       alert(err.message || "Save failed");
@@ -202,14 +361,25 @@ export default function PlantForm({
   }
 
   function renderField(key) {
-    const [label, , multiDefault] = fields.find((f) => f[1] === key);
+    const fieldDef = fields.find((f) => f[1] === key);
+    if (!fieldDef) return null;
+    const [label, , multiDefault] = fieldDef;
     const isTextArea = multiDefault;
     const isCompact = isTextArea && COMPACT_TA.has(key);
+    const isRequired = REQUIRED_KEYS.has(key);
+
+    let placeholder = `Enter ${label.toLowerCase()}`;
+    if (key === "common_name") {
+      placeholder = "Enter common name(s), separated by commas";
+    } else if (key === "height") {
+      placeholder = "Enter height in centimeters";
+    }
+
     return (
       <div className="field" key={key}>
         <div className="label-row">
           <label htmlFor={key}>{label}</label>
-          <span className="req">required</span>
+          {isRequired && <span className="req">required</span>}
         </div>
         {isTextArea ? (
           <textarea
@@ -217,7 +387,7 @@ export default function PlantForm({
             className={isCompact ? "ta-sm" : ""}
             value={data[key]}
             onChange={(e) => setField(key, e.target.value)}
-            placeholder={`Enter ${label.toLowerCase()}`}
+            placeholder={placeholder}
           />
         ) : (
           <input
@@ -225,40 +395,17 @@ export default function PlantForm({
             type="text"
             value={data[key]}
             onChange={(e) => setField(key, e.target.value)}
-            placeholder={`Enter ${label.toLowerCase()}`}
+            placeholder={placeholder}
           />
         )}
-        {errors[key] ? <div className="error">{errors[key]}</div> : <div className="helper"></div>}
+        {errors[key] ? (
+          <div className="error">{errors[key]}</div>
+        ) : (
+          <div className="helper"></div>
+        )}
       </div>
     );
   }
-
-  const flatOrder = [
-    "genus_name",
-    "common_name",
-    "scientific_name",
-    "family",
-    "description",
-    "height",
-    "maintenance_level",
-    "life_cycle",
-    "water_frequency",
-    "humidity_level",
-    "luminance_level",
-    "pH_level",
-    "temperature_range",
-    "bloom_time",
-    "value",
-    "flower_descriptors",
-    "color",
-    "flower_inflorescence",
-    "ecological_descriptors",
-    "pests_diseases_notes",
-    "propagation_notes",
-    "invasive_species_notes",
-    "conservation_status_notes",
-    "local_permits_notes",
-  ];
 
   return (
     <div>
@@ -267,57 +414,70 @@ export default function PlantForm({
         <header>
           <div>
             <h1>{mode === "edit" ? `Edit ${title}` : `Create ${title}`}</h1>
-            <div className="sub">{sub}</div>
+          <div className="sub">{sub}</div>
           </div>
-          <div className="small">All fields required except Other Notes</div>
+          <div className="small">Fields marked as required must be filled</div>
         </header>
 
         <div className="plant-form-content">
           <div className="form-grid">
-            {flatOrder.map((key) => renderField(key))}
+            <div className="section-title">Basic Information</div>
+            {[
+              "common_name",
+              "scientific_name",
+              "family",
+              "description",
+              "height",
+              "maintenance_level",
+              "life_cycle",
+            ].map((key) => renderField(key))}
 
-            {/* Centered Other Notes */}
-            <div className="other-notes-section">
-              <div className="other-notes-inner">
-                <div className="label-row" style={{ justifyContent: "center" }}>
-                  <label htmlFor={OPTIONAL_KEY} style={{ fontWeight: 500 }}>
-                    Other Notes
-                  </label>
-                </div>
-                <div className="checkbox-row" style={{ marginBottom: 6 }}>
-                  <input
-                    id="toggle-other"
-                    type="checkbox"
-                    checked={otherEnabled}
-                    onChange={(e) => setOtherEnabled(e.target.checked)}
-                  />
-                  <label htmlFor="toggle-other" className="small">
-                    Enable Other Notes
-                  </label>
-                </div>
-                <div className={otherEnabled ? "" : "locked"}>
-                  <textarea
-                    id={OPTIONAL_KEY}
-                    className="ta-sm"
-                    value={data[OPTIONAL_KEY]}
-                    onChange={(e) => setField(OPTIONAL_KEY, e.target.value)}
-                    placeholder="Enter other notes (optional)"
-                    disabled={!otherEnabled}
-                  />
-                </div>
-                {errors[OPTIONAL_KEY] ? (
-                  <div className="error">{errors[OPTIONAL_KEY]}</div>
-                ) : (
-                  <div className="helper"></div>
-                )}
-              </div>
+            <div className="section-title">Flower Descriptors</div>
+            {["color", "flower_inflorescence", "value", "bloom_time"].map((key) =>
+              renderField(key)
+            )}
+
+            <div className="section-title">Ecological Descriptors</div>
+            {[
+              "luminance_level",
+              "pH_level",
+              "humidity_level",
+              "water_frequency",
+              "temperature_range",
+            ].map((key) => renderField(key))}
+
+            <div className="section-title">Other Notes (Optional)</div>
+            <div className="checkbox-row">
+              <input
+                id="toggle-other-notes"
+                type="checkbox"
+                checked={otherEnabled}
+                onChange={(e) => setOtherEnabled(e.target.checked)}
+              />
+              <label htmlFor="toggle-other-notes">
+                Enable and show Other Notes fields
+              </label>
             </div>
+
+            {otherEnabled &&
+              [
+                "pests_diseases_notes",
+                "propagation_notes",
+                "invasive_species_notes",
+                "conservation_status_notes",
+                "local_permits_notes",
+              ].map((key) => renderField(key))}
           </div>
         </div>
 
         <div className="footer">
           {onCancel && (
-            <button type="button" className="btn" onClick={onCancel} disabled={busy}>
+            <button
+              type="button"
+              className="btn"
+              onClick={onCancel}
+              disabled={busy}
+            >
               Cancel
             </button>
           )}
