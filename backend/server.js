@@ -1,11 +1,13 @@
-    const dotenv = require('dotenv').config();
-    const express = require('express');
-    const plantsRoutes = require('./routes/plants');
-    const genusRoutes = require('./routes/genus');
-    const weatherRoutes = require('./routes/weather');
-    const rateLimit = require('express-rate-limit');
-    const mongoose = require('mongoose');
-    const cors = require('cors');   
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+
+const plantsRoutes = require('./routes/plants');
+const genusRoutes = require('./routes/genus');
+const weatherRoutes = require('./routes/weather');
+const userRoutes = require('./routes/user');  
 
     //express app
     const app = express();
@@ -25,6 +27,7 @@
     app.use('/api/plants', plantsRoutes);
     app.use('/api/genera', genusRoutes);
     app.use('/api/weather', weatherApiLimiter, weatherRoutes);
+    app.use('/api/user', userRoutes);
 
     // connect to db
     mongoose.connect(process.env.MONGO_URI)

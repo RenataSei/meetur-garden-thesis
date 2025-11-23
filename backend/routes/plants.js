@@ -1,31 +1,40 @@
-const express = require("express");
-const Plant = require("../models/plantsModel"); //gets the model
+const express = require('express');
 const router = express.Router();
+const requireAuth = require('../middleware/requireAuth');
 
 const {
-  createPlant,
-  getAllPlants,
-  getSinglePlant,
-  deletePlant,
-  updatePlant,
-} = require("../controllers/plantsController"); //gets the controller functions
+    createPlant,
+    getAllPlants,
+    getSinglePlant,
+    deletePlant,
+    updatePlant,
+    checkPlantHealth
+} = require('../controllers/plantsController');
 
-// get all plants
-router.get("/", getAllPlants);
+// Require authentication for ALL plant routes first
+router.use(requireAuth);
 
-// get a single plant
-router.get("/:id", getSinglePlant);
+// --- Helper function to block non-admins ---
+const requireAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        next(); // Is admin, proceed
+    } else {
+        res.status(403).json({ error: "Access denied. Admins only." });
+    }
+};
 
-// create a new plant
-router.post("/", createPlant);
+// --- PUBLIC ROUTES (Accessible by User & Admin) ---
+router.get('/', getAllPlants);
+router.get('/:id', getSinglePlant);
 
-// delete a plant
-router.delete("/:id", deletePlant);
+// --- ADMIN ONLY ROUTES ---
+router.post('/', requireAdmin, createPlant);       // Only Admin can create
+router.delete('/:id', requireAdmin, deletePlant);  // Only Admin can delete
+router.patch('/:id', requireAdmin, updatePlant);   // Only Admin can update
 
-// update a plant
-router.patch("/:id", updatePlant);
+// Smart Analysis Route
+// Example usage: POST /api/plants/:id/health
+// Body: { "weatherData": { "main": { "temp": 32, "humidity": 80 } } }
+router.post('/:id/health', checkPlantHealth);
 
-//exports the router to be used in server.js
 module.exports = router;
-
-

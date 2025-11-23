@@ -1,12 +1,59 @@
-const { Plant, Genus } = require("../models/plantsModel"); // Import both models
+const { Plant, Genus } = require("../models/plantsModel");
+const { analyzePlantHealth } = require('../utils/careEngine');
 const mongoose = require("mongoose");
 
-//get all plants
+// get all plants (With Search, Filter & Sort)
 const getAllPlants = async (req, res) => {
+  const { 
+    search, 
+    genus, 
+    maintenance_level, 
+    family, 
+    sort 
+  } = req.query;
+
   try {
-    //finds all plants and sorts them by most recent
-    const plants = await Plant.find({}).sort({ createdAt: -1 });
-    res.status(200).json(plants);
+    // 1. Build the Query Object dynamically
+    let query = {};
+
+    // A. Search Logic (Case-insensitive regex)
+    if (search) {
+      query.$or = [
+        { common_name: { $regex: search, $options: 'i' } },
+        { scientific_name: { $regex: search, $options: 'i' } },
+        { genus_name: { $regex: search, $options: 'i' } } // If you added genus_name to Plant schema
+      ];
+    }
+
+    // B. Filters (Exact matches)
+    if (genus) {
+      // Use regex for case-insensitivity on genus too
+      query.genus_name = { $regex: `^${genus}$`, $options: 'i' };
+    }
+    if (family) {
+      query.family = { $regex: `^${family}$`, $options: 'i' };
+    }
+    if (maintenance_level) {
+      query.maintenance_level = maintenance_level;
+    }
+
+    // 2. Handle Sorting
+    let sortOptions = { createdAt: -1 }; // Default: Newest first
+    if (sort === 'a-z') {
+      sortOptions = { scientific_name: 1 };
+    } else if (sort === 'z-a') {
+      sortOptions = { scientific_name: -1 };
+    }
+
+    // 3. Execute Query
+    const plants = await Plant.find(query).sort(sortOptions);
+
+    // 4. Return stats along with data (useful for frontend)
+    res.status(200).json({
+      count: plants.length,
+      plants
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -253,6 +300,32 @@ const getSingleGenus = async (req, res) => {
   }
 };
 
+// Check Plant Health against Weather Data
+const checkPlantHealth = async (req, res) => {
+    const { id } = req.params;
+    const { weatherData } = req.body; // Frontend sends the current local weather
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: "No such plant" });
+    }
+
+    try {
+        const plant = await Plant.findById(id);
+        if (!plant) {
+            return res.status(404).json({ error: "No such plant" });
+        }
+
+        // Run the "Smart" Logic
+        const healthStatus = analyzePlantHealth(plant, weatherData);
+
+        res.status(200).json(healthStatus);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 //exports the functions to the routes file "plants.js"
 module.exports = {
   createPlant,
@@ -260,6 +333,7 @@ module.exports = {
   getSinglePlant,
   deletePlant,
   updatePlant,
+  checkPlantHealth,
   // Genus functions
   getAllGenera,
   getSingleGenus,
