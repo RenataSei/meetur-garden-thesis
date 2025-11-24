@@ -8,6 +8,7 @@ const plantsRoutes = require('./routes/plants');
 const genusRoutes = require('./routes/genus');
 const weatherRoutes = require('./routes/weather');
 const userRoutes = require('./routes/user');  
+const gardenRoutes = require('./routes/garden');
 
     //express app
     const app = express();
@@ -28,6 +29,7 @@ const userRoutes = require('./routes/user');
     app.use('/api/genera', genusRoutes);
     app.use('/api/weather', weatherApiLimiter, weatherRoutes);
     app.use('/api/user', userRoutes);
+    app.use('/api/garden', gardenRoutes);
 
     // connect to db
     mongoose.connect(process.env.MONGO_URI)

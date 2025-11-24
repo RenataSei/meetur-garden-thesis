@@ -312,6 +312,11 @@ const checkPlantHealth = async (req, res) => {
 
     try {
         const plant = await Plant.findById(id);
+
+        console.log("🔍 User ID from Token:", req.user ? req.user._id : "No User (Guest)");
+        console.log("🌱 Plant ID from URL:", id);
+        // -----------------------------------
+
         if (!plant) {
             return res.status(404).json({ error: "No such plant" });
         }
@@ -326,6 +331,9 @@ const checkPlantHealth = async (req, res) => {
                 plant_id: id
             });
         }
+
+        console.log("🏡 Found Garden Item?", gardenItem ? "Yes" : "No");
+            if (gardenItem) console.log("💧 Last Watered:", gardenItem.last_watered);
 
         // Pass the gardenItem to the logic engine
         const healthStatus = analyzePlantHealth(plant, weatherData, gardenItem);
