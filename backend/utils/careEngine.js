@@ -19,9 +19,9 @@ const differenceInDays = (date1, date2) => {
   return diff / (1000 * 60 * 60 * 24);
 };
 
-const analyzePlantHealth = (plant, weatherData) => {
+const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
   const alerts = [];
-  const status = { health: "Good", alerts: [] };
+  const status = { health: "Optimal", alerts: [], next_actions: {} };
 
   // 1. Check Temperature
   // Weather API usually returns temp in Celsius if units='metric'
