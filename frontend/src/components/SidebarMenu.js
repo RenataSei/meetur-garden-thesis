@@ -169,10 +169,19 @@ export default function SidebarMenu() {
           <div className="drawer-title">Menu</div>
         </div>
 
-        <nav className="menu-list" onClick={close}>
-          <Link className="menu-btn" to="/plants">Manage Garden</Link>
-          <Link className="menu-btn" to="/settings">Settings</Link>
-          <Link className="menu-btn" to="/profile">View Profile</Link>
+                <nav className="menu-list" onClick={close}>
+          <Link className="menu-btn" to="/plants">
+            Manage Garden
+          </Link>
+          <Link className="menu-btn" to="/settings">
+            Settings
+          </Link>
+          <Link className="menu-btn" to="/profile">
+            View Profile
+          </Link>
+          <Link className="menu-btn" to="/logout">
+            Logout
+          </Link>
         </nav>
 
         <div className="drawer-footer">
