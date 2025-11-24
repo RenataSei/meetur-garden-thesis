@@ -4,8 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Home.css";
 import "./Auth.css";
 import { useAuthContext } from "../hooks/useAuthContext";
+import { API_BASE } from "../api";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || "/api";
 
 export default function Login() {
   const navigate = useNavigate();

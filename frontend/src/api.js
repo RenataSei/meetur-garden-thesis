@@ -2,7 +2,7 @@
 
 // Base URL for your backend.
 // With your current setup this will be "/api" and CRA proxy will forward it.
-const API_BASE = process.env.REACT_APP_API_BASE || "/api";
+export const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 
 // Helper: read token from localStorage and build Authorization header
 function getAuthHeaders() {
@@ -47,17 +47,32 @@ async function handle(res) {
 }
 
 // ---------------------------------------------------
-// PLANTS API - all routes are protected by requireAuth
+// PLANTS API – all routes are protected by requireAuth
 // ---------------------------------------------------
 
 export const PlantsAPI = {
   // GET /api/plants
-  list: () =>
-    fetch(`${API_BASE}/plants`, {
+  // Optional: accept filters as query params later
+  list: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    const url = qs ? `${API_BASE}/plants?${qs}` : `${API_BASE}/plants`;
+
+    return fetch(url, {
       headers: {
         ...getAuthHeaders()
       }
-    }).then(handle),
+    })
+      .then(handle)
+      .then((data) => {
+        // Backend returns { count, plants }
+        if (data && Array.isArray(data.plants)) {
+          return data.plants;
+        }
+        // If backend ever changes to return a bare array, still work
+        if (Array.isArray(data)) return data;
+        return [];
+      });
+  },
 
   // GET /api/plants/:id
   get: (id) =>

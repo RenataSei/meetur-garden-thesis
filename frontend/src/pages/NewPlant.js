@@ -7,8 +7,13 @@ export default function NewPlant() {
   const navigate = useNavigate();
 
   async function handleCreate(payload) {
-    await createPlant(payload);
-    navigate("/plants"); // adjust if your list route differs
+    try {
+      await createPlant(payload);
+      navigate("/plants"); // go back to Manage Garden list
+    } catch (err) {
+      // Show backend message, for example "Access denied. Admins only."
+      alert(err.message || "Failed to create plant");
+    }
   }
 
   return (
@@ -17,7 +22,7 @@ export default function NewPlant() {
         mode="create"
         title="Plant"
         sub="Fill in all required fields"
-        simpleLayout={true}          // flat, compact, centered 'Other Notes'
+        simpleLayout={true}
         onCancel={() => navigate("/plants")}
         onSubmit={handleCreate}
       />
