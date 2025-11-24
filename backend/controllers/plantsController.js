@@ -1,4 +1,5 @@
 const { Plant, Genus } = require("../models/plantsModel");
+const GardenItem = require("../models/gardenModel");
 const { analyzePlantHealth } = require('../utils/careEngine');
 const mongoose = require("mongoose");
 
@@ -303,7 +304,7 @@ const getSingleGenus = async (req, res) => {
 // Check Plant Health against Weather Data
 const checkPlantHealth = async (req, res) => {
     const { id } = req.params;
-    const { weatherData } = req.body; // Frontend sends the current local weather
+    const { weatherData } = req.body; // Frontend sends current weather
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ error: "No such plant" });
@@ -315,16 +316,27 @@ const checkPlantHealth = async (req, res) => {
             return res.status(404).json({ error: "No such plant" });
         }
 
-        // Run the "Smart" Logic
-        const healthStatus = analyzePlantHealth(plant, weatherData);
+        // --- FETCH USER DATA (This is the Critical Fix) ---
+        let gardenItem = null;
+
+        // Only look for garden data if user is logged in (req.user exists)
+        if (req.user) {
+            gardenItem = await GardenItem.findOne({
+                user_id: req.user._id,
+                plant_id: id
+            });
+        }
+
+        // Pass the gardenItem to the logic engine
+        const healthStatus = analyzePlantHealth(plant, weatherData, gardenItem);
 
         res.status(200).json(healthStatus);
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: error.message });
     }
 };
-
 
 //exports the functions to the routes file "plants.js"
 module.exports = {

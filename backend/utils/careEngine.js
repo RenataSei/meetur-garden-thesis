@@ -19,7 +19,7 @@ const differenceInDays = (date1, date2) => {
   return diff / (1000 * 60 * 60 * 24);
 };
 
-const analyzePlantHealth = (plant, weatherData) => {
+const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
   const alerts = [];
   const status = { health: "Good", alerts: [] };
 
