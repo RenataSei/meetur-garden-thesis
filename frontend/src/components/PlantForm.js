@@ -22,23 +22,78 @@ const styles = `
   padding: 16px 18px;
   display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid rgba(255,255,255,.10);
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+  background: linear-gradient(90deg, rgba(153,246,228,.05), rgba(94,234,212,.04));
 }
-.plant-form-card h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
-.plant-form-card .sub { font-size: 13px; opacity: .85; }
-.plant-form-content { padding: 16px; max-height: 70vh; overflow: auto; }
-.form-grid { display: grid; gap: 12px; }
-@media (min-width: 860px) {
-  .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.plant-form-card header h1 {
+  font-size: 20px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin: 0 0 4px;
 }
-
-.field { display: grid; gap: 6px; margin-bottom: 10px; }
+.plant-form-card header .sub {
+  font-size: 13px;
+  opacity: .85;
+}
+.plant-form-card header .small {
+  font-size: 11px;
+  opacity: .7;
+}
+.plant-form-card form {
+  padding: 18px 18px 20px;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.grid-1 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+.section {
+  background: radial-gradient(circle at top left, rgba(148, 163, 184, .28), rgba(15,23,42,.96));
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,.35);
+  padding: 14px 14px 10px;
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,.9);
+}
+.section + .section {
+  margin-top: 14px;
+}
+.section-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-size: 13px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  opacity: .8;
+}
+.section-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.8);
+  border: 1px solid rgba(148,163,184,.55);
+}
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .field:last-child { margin-bottom: 0; }
 .label-row { display: flex; align-items: center; justify-content: space-between; }
 .label-row label { font-size: 14px; }
 .req { font-size: 11px; opacity: .75; }
 
-input[type="text"], textarea {
+input[type="text"], textarea, select {
   width: 100%;
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,.16);
@@ -47,32 +102,37 @@ input[type="text"], textarea {
   color: #e9f0ff;
   outline: none;
 }
-input[type="text"]:focus, textarea:focus {
+input[type="text"]:focus, textarea:focus, select:focus {
   border-color: rgba(120,180,255,.55);
   box-shadow: 0 0 0 3px rgba(120,180,255,.18);
 }
 textarea { min-height: 90px; resize: vertical; }
 
-/* Compact textarea style */
-textarea.ta-sm {
-  min-height: 64px;
-  padding: 8px 10px;
-  line-height: 1.25;
-  font-size: 14px;
-}
+/* Compact textareas */
+.ta-sm { min-height: 60px; }
 
 .footer {
-  padding: 12px 16px;
-  border-top: 1px solid rgba(255,255,255,.10);
-  background: linear-gradient(0deg, rgba(255,255,255,.06), rgba(255,255,255,0));
-  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148,163,184,.35);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 .btn {
+  min-width: 112px;
+  padding: 8px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.16);
-  padding: 10px 14px;
-  background: rgba(12,20,32,.70);
-  color: #e9f0ff; cursor: pointer;
+  border: 1px solid rgba(148,163,184,.7);
+  background: rgba(15,23,42,.9);
+  color: #e5edff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn[disabled] {
+  opacity: .55;
+  cursor: default;
 }
 .btn:hover { filter: brightness(1.05); }
 .btn.primary { background: linear-gradient(180deg, #6bd18a, #8fd081); color: #07141b; border: none; }
@@ -82,25 +142,21 @@ textarea.ta-sm {
 .section-title {
   grid-column: 1 / -1;
   font-size: 13px;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  letter-spacing: .12em;
-  opacity: .75;
-  margin-top: 4px;
+  opacity: .8;
 }
-.checkbox-row {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 0 8px;
-  font-size: 13px;
+@media (max-width: 900px) {
+  .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 `;
 
-// [label, key, isMultiline]
+// Field definitions, grouped visually in the form layout
 const fields = [
   // Basic info
-  ["Genus Name", "genus_name", false], // <--- ADDED THIS
+  ["Genus Name", "genus_name", false], // ADDED
   ["Common Name(s)", "common_name", false],
   ["Scientific Name", "scientific_name", false],
   ["Family", "family", false],
@@ -132,7 +188,7 @@ const fields = [
 
 // Keys that are required according to the backend schema
 const REQUIRED_KEYS = new Set([
-  "genus_name", // <--- ADDED THIS
+  "genus_name", // ADDED
   "common_name",
   "scientific_name",
   "family",
@@ -150,6 +206,21 @@ const REQUIRED_KEYS = new Set([
   "water_frequency",
   "temperature_range",
 ]);
+
+// Fields that should be rendered as dropdowns with predefined options
+const SELECT_OPTIONS = {
+  maintenance_level: ["Low", "Moderate", "High"],
+  life_cycle: ["Annual", "Biennial", "Perennial"],
+  humidity_level: ["Low", "Moderate", "High"],
+  conservation_status_notes: [
+    "Least concern",
+    "Near threatened",
+    "Vulnerable",
+    "Endangered",
+    "Critically endangered",
+    "Extinct in the wild",
+  ],
+};
 
 // Textareas that should be compact
 const COMPACT_TA = new Set([
@@ -189,94 +260,84 @@ export default function PlantForm({
   const [data, setData] = useState(blank);
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
-  const [otherEnabled, setOtherEnabled] = useState(false);
 
-  // Flatten initialData from backend schema for edit mode
   useEffect(() => {
     if (!initialData) return;
 
     const next = { ...blank };
 
-    // <--- ADDED THIS: Handle Genus Name
-    next.genus_name = initialData.genus_name || ""; 
-
+    // Basic mapping
+    next.genus_name = initialData.genus_name || "";
     next.common_name = Array.isArray(initialData.common_name)
       ? initialData.common_name.join(", ")
       : initialData.common_name || "";
-
     next.scientific_name = initialData.scientific_name || "";
     next.family = initialData.family || "";
     next.description = initialData.description || "";
     next.height =
-      initialData.height !== undefined && initialData.height !== null
+      initialData.height === 0 || initialData.height
         ? String(initialData.height)
         : "";
 
     next.maintenance_level = initialData.maintenance_level || "";
     next.life_cycle = initialData.life_cycle || "";
 
-    const fd = initialData.flower_descriptors || {};
-    next.color = fd.color || "";
-    next.flower_inflorescence = fd.flower_inflorescence || "";
-    next.value = fd.value || "";
-    next.bloom_time = fd.bloom_time || "";
+    // Flower descriptors
+    const flower = initialData.flower_descriptors || {};
+    next.color = flower.color || "";
+    next.flower_inflorescence = flower.flower_inflorescence || "";
+    next.value = flower.value || "";
+    next.bloom_time = flower.bloom_time || "";
 
-    const ed = initialData.ecological_descriptors || {};
-    next.luminance_level = ed.luminance_level || "";
-    next.pH_level = ed.pH_level || "";
-    next.humidity_level = ed.humidity_level || "";
-    next.water_frequency = ed.water_frequency || "";
-    next.temperature_range = ed.temperature_range || "";
+    // Ecological descriptors
+    const eco = initialData.ecological_descriptors || {};
+    next.luminance_level = eco.luminance_level || "";
+    next.pH_level = eco.pH_level || "";
+    next.humidity_level = eco.humidity_level || "";
+    next.water_frequency = eco.water_frequency || "";
+    next.temperature_range = eco.temperature_range || "";
 
-    const on = initialData.other_notes || {};
-    next.pests_diseases_notes = on.pests_diseases_notes || "";
-    next.propagation_notes = on.propagation_notes || "";
-    next.invasive_species_notes = on.invasive_species_notes || "";
-    next.conservation_status_notes = on.conservation_status_notes || "";
-    next.local_permits_notes = on.local_permits_notes || "";
-
-    const hasOther =
-      (on.pests_diseases_notes && on.pests_diseases_notes.trim().length > 0) ||
-      (on.propagation_notes && on.propagation_notes.trim().length > 0) ||
-      (on.invasive_species_notes && on.invasive_species_notes.trim().length > 0) ||
-      (on.conservation_status_notes && on.conservation_status_notes.trim().length > 0) ||
-      (on.local_permits_notes && on.local_permits_notes.trim().length > 0);
+    // Other notes
+    const notes = initialData.other_notes || {};
+    next.pests_diseases_notes = notes.pests_diseases_notes || "";
+    next.propagation_notes = notes.propagation_notes || "";
+    next.invasive_species_notes = notes.invasive_species_notes || "";
+    next.conservation_status_notes = notes.conservation_status_notes || "";
+    next.local_permits_notes = notes.local_permits_notes || "";
 
     setData(next);
-    setOtherEnabled(hasOther);
   }, [initialData, blank]);
 
   function setField(key, value) {
-    setData((d) => ({ ...d, [key]: value }));
-    setErrors((e) => ({ ...e, [key]: "" }));
+    setData((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
   }
 
   function validate() {
-    const next = {};
+    const errs = {};
 
-    REQUIRED_KEYS.forEach((key) => {
-      const value = data[key];
-      if (!value || !String(value).trim()) {
-        next[key] = "Required";
+    for (const [label, key] of fields) {
+      const required = REQUIRED_KEYS.has(key);
+      let value = data[key];
+
+      if (typeof value === "string") {
+        value = value.trim();
       }
-    });
 
-    // Extra validation for common_name
-    const cnList = parseCommonNames(data.common_name);
-    if (cnList.length === 0) {
-      next.common_name = "Enter at least one common name (comma separated if multiple)";
+      if (required && (!value && value !== 0)) {
+        errs[key] = `${label} is required`;
+        continue;
+      }
+
+      if (key === "height") {
+        if (value && Number.isNaN(Number(value))) {
+          errs[key] = "Height must be a number";
+        }
+      }
     }
 
-    // Height as number in centimeters
-    if (!next.height) {
-      const num = Number(data.height);
-      if (Number.isNaN(num)) {
-        next.height = "Height must be a number in centimeters";
-      }
-    }
-
-    setErrors(next);
-    return Object.keys(next).length === 0;
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   }
 
   async function handleSubmit(e) {
@@ -286,8 +347,9 @@ export default function PlantForm({
     try {
       setBusy(true);
 
-      const commonNames = parseCommonNames(data.common_name);
-      const heightNum = data.height ? Number(data.height) : undefined;
+      const heightRaw = data.height.trim();
+      const heightNum =
+        heightRaw === "" ? 0 : Number.isNaN(Number(heightRaw)) ? 0 : Number(heightRaw);
 
       const flower_descriptors = {
         color: data.color.trim(),
@@ -304,28 +366,17 @@ export default function PlantForm({
         temperature_range: data.temperature_range.trim(),
       };
 
-      const other_notes = {};
-      if (otherEnabled) {
-        if (data.pests_diseases_notes.trim()) {
-          other_notes.pests_diseases_notes = data.pests_diseases_notes.trim();
-        }
-        if (data.propagation_notes.trim()) {
-          other_notes.propagation_notes = data.propagation_notes.trim();
-        }
-        if (data.invasive_species_notes.trim()) {
-          other_notes.invasive_species_notes = data.invasive_species_notes.trim();
-        }
-        if (data.conservation_status_notes.trim()) {
-          other_notes.conservation_status_notes = data.conservation_status_notes.trim();
-        }
-        if (data.local_permits_notes.trim()) {
-          other_notes.local_permits_notes = data.local_permits_notes.trim();
-        }
-      }
+      const other_notes = {
+        pests_diseases_notes: data.pests_diseases_notes.trim(),
+        propagation_notes: data.propagation_notes.trim(),
+        invasive_species_notes: data.invasive_species_notes.trim(),
+        conservation_status_notes: data.conservation_status_notes.trim(),
+        local_permits_notes: data.local_permits_notes.trim(),
+      };
 
       const payload = {
-        genus_name: data.genus_name.trim(), // <--- ADDED THIS: Required by backend
-        common_name: commonNames,
+        genus_name: data.genus_name.trim(),
+        common_name: parseCommonNames(data.common_name),
         scientific_name: data.scientific_name.trim(),
         family: data.family.trim(),
         description: data.description.trim(),
@@ -374,6 +425,19 @@ export default function PlantForm({
             onChange={(e) => setField(key, e.target.value)}
             placeholder={placeholder}
           />
+        ) : SELECT_OPTIONS[key] ? (
+          <select
+            id={key}
+            value={data[key]}
+            onChange={(e) => setField(key, e.target.value)}
+          >
+            <option value="">Select {label.toLowerCase()}</option>
+            {SELECT_OPTIONS[key].map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
         ) : (
           <input
             id={key}
@@ -399,60 +463,75 @@ export default function PlantForm({
         <header>
           <div>
             <h1>{mode === "edit" ? `Edit ${title}` : `Create ${title}`}</h1>
-          <div className="sub">{sub}</div>
+            <div className="sub">{sub}</div>
           </div>
           <div className="small">Fields marked as required must be filled</div>
         </header>
 
-        <div className="plant-form-content">
-          <div className="form-grid">
-            <div className="section-title">Basic Information</div>
-            {[
-              "genus_name", // <--- ADDED THIS: Renders the new field
-              "common_name",
-              "scientific_name",
-              "family",
-              "description",
-              "height",
-              "maintenance_level",
-              "life_cycle",
-            ].map((key) => renderField(key))}
-
-            <div className="section-title">Flower Descriptors</div>
-            {["color", "flower_inflorescence", "value", "bloom_time"].map((key) =>
-              renderField(key)
-            )}
-
-            <div className="section-title">Ecological Descriptors</div>
-            {[
-              "luminance_level",
-              "pH_level",
-              "humidity_level",
-              "water_frequency",
-              "temperature_range",
-            ].map((key) => renderField(key))}
-
-            <div className="section-title">Other Notes (Optional)</div>
-            <div className="checkbox-row">
-              <input
-                id="toggle-other-notes"
-                type="checkbox"
-                checked={otherEnabled}
-                onChange={(e) => setOtherEnabled(e.target.checked)}
-              />
-              <label htmlFor="toggle-other-notes">
-                Enable and show Other Notes fields
-              </label>
+        <div className={simpleLayout ? "grid-1" : "grid-2"}>
+          <div className="section">
+            <div className="section-title-row">
+              <div className="section-title">Basic information</div>
+              <div className="section-tag">Identity</div>
             </div>
+            <div className="fields">
+              {[
+                "genus_name",
+                "common_name",
+                "scientific_name",
+                "family",
+                "description",
+                "height",
+                "maintenance_level",
+                "life_cycle",
+              ].map((key) => renderField(key))}
+            </div>
+          </div>
 
-            {otherEnabled &&
-              [
+          <div className="section">
+            <div className="section-title-row">
+              <div className="section-title">Flower descriptors</div>
+              <div className="section-tag">Structure</div>
+            </div>
+            <div className="fields">
+              {["color", "flower_inflorescence", "value", "bloom_time"].map(
+                (key) => renderField(key)
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={simpleLayout ? "grid-1" : "grid-2"}>
+          <div className="section">
+            <div className="section-title-row">
+              <div className="section-title">Ecological descriptors</div>
+              <div className="section-tag">Environment</div>
+            </div>
+            <div className="fields">
+              {[
+                "luminance_level",
+                "pH_level",
+                "humidity_level",
+                "water_frequency",
+                "temperature_range",
+              ].map((key) => renderField(key))}
+            </div>
+          </div>
+
+          <div className="section">
+            <div className="section-title-row">
+              <div className="section-title">Other notes</div>
+              <div className="section-tag">Additional</div>
+            </div>
+            <div className="fields">
+              {[
                 "pests_diseases_notes",
                 "propagation_notes",
                 "invasive_species_notes",
                 "conservation_status_notes",
                 "local_permits_notes",
               ].map((key) => renderField(key))}
+            </div>
           </div>
         </div>
 
