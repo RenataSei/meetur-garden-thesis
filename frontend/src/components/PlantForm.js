@@ -3,151 +3,247 @@ import { useEffect, useMemo, useState } from "react";
 
 /**
  * Form aligned with backend plantSchema.
- * UPDATED: Now includes 'genus_name' required by the CreatePlant controller.
+ * Visual design updated to a light, clean layout similar to picture 1.
  */
 
 const styles = `
+.plant-form-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 32px 16px 48px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: radial-gradient(circle at top, #e8ffe8 0, #f8fffb 45%, #ffffff 100%);
+}
+
+/* Hero header (big title like screenshot 1) */
+.plant-form-hero {
+  text-align: center;
+  margin-bottom: 24px;
+  max-width: 900px;
+}
+.plant-form-hero-title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #16c45b;
+  margin: 0 0 8px;
+}
+.plant-form-hero-sub {
+  font-size: 1rem;
+  color: #4b5563;
+  margin: 0 0 4px;
+}
+.plant-form-hero-small {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Main white card */
 .plant-form-card {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(7, 14, 24, .35);
-  backdrop-filter: saturate(140%) blur(6px);
-  box-shadow: 0 18px 50px rgba(0,0,0,.35);
-  overflow: hidden;
+  border-radius: 32px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  padding: 32px 40px 28px;
+  box-sizing: border-box;
 }
-.plant-form-card header {
-  padding: 16px 18px;
-  display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 1px solid rgba(255,255,255,.10);
-  background: linear-gradient(90deg, rgba(153,246,228,.05), rgba(94,234,212,.04));
-}
-.plant-form-card header h1 {
-  font-size: 20px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  margin: 0 0 4px;
-}
-.plant-form-card header .sub {
-  font-size: 13px;
-  opacity: .85;
-}
-.plant-form-card header .small {
-  font-size: 11px;
-  opacity: .7;
-}
-.plant-form-card form {
-  padding: 18px 18px 20px;
-}
+
+/* Layout for the sections */
 .grid-2 {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 18px;
+  gap: 28px;
+  margin-top: 8px;
 }
 .grid-1 {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
+  gap: 28px;
+  margin-top: 8px;
 }
+
+/* Section styling (BASIC INFORMATION, FLOWER DESCRIPTORS, etc.) */
 .section {
-  background: radial-gradient(circle at top left, rgba(148, 163, 184, .28), rgba(15,23,42,.96));
-  border-radius: 14px;
-  border: 1px solid rgba(148,163,184,.35);
-  padding: 14px 14px 10px;
-  box-shadow: inset 0 0 0 1px rgba(15,23,42,.9);
+  border-radius: 18px;
+  padding: 16px 0 6px;
 }
 .section + .section {
-  margin-top: 14px;
+  margin-top: 12px;
 }
+
 .section-title-row {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   margin-bottom: 8px;
 }
 .section-title {
-  font-size: 13px;
-  letter-spacing: .18em;
+  font-size: 0.8rem;
+  letter-spacing: 0.20em;
   text-transform: uppercase;
-  opacity: .8;
+  color: #9ca3af;
 }
 .section-tag {
-  font-size: 11px;
-  padding: 2px 8px;
+  font-size: 0.75rem;
+  padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(15,23,42,.8);
-  border: 1px solid rgba(148,163,184,.55);
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
 }
-.fields {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+.section-body {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
-.field {
+
+/* Field rows: label on left, input on right */
+.field-row {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 12px 24px;
+  align-items: flex-start;
+}
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.field-label label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+.field-req {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+.field-control {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.field:last-child { margin-bottom: 0; }
-.label-row { display: flex; align-items: center; justify-content: space-between; }
-.label-row label { font-size: 14px; }
-.req { font-size: 11px; opacity: .75; }
 
-input[type="text"], textarea, select {
+/* Inputs, selects, textareas */
+input[type="text"],
+textarea,
+select {
   width: 100%;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.16);
-  padding: 10px 12px;
-  background: rgba(12,20,32,.70);
-  color: #e9f0ff;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 9px 14px;
+  background: #f9fafb;
+  color: #111827;
   outline: none;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
-input[type="text"]:focus, textarea:focus, select:focus {
-  border-color: rgba(120,180,255,.55);
-  box-shadow: 0 0 0 3px rgba(120,180,255,.18);
+textarea {
+  border-radius: 16px;
+  min-height: 80px;
+  resize: vertical;
 }
-textarea { min-height: 90px; resize: vertical; }
+.ta-sm {
+  min-height: 60px;
+}
+input[type="text"]::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #16c45b;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(22, 196, 91, 0.35);
+}
 
-/* Compact textareas */
-.ta-sm { min-height: 60px; }
+/* Helper and error text */
+.field-helper {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  min-height: 16px;
+}
+.field-error {
+  font-size: 0.8rem;
+  color: #b91c1c;
+  min-height: 16px;
+}
 
+/* Footer buttons */
 .footer {
-  margin-top: 18px;
+  margin-top: 22px;
   padding-top: 14px;
-  border-top: 1px solid rgba(148,163,184,.35);
+  border-top: 1px solid #e5e7eb;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 .btn {
   min-width: 112px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(148,163,184,.7);
-  background: rgba(15,23,42,.9);
-  color: #e5edff;
-  font-size: 14px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  color: #111827;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease, filter 0.1s ease;
 }
 .btn[disabled] {
-  opacity: .55;
+  opacity: 0.55;
   cursor: default;
 }
-.btn:hover { filter: brightness(1.05); }
-.btn.primary { background: linear-gradient(180deg, #6bd18a, #8fd081); color: #07141b; border: none; }
-.error { color: #ff8c8c; font-size: 12px; }
-.helper { font-size: 12px; opacity: .8; }
-.small { font-size: 12px; opacity: .9; }
-.section-title {
-  grid-column: 1 / -1;
-  font-size: 13px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  opacity: .8;
+.btn:hover:not([disabled]) {
+  filter: brightness(1.02);
+  box-shadow: 0 8px 18px rgba(148, 163, 184, 0.4);
 }
+.btn.primary {
+  border: none;
+  background: linear-gradient(135deg, #16c45b, #22c55e);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(22, 196, 91, 0.35);
+}
+.btn.primary:hover:not([disabled]) {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 40px rgba(22, 196, 91, 0.45);
+}
+.btn.primary:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 10px 25px rgba(22, 196, 91, 0.3);
+}
+
+/* Responsive tweaks */
 @media (max-width: 900px) {
   .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .plant-form-card {
+    padding: 24px 18px 22px;
+  }
+}
+@media (max-width: 640px) {
+  .plant-form-page {
+    padding: 24px 10px 40px;
+  }
+  .plant-form-hero-title {
+    font-size: 2.1rem;
+  }
+  .field-row {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -411,70 +507,77 @@ export default function PlantForm({
       placeholder = "Enter height in centimeters";
     }
 
+    const hasError = !!errors[key];
+
     return (
-      <div className="field" key={key}>
-        <div className="label-row">
+      <div className="field-row" key={key}>
+        <div className="field-label">
           <label htmlFor={key}>{label}</label>
-          {isRequired && <span className="req">required</span>}
+          {isRequired && <span className="field-req">Required</span>}
         </div>
-        {isTextArea ? (
-          <textarea
-            id={key}
-            className={isCompact ? "ta-sm" : ""}
-            value={data[key]}
-            onChange={(e) => setField(key, e.target.value)}
-            placeholder={placeholder}
-          />
-        ) : SELECT_OPTIONS[key] ? (
-          <select
-            id={key}
-            value={data[key]}
-            onChange={(e) => setField(key, e.target.value)}
-          >
-            <option value="">Select {label.toLowerCase()}</option>
-            {SELECT_OPTIONS[key].map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <input
-            id={key}
-            type="text"
-            value={data[key]}
-            onChange={(e) => setField(key, e.target.value)}
-            placeholder={placeholder}
-          />
-        )}
-        {errors[key] ? (
-          <div className="error">{errors[key]}</div>
-        ) : (
-          <div className="helper"></div>
-        )}
+        <div className="field-control">
+          {isTextArea ? (
+            <textarea
+              id={key}
+              className={isCompact ? "ta-sm" : ""}
+              value={data[key]}
+              onChange={(e) => setField(key, e.target.value)}
+              placeholder={placeholder}
+            />
+          ) : SELECT_OPTIONS[key] ? (
+            <select
+              id={key}
+              value={data[key]}
+              onChange={(e) => setField(key, e.target.value)}
+            >
+              <option value="">Select {label.toLowerCase()}</option>
+              {SELECT_OPTIONS[key].map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id={key}
+              type="text"
+              value={data[key]}
+              onChange={(e) => setField(key, e.target.value)}
+              placeholder={placeholder}
+            />
+          )}
+          {hasError ? (
+            <div className="field-error">{errors[key]}</div>
+          ) : (
+            <div className="field-helper"></div>
+          )}
+        </div>
       </div>
     );
   }
 
-  return (
-    <div>
-      <style>{styles}</style>
-      <form className="plant-form-card" onSubmit={handleSubmit} noValidate>
-        <header>
-          <div>
-            <h1>{mode === "edit" ? `Edit ${title}` : `Create ${title}`}</h1>
-            <div className="sub">{sub}</div>
-          </div>
-          <div className="small">Fields marked as required must be filled</div>
-        </header>
+  const heroTitle = mode === "edit" ? `Edit ${title}` : `Create ${title}`;
 
+  return (
+    <div className="plant-form-page">
+      <style>{styles}</style>
+
+      <div className="plant-form-hero">
+        <h1 className="plant-form-hero-title">{heroTitle}</h1>
+        <p className="plant-form-hero-sub">{sub}</p>
+        <p className="plant-form-hero-small">
+          Fields marked as required must be filled
+        </p>
+      </div>
+
+      <form className="plant-form-card" onSubmit={handleSubmit} noValidate>
+        {/* Basic info + Flower descriptors */}
         <div className={simpleLayout ? "grid-1" : "grid-2"}>
           <div className="section">
             <div className="section-title-row">
               <div className="section-title">Basic information</div>
-              <div className="section-tag">Identity</div>
             </div>
-            <div className="fields">
+            <div className="section-body">
               {[
                 "genus_name",
                 "common_name",
@@ -491,9 +594,8 @@ export default function PlantForm({
           <div className="section">
             <div className="section-title-row">
               <div className="section-title">Flower descriptors</div>
-              <div className="section-tag">Structure</div>
             </div>
-            <div className="fields">
+            <div className="section-body">
               {["color", "flower_inflorescence", "value", "bloom_time"].map(
                 (key) => renderField(key)
               )}
@@ -501,13 +603,13 @@ export default function PlantForm({
           </div>
         </div>
 
+        {/* Ecological descriptors + Other notes */}
         <div className={simpleLayout ? "grid-1" : "grid-2"}>
           <div className="section">
             <div className="section-title-row">
               <div className="section-title">Ecological descriptors</div>
-              <div className="section-tag">Environment</div>
             </div>
-            <div className="fields">
+            <div className="section-body">
               {[
                 "luminance_level",
                 "pH_level",
@@ -521,9 +623,8 @@ export default function PlantForm({
           <div className="section">
             <div className="section-title-row">
               <div className="section-title">Other notes</div>
-              <div className="section-tag">Additional</div>
             </div>
-            <div className="fields">
+            <div className="section-body">
               {[
                 "pests_diseases_notes",
                 "propagation_notes",
@@ -547,7 +648,11 @@ export default function PlantForm({
             </button>
           )}
           <button type="submit" className="btn primary" disabled={busy}>
-            {busy ? "Saving..." : mode === "edit" ? "Save Changes" : "Create Plant"}
+            {busy
+              ? "Saving..."
+              : mode === "edit"
+              ? "Save Changes"
+              : "Create Plant"}
           </button>
         </div>
       </form>
