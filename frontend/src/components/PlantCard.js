@@ -1,27 +1,46 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import "./PlantCard.css";
 
 export default function PlantCard({ plant, onDelete }) {
-  // Safe access for the common name (since it's an array)
-  // We take the first name in the list, or fallback if empty
-  const displayName = plant.common_name && plant.common_name.length > 0 
-    ? plant.common_name[0] 
-    : "Unnamed Plant";
+  // common name in API is an array, use first value if available
+  const displayName =
+    plant.common_name && plant.common_name.length > 0
+      ? plant.common_name[0]
+      : "Unnamed Plant";
+
+  const scientificName = plant.scientific_name || "Unknown species";
+
+  // keep same behaviour as before - short preview plus "..."
+  const previewDescription = `${(plant.description || "").slice(0, 100)}...`;
 
   return (
-    <div className="card">
-      {/* FIXED: Use the variable we defined above */}
-      <h3>{displayName}</h3>
-      
-      {/* FIXED: Use 'scientific_name' instead of 'species' */}
-      <p><i>{plant.scientific_name}</i></p>
-      
-      {/* Description is fine, but good to keep the safe check */}
-      <p>{(plant.description || '').slice(0, 100)}...</p>
-      
-      <div className="row">
-        <Link className="btn" to={`/plants/${plant._id}`}>Open</Link>
-        <button className="btn danger" onClick={() => onDelete(plant._id)}>Delete</button>
+    <article className="plant-card">
+      <header className="plant-card__header">
+        <h3 className="plant-card__title">{displayName}</h3>
+
+        <p className="plant-card__subtitle">
+          <span className="plant-card__subtitle-label">Species:</span>{" "}
+          <span className="plant-card__subtitle-text">
+            <i>{scientificName}</i>
+          </span>
+        </p>
+      </header>
+
+      <p className="plant-card__description">{previewDescription}</p>
+
+      <div className="plant-card__actions">
+        <Link className="btn plant-card__btn" to={`/plants/${plant._id}`}>
+          Open
+        </Link>
+
+        <button
+          type="button"
+          className="btn danger plant-card__btn-danger"
+          onClick={() => onDelete(plant._id)}
+        >
+          Delete
+        </button>
       </div>
-    </div>
+    </article>
   );
 }

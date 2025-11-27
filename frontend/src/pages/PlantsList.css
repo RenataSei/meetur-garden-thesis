@@ -13,7 +13,7 @@
   --shadow-2:0 12px 40px rgba(76,120,255,.15);
 }
 
-/* ===== Base ===== */
+/* ===== Base layout for Your Garden page ===== */
 .list {
   min-height:100vh;
   padding:30px;
@@ -24,7 +24,8 @@
   font-family:'Inter',sans-serif;
   color:var(--gray-700);
   position:relative;
-  overflow:hidden;
+  /* allow the page to grow and scroll */
+  overflow:visible;
 }
 
 /* Floating color bubbles */
@@ -54,6 +55,7 @@
   align-items:center;
   margin-bottom:30px;
 }
+
 .list__title {
   margin:0;
   font-size:28px;
@@ -71,11 +73,13 @@
   padding:10px 20px;
   transition:all .2s ease;
 }
+
 .btn--primary {
   background:linear-gradient(180deg, var(--green-600), #3f9b5d);
   color:var(--white);
   box-shadow:0 10px 20px rgba(76,175,107,.28);
 }
+
 .btn--primary:hover {
   box-shadow:0 14px 26px rgba(76,175,107,.35);
 }
@@ -96,6 +100,7 @@
   text-align:center;
   color:#555;
 }
+
 .error {
   text-align:center;
   color:red;
@@ -104,6 +109,7 @@
   border-radius:10px;
   margin-bottom:20px;
 }
+
 .empty {
   text-align:center;
   font-size:16px;
@@ -122,8 +128,86 @@
   margin-top:20px;
 }
 
+/* ===== Pagination ===== */
+.list__pagination {
+  margin-top:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.list__page-btn {
+  padding:6px 16px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.12);
+  background:rgba(255,255,255,.9);
+  font-size:13px;
+  font-weight:600;
+  color:var(--gray-700);
+  cursor:pointer;
+  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
+  box-shadow:0 6px 14px rgba(15,23,42,.12);
+}
+
+.list__page-btn:hover:not(:disabled) {
+  background:#f3f4f6;
+  transform:translateY(-1px);
+}
+
+.list__page-btn:disabled {
+  opacity:.5;
+  cursor:default;
+  box-shadow:none;
+}
+
+/* container for numbered page buttons */
+.list__page-numbers {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+/* individual page number button */
+.list__page-number {
+  min-width:32px;
+  height:32px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.12);
+  background:rgba(255,255,255,.9);
+  font-size:13px;
+  font-weight:500;
+  color:var(--gray-700);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 10px rgba(15,23,42,.08);
+  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.list__page-number:hover {
+  background:#f3f4f6;
+  transform:translateY(-1px);
+}
+
+/* active page style */
+.list__page-number--active {
+  background:var(--green-600);
+  color:var(--white);
+  border-color:var(--green-600);
+  box-shadow:0 6px 16px rgba(76,175,107,.4);
+}
+
+.list__page-info {
+  font-size:13px;
+  color:#6b7280;
+}
+
 /* ===== Responsive ===== */
 @media(max-width:768px){
-  .list__title { font-size:24px }
-  .list__content { padding:28px 20px }
+  .list__title { font-size:24px; }
+  .list__content { padding:28px 20px; }
 }
