@@ -150,6 +150,51 @@ body {
   flex-wrap: wrap;
 }
 
+/* Hero search (pixel style) */
+.hero__search {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 2px dashed rgba(148, 163, 184, 0.7);
+}
+
+.hero__search-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.hero__search-input {
+  flex: 1;
+  font-size: 9px;
+  padding: 8px 10px;
+  border: var(--border-width) solid var(--bg-deep);
+  border-radius: 0;
+  background-color: #f1f5f9;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,0.25);
+  outline: none;
+}
+
+.hero__search-input:focus {
+  background-color: var(--pure-white);
+  box-shadow: 0 0 0 2px var(--leaf-green);
+}
+
+.hero__search-select {
+  font-size: 8px;
+  padding: 8px 10px;
+  border: var(--border-width) solid var(--bg-deep);
+  border-radius: 0;
+  background-color: #e2e8f0;
+  color: var(--text-on-light);
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+  outline: none;
+}
+
+.hero__search-btn {
+  padding-inline: 14px;
+}
+
 /* ===== 5. BUTTONS (Smaller Actions) ===== */
 .btn {
   appearance: none;
