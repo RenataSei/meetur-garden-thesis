@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
-import { PlantsAPI } from "../api";
+import { PlantsAPI, GardenAPI } from "../api";
+import { AuthContext } from "../contexts/AuthContext";
 import PlantCard from "../components/PlantCard";
 import "./PlantsList.css";
 
@@ -8,6 +9,7 @@ export default function PlantsList() {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const { user } = useContext(AuthContext);
 
   // Frontend only pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,6 +36,33 @@ export default function PlantsList() {
     load();
   }, []);
 
+
+  // --- NEW: Add to Garden Handler ---
+  async function handleAddToGarden(plant) {
+    if (!user) {
+      alert("Please log in to add plants to your garden.");
+      return;
+    }
+
+    // Default nickname is the first common name
+    const defaultName = Array.isArray(plant.common_name) 
+      ? plant.common_name[0] 
+      : plant.common_name;
+
+    const nickname = window.prompt(`Give your ${defaultName} a nickname:`, defaultName);
+    
+    if (nickname === null) return; // User cancelled
+
+    try {
+      await GardenAPI.add(plant._id, nickname);
+      alert(`🌱 Successfully added ${nickname} to your garden!`);
+    } catch (e) {
+      alert(e.message || "Failed to add to garden");
+    }
+  }
+
+
+  // --- EXISTING HANDLERS ---
   function handleSearchChange(event) {
     setSearchTerm(event.target.value);
     setCurrentPage(1);
@@ -282,7 +311,16 @@ export default function PlantsList() {
           <>
             <div className="grid">
               {currentPlants.map((p) => (
-                <PlantCard key={p._id} plant={p} onDelete={handleDelete} />
+                <PlantCard 
+                key={p._id} 
+                plant={p} 
+                
+                userRole={user?.role}
+                onAddToGarden={() => handleAddToGarden(p)}
+                onDelete={handleDelete}
+                
+                
+                />
               ))}
             </div>
 

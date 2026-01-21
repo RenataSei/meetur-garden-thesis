@@ -138,3 +138,45 @@ export const WeatherAPI = {
     return fetch(`${API_BASE}/weather?${queryString}`).then(handle);
   }
 };
+
+// ---------------------------------------------------
+// GARDEN API (NEW - REQUIRED FOR THESIS)
+// ---------------------------------------------------
+
+export const GardenAPI = {
+  // GET /api/garden - List user's plants
+  list: () => 
+    fetch(`${API_BASE}/garden`, { 
+      headers: { ...getAuthHeaders() } 
+    }).then(handle),
+  
+  // POST /api/garden - Add plant to garden
+  add: (plant_id, nickname) => 
+    fetch(`${API_BASE}/garden`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify({ plant_id, nickname })
+    }).then(handle),
+
+  // DELETE /api/garden/:id - Remove from garden
+  // Note: 'id' here is the GARDEN ITEM ID, not the Plant ID
+  remove: (id) => 
+    fetch(`${API_BASE}/garden/${id}`, { 
+      method: 'DELETE',
+      headers: { ...getAuthHeaders() } 
+    }).then(handle),
+
+  // PATCH /api/garden/:id/action - Log care (water/sun)
+  logAction: (id, action) => 
+    fetch(`${API_BASE}/garden/${id}/action`, {
+      method: 'PATCH',
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify({ action })
+    }).then(handle)
+};
