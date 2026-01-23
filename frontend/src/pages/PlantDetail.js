@@ -20,24 +20,53 @@ export default function PlantDetail() {
       });
   }, [id]);
 
+  // --- NEW: Add to Garden Handler ---
+  async function handleAddToGarden() {
+    if (!user) {
+      alert("Please log in to add plants to your garden.");
+      return;
+    }
+
+    const defaultName = primaryName;
+    const nickname = window.prompt(
+      `Give your ${defaultName} a nickname:`,
+      defaultName,
+    );
+
+    if (nickname === null) return;
+
+    try {
+      await GardenAPI.add(plant._id, nickname);
+      alert(`🌱 Successfully added ${nickname} to your garden!`);
+    } catch (e) {
+      alert(e.message || "Failed to add to garden");
+    }
+  }
+
   const loading = !plant && !err;
 
   // Safe helpers so we do not crash if nested objects are missing
-  const flower = plant && plant.flower_descriptors && typeof plant.flower_descriptors === "object"
-    ? plant.flower_descriptors
-    : {};
+  const flower =
+    plant &&
+    plant.flower_descriptors &&
+    typeof plant.flower_descriptors === "object"
+      ? plant.flower_descriptors
+      : {};
 
-  const ecology = plant && plant.ecological_descriptors && typeof plant.ecological_descriptors === "object"
-    ? plant.ecological_descriptors
-    : {};
+  const ecology =
+    plant &&
+    plant.ecological_descriptors &&
+    typeof plant.ecological_descriptors === "object"
+      ? plant.ecological_descriptors
+      : {};
 
-  const notes = plant && plant.other_notes && typeof plant.other_notes === "object"
-    ? plant.other_notes
-    : {};
+  const notes =
+    plant && plant.other_notes && typeof plant.other_notes === "object"
+      ? plant.other_notes
+      : {};
 
-  const commonNames = plant && Array.isArray(plant.common_name)
-    ? plant.common_name
-    : [];
+  const commonNames =
+    plant && Array.isArray(plant.common_name) ? plant.common_name : [];
 
   const primaryName = commonNames[0] || "Unnamed plant";
   const altNames = commonNames.slice(1);
@@ -69,13 +98,9 @@ export default function PlantDetail() {
       </div>
 
       <section className="detail__content">
-        {loading && (
-          <p className="detail__loading">Loading plant details...</p>
-        )}
+        {loading && <p className="detail__loading">Loading plant details...</p>}
 
-        {err && !loading && (
-          <p className="detail__error">{err}</p>
-        )}
+        {err && !loading && <p className="detail__error">{err}</p>}
 
         {plant && !err && (
           <>
@@ -95,7 +120,9 @@ export default function PlantDetail() {
 
                 <div className="detail__row">
                   <dt>Height</dt>
-                  <dd>{plant.height != null ? plant.height : "Not specified"}</dd>
+                  <dd>
+                    {plant.height != null ? plant.height : "Not specified"}
+                  </dd>
                 </div>
 
                 <div className="detail__row">
@@ -143,7 +170,9 @@ export default function PlantDetail() {
                   !flower.flower_inflorescence &&
                   !flower.value &&
                   !flower.bloom_time && (
-                    <li className="detail__empty">No flower descriptors saved.</li>
+                    <li className="detail__empty">
+                      No flower descriptors saved.
+                    </li>
                   )}
               </ul>
             </section>
@@ -154,7 +183,9 @@ export default function PlantDetail() {
               <ul className="detail__bullets">
                 {ecology.luminance_level && (
                   <li>
-                    <span className="detail__bullet-label">Luminance level:</span>{" "}
+                    <span className="detail__bullet-label">
+                      Luminance level:
+                    </span>{" "}
                     <span>{ecology.luminance_level}</span>
                   </li>
                 )}
@@ -166,19 +197,25 @@ export default function PlantDetail() {
                 )}
                 {ecology.humidity_level && (
                   <li>
-                    <span className="detail__bullet-label">Humidity level:</span>{" "}
+                    <span className="detail__bullet-label">
+                      Humidity level:
+                    </span>{" "}
                     <span>{ecology.humidity_level}</span>
                   </li>
                 )}
                 {ecology.water_frequency && (
                   <li>
-                    <span className="detail__bullet-label">Water frequency:</span>{" "}
+                    <span className="detail__bullet-label">
+                      Water frequency:
+                    </span>{" "}
                     <span>{ecology.water_frequency}</span>
                   </li>
                 )}
                 {ecology.temperature_range && (
                   <li>
-                    <span className="detail__bullet-label">Temperature range:</span>{" "}
+                    <span className="detail__bullet-label">
+                      Temperature range:
+                    </span>{" "}
                     <span>{ecology.temperature_range}</span>
                   </li>
                 )}
@@ -206,7 +243,9 @@ export default function PlantDetail() {
                 <ul className="detail__bullets">
                   {notes.pests_diseases_notes && (
                     <li>
-                      <span className="detail__bullet-label">Pests and diseases:</span>{" "}
+                      <span className="detail__bullet-label">
+                        Pests and diseases:
+                      </span>{" "}
                       <span>{notes.pests_diseases_notes}</span>
                     </li>
                   )}
@@ -218,19 +257,25 @@ export default function PlantDetail() {
                   )}
                   {notes.invasive_species_notes && (
                     <li>
-                      <span className="detail__bullet-label">Invasive species:</span>{" "}
+                      <span className="detail__bullet-label">
+                        Invasive species:
+                      </span>{" "}
                       <span>{notes.invasive_species_notes}</span>
                     </li>
                   )}
                   {notes.conservation_status_notes && (
                     <li>
-                      <span className="detail__bullet-label">Conservation status:</span>{" "}
+                      <span className="detail__bullet-label">
+                        Conservation status:
+                      </span>{" "}
                       <span>{notes.conservation_status_notes}</span>
                     </li>
                   )}
                   {notes.local_permits_notes && (
                     <li>
-                      <span className="detail__bullet-label">Local permits:</span>{" "}
+                      <span className="detail__bullet-label">
+                        Local permits:
+                      </span>{" "}
                       <span>{notes.local_permits_notes}</span>
                     </li>
                   )}

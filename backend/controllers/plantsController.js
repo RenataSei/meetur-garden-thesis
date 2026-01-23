@@ -98,6 +98,9 @@ const getSinglePlant = async (req, res) => {
 // create a new plant AND link it to its Genus
 const createPlant = async (req, res) => {
   // We expect the genus_name and all other plant fields in req.body
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: "Access denied. Only Admins can add plants to the global database." });
+  }
   const { genus_name, ...plantData } = req.body;
 
   // --- Input Validation ---

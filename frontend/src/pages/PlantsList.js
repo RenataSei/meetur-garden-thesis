@@ -230,10 +230,12 @@ export default function PlantsList() {
       <span className="bubble bubble--purple" />
 
       <header className="list__header">
-        <h2 className="list__title">Your Garden</h2>
-        <Link className="btn btn--primary" to="/plants/new">
-          + Add Plant
-        </Link>
+        <h2 className="list__title">All Plants</h2>
+        {user && user.role === "admin" && (
+          <Link to="/plants/new" className="list__add-btn">
+            + Add Plant
+          </Link>
+        )}
       </header>
 
       {/* Search bar with dropdowns and button */}

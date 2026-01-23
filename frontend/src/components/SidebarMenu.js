@@ -1,8 +1,40 @@
+import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom"; 
 import { useSidebar } from "../contexts/SidebarContext";
+import { WeatherContext } from "../contexts/WeatherContext";
+import { GardenAPI } from "../api";
+import { analyzePlantHealth } from "../utils/careEngine";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function SidebarMenu() {
   const { isOpen, close } = useSidebar();
+  
+  // --- NEW: STATE FOR ALERTS ---
+  const { weather } = useContext(WeatherContext);
+  const [garden, setGarden] = useState([]);
+  const { user } = useContext(AuthContext);
+
+  // Fetch the garden data whenever the sidebar opens so alerts are fresh
+  useEffect(() => {
+    if (isOpen && user && weather) {
+      GardenAPI.list()
+        .then(data => setGarden(data))
+        .catch(err => console.error("Failed to fetch garden for alerts", err));
+    }
+  }, [isOpen, user, weather]); // <--- Added user and weather here
+
+  // --- NEW: CALCULATE ALERTS ---
+  const allAlerts = garden.reduce((acc, item) => {
+    const plantInfo = item.plant_id || {};
+    const healthReport = analyzePlantHealth(plantInfo, weather, item);
+    const plantAlerts = healthReport.alerts.map(alert => ({
+      nickname: item.nickname,
+      message: alert
+    }));
+    return [...acc, ...plantAlerts];
+  }, []);
+
+  console.log("DEBUG NOTIFICATIONS:", { weatherLoaded: !!weather, gardenCount: garden.length, totalAlerts: allAlerts.length });
 
   const styles = `
     /* Overlay fade smoother */
@@ -32,11 +64,46 @@ export default function SidebarMenu() {
     .drawer-header {
       padding: 24px 24px 16px 24px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .drawer-title {
       font-size: 18px;
       font-weight: 700;
       letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* --- NEW: ALERT STYLES --- */
+    .alert-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+    .alerts-container {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .alerts-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .alert-item {
+      font-size: 13px;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 10px;
+      border-left: 3px solid #ef4444;
+      border-radius: 4px;
     }
 
     /* Menu list */
@@ -166,10 +233,34 @@ export default function SidebarMenu() {
         aria-label="Sidebar menu"
       >
         <div className="drawer-header">
-          <div className="drawer-title">Menu</div>
+          <div className="drawer-title">
+            Menu
+            {/* RED BADGE SHOWS TOTAL ALERTS */}
+            {allAlerts.length > 0 && (
+              <span className="alert-badge">{allAlerts.length} Alerts</span>
+            )}
+          </div>
         </div>
 
-                <nav className="menu-list" onClick={close}>
+        {/* --- NEW: THE NOTIFICATION CENTER --- */}
+        {allAlerts.length > 0 && (
+          <div className="alerts-container">
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '11px', color: '#ef4444', textTransform: 'uppercase' }}>
+              ⚠️ Immediate Action Required
+            </h4>
+            <ul className="alerts-list">
+              {allAlerts.map((alert, idx) => (
+                <li key={idx} className="alert-item">
+                  <strong style={{ color: '#8fd081' }}>[{alert.nickname}]</strong><br/>
+                  {alert.message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* FRIEND'S ORIGINAL NAVIGATION LINKS */}
+        <nav className="menu-list" onClick={close}>
           <Link className="menu-btn" to="/plants">
             Manage Garden
           </Link>
@@ -185,7 +276,6 @@ export default function SidebarMenu() {
         </nav>
 
         <div className="drawer-footer">
-          {/* Brand link matching navbar styling */}
           <a href="/" className="footer-brand" onClick={(e) => { e.preventDefault(); close(); }}>
             <span className="footer-meetur">MEETUR</span>
             <span className="footer-garden">GARDEN</span>
@@ -193,7 +283,6 @@ export default function SidebarMenu() {
         </div>
       </aside>
 
-      {/* Close button fixed in same coordinates as hamburger */}
       <button
         className={`drawer-close-fixed ${isOpen ? "visible" : ""}`}
         onClick={close}

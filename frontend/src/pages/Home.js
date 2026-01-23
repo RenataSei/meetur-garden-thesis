@@ -1,17 +1,19 @@
 import { useEffect, useState, useContext } from "react";
+import { analyzePlantHealth } from "../utils/careEngine";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import { WeatherContext } from "../contexts/WeatherContext";
 import { GardenAPI } from "../api";
 import "./Home.css";
 
-// --- SUB-COMPONENT: The Guest Landing View (Your Original Design) ---
+// --- SUB-COMPONENT: The Guest Landing View ---
 function LandingView({ handleSearchSubmit }) {
   return (
     <>
       <section className="hero">
         <h2 className="hero__title">Grow. Track. Thrive.</h2>
         <p className="hero__text">
-          Manage your garden with simple create, read, update, and delete tools. 
+          Manage your garden with simple create, read, update, and delete tools.
           Keep every plant healthy and every task on time.
         </p>
         <div className="hero__cta">
@@ -50,10 +52,7 @@ function LandingView({ handleSearchSubmit }) {
               <option value="none">SORT</option>
               <option value="az">A-Z</option>
             </select>
-            <button
-              type="submit"
-              className="btn btn--primary hero__search-btn"
-            >
+            <button type="submit" className="btn btn--primary hero__search-btn">
               SEARCH
             </button>
           </div>
@@ -65,7 +64,8 @@ function LandingView({ handleSearchSubmit }) {
           <div className="card__icon card__icon--green" />
           <h3 className="card__title">Quick Entries</h3>
           <p className="card__text">
-            Add plants and notes in seconds. Save time while keeping records complete.
+            Add plants and notes in seconds. Save time while keeping records
+            complete.
           </p>
         </article>
 
@@ -73,7 +73,8 @@ function LandingView({ handleSearchSubmit }) {
           <div className="card__icon card__icon--blue" />
           <h3 className="card__title">Smart Views</h3>
           <p className="card__text">
-            See what needs watering or pruning today with clean filters and lists.
+            See what needs watering or pruning today with clean filters and
+            lists.
           </p>
         </article>
 
@@ -81,7 +82,8 @@ function LandingView({ handleSearchSubmit }) {
           <div className="card__icon card__icon--purple" />
           <h3 className="card__title">Safe Changes</h3>
           <p className="card__text">
-            Edit or remove items with confidence. Your data stays consistent across pages.
+            Edit or remove items with confidence. Your data stays consistent
+            across pages.
           </p>
         </article>
       </section>
@@ -91,10 +93,13 @@ function LandingView({ handleSearchSubmit }) {
 
 // --- SUB-COMPONENT: The User's "My Garden" Dashboard ---
 function GardenDashboard({ user }) {
+  
   const [garden, setGarden] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const { weather, loading: weatherLoading } = useContext(WeatherContext);
+  
   // Load the garden data
   async function loadGarden() {
     try {
@@ -126,23 +131,74 @@ function GardenDashboard({ user }) {
   async function handleWater(id) {
     try {
       await GardenAPI.logAction(id, "water");
-      loadGarden(); 
+      loadGarden();
     } catch (err) {
       alert("Failed to log watering");
     }
   }
 
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2 className="hero__title" style={{ fontSize: '2rem', marginBottom: '10px' }}>
+        <h2
+          className="hero__title"
+          style={{ fontSize: "2rem", marginBottom: "10px" }}
+        >
           My Garden 🌿
         </h2>
-        <p className="hero__text" style={{ maxWidth: '600px', margin: '0 auto 30px' }}>
-          Welcome back, {user.email.split('@')[0]}! Here are the plants you are currently tracking.
+        <p
+          className="hero__text"
+          style={{ maxWidth: "600px", margin: "0 auto 30px", textAlign: "center" }}
+        >
+          Welcome back, {user.email.split("@")[0]}! Here are the plants you are
+          currently tracking.
         </p>
+
+        {/* 2. THE NEW WEATHER WIDGET */}
+        <div
+          style={{
+            background: "var(--bg-deep)",
+            border: "3px solid var(--weather-blue)",
+            padding: "10px 15px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "15px",
+            boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
+            marginBottom: "20px",
+          }}
+        >
+          {weatherLoading || !weather ? (
+            <span style={{ fontSize: "10px", color: "#cbd5e1" }}>
+              LOADING WEATHER...
+            </span>
+          ) : (
+            <>
+              <span style={{ fontSize: "24px" }}>
+                {weather.weather[0].main.includes("Rain") ? "🌧️" : "☀️"}
+              </span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: "12px", color: "var(--weather-blue)" }}>
+                  {weather.name}
+                </div>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    color: "#cbd5e1",
+                    marginTop: "4px",
+                  }}
+                >
+                  Temp: {Math.round(weather.main.temp)}°C | Hum:{" "}
+                  {weather.main.humidity}%
+                </div>
+              </div>
+            </>
+          )}
+        
+        </div>
+          <br />
         <Link to="/plants" className="btn btn--primary">
-            + Add New Plant
+          + Add New Plant
         </Link>
       </div>
 
@@ -156,43 +212,69 @@ function GardenDashboard({ user }) {
       )}
 
       {!loading && !error && garden.length > 0 && (
-        <div className="garden-grid">
+       <div className="garden-grid">
           {garden.map((item) => {
             const plantInfo = item.plant_id || {}; 
             const commonName = plantInfo.common_name 
               ? (Array.isArray(plantInfo.common_name) ? plantInfo.common_name[0] : plantInfo.common_name) 
               : "Unknown Plant";
 
+            // --- 🤖 RUN THE CARE ENGINE HERE ---
+            const healthReport = analyzePlantHealth(plantInfo, weather, item);
+
+            // Determine retro border color based on health status
+            let statusColor = "var(--leaf-green)"; // Optimal (Green)
+            if (healthReport.health === "THIRSTY") statusColor = "var(--weather-blue)"; // Thirsty (Blue)
+            if (healthReport.health === "NEEDS ATTENTION") statusColor = "#fbbf24"; // Needs Attention (Yellow)
+            if (healthReport.health === "TOO HOT!" || healthReport.health === "TOO COLD!") statusColor = "#ef4444"; // Danger (Red)
+
             return (
-              <div key={item._id} className="garden-card">
+              <div key={item._id} className="garden-card" style={{ borderColor: statusColor }}>
                 <div className="garden-card__header">
                   <h3>{item.nickname}</h3>
                   <span className="species">{commonName}</span>
                 </div>
                 
-                <div className="garden-card__stats">
+                {/* STATUS BAR */}
+                <div className="garden-card__stats" style={{ borderColor: statusColor }}>
                   <div className="stat">
-                    <small>Last Watered:</small>
-                    <strong>
-                      {item.last_watered 
-                        ? new Date(item.last_watered).toLocaleDateString() 
-                        : "Never"}
-                    </strong>
+                    <small>STATUS:</small>
+                    <strong style={{ color: statusColor }}>{healthReport.health}</strong>
                   </div>
                 </div>
+
+                {/* ALERTS TERMINAL BOX */}
+                {healthReport.alerts.length > 0 && (
+                  <ul style={{ 
+                    listStyle: 'none', 
+                    padding: '8px', 
+                    margin: 0, 
+                    background: 'rgba(0,0,0,0.5)', 
+                    border: '1px solid #334155',
+                    fontSize: '8px',
+                    color: '#f8fafc',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px'
+                  }}>
+                    {healthReport.alerts.map((alert, idx) => (
+                      <li key={idx}>▸ {alert}</li>
+                    ))}
+                  </ul>
+                )}
 
                 <div className="garden-card__actions">
                   <button 
                     onClick={() => handleWater(item._id)} 
                     className="btn btn--small btn--blue"
                   >
-                    Water 💧
+                    WATER 💧
                   </button>
                   <button 
                     onClick={() => handleRemove(item._id, item.nickname)} 
                     className="btn btn--small btn--danger"
                   >
-                    Remove
+                    REMOVE
                   </button>
                 </div>
               </div>
@@ -243,7 +325,7 @@ export default function Home() {
           <h1 className="brand__name">Meet-Ur Garden</h1>
         </div>
 
-        <nav style={{ display: 'flex', gap: '10px' }}>
+        <nav style={{ display: "flex", gap: "10px" }}>
           <Link to="/plants" className="btn btn--ghost">
             All Plants
           </Link>

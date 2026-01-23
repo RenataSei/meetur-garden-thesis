@@ -13,6 +13,8 @@ const gardenRoutes = require('./routes/garden');
     //express app
     const app = express();
 
+    app.set('trust proxy', 1); // trust first proxy
+
     //middleware
     app.use(cors());
     app.use(express.json());
