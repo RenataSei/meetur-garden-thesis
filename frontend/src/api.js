@@ -3,7 +3,7 @@
 // Base URL for your backend.
 // With your current setup this will be "/api" and CRA proxy will forward it.
 export const API_BASE = process.env.REACT_APP_API_BASE || "/api";
-
+const API_URL = "https://meetur-garden-thesis.onrender.com/api";
 // Helper: read token from localStorage and build Authorization header
 function getAuthHeaders() {
   const stored = localStorage.getItem("user");
