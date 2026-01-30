@@ -34,6 +34,9 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
   const [isEditing, setIsEditing] = useState(false);
   const [newNick, setNewNick] = useState(plant.nickname);
 
+  const [newImage, setNewImage] = useState(""); 
+  const [uploading, setUploading] = useState(false);
+
   // Analyze health again for the modal details
   const plantInfo = plant.plant_id || {};
   const healthReport = analyzePlantHealth(plantInfo, weather, plant);
@@ -66,7 +69,7 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
       setUploading(false);
     }
   };
-  
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
