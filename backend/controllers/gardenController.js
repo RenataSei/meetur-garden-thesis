@@ -102,10 +102,39 @@ const logCareAction = async (req, res) => {
     }
 };
 
+// 5. Update generic plant details (like Nickname)
+const updateGardenItem = async (req, res) => {
+    const { id } = req.params;
+    const { nickname } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ error: "Invalid ID" });
+    }
+
+    try {
+        // Find by ID and User ID (Security: prevents editing other people's plants)
+        const item = await GardenItem.findOneAndUpdate(
+            { _id: id, user_id: req.user._id }, 
+            { nickname: nickname },
+            { new: true } // Return the updated doc
+        ).populate('plant_id');
+
+        if (!item) {
+            return res.status(404).json({ error: "Plant not found in your garden" });
+        }
+
+        res.status(200).json(item);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
 // EXPORTS - Ensure all names match exactly what routes/garden.js is importing
 module.exports = { 
     getGarden, 
     addToGarden, 
     deleteFromGarden, 
-    logCareAction 
+    logCareAction,
+    updateGardenItem
+
 };

@@ -3,7 +3,8 @@ const {
     getGarden, 
     addToGarden, 
     deleteFromGarden, 
-    logCareAction 
+    logCareAction,
+    updateGardenItem
 } = require('../controllers/gardenController');
 
 // Middleware to check if user is logged in
@@ -25,5 +26,8 @@ router.delete('/:id', deleteFromGarden);
 
 // 5. LOG ACTION (Water/Sun)
 router.patch('/:id/action', logCareAction);
+
+// 6. UPDATE GARDEN ITEM (e.g., nickname)
+router.patch('/:id', updateGardenItem);
 
 module.exports = router;

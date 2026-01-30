@@ -167,6 +167,18 @@ export const GardenAPI = {
       headers: { ...getAuthHeaders() } 
     }).then(handle),
 
+  // PATCH /api/garden/:id - Rename plant
+  update: (id, payload) => 
+    fetch(`${API_BASE}/garden/${id}`, {
+      method: 'PATCH',
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(payload)
+    }).then(handle),
+  // ------------------------------------
+
   // PATCH /api/garden/:id/action - Log care (water/sun)
   logAction: (id, action) => 
     fetch(`${API_BASE}/garden/${id}/action`, {
