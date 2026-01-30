@@ -42,12 +42,27 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
   const healthReport = analyzePlantHealth(plantInfo, weather, plant);
 
   // Determine which image to show:
-  // 1. The new one user just uploaded (preview)
-  // 2. The custom one saved in DB
-  // 3. The default API image
-  // 4. A generic placeholder
   const displayImage = newImage || plant.custom_image || plantInfo.image_url || null;
 
+  // --- 🟢 ADDED: THE MISSING handleSave FUNCTION ---
+  async function handleSave() {
+    const payload = {};
+    
+    // Only add fields if they exist/changed
+    if (newNick && newNick.trim()) {
+        payload.nickname = newNick;
+    }
+    if (newImage) {
+        payload.custom_image = newImage;
+    }
+
+    // Call the update function passed from parent
+    await onUpdate(plant._id, payload);
+    
+    // Close edit mode
+    setIsEditing(false);
+  }
+  // ------------------------------------------------
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -122,7 +137,7 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
            </div>
         </div>
 
-        {/* DETAILS GRID (Same as before) */}
+        {/* DETAILS GRID */}
         <div className="modal-grid">
            <div className="detail-box">
              <label>HEALTH STATUS</label>
