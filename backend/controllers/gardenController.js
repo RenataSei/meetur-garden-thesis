@@ -105,18 +105,22 @@ const logCareAction = async (req, res) => {
 // 5. Update generic plant details (like Nickname)
 const updateGardenItem = async (req, res) => {
     const { id } = req.params;
-    const { nickname } = req.body;
+    const { nickname, custom_image } = req.body; // <--- Get image from body
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ error: "Invalid ID" });
     }
 
     try {
-        // Find by ID and User ID (Security: prevents editing other people's plants)
+        // Prepare the update object
+        const updates = {};
+        if (nickname) updates.nickname = nickname;
+        if (custom_image) updates.custom_image = custom_image; // <--- Add to updates
+
         const item = await GardenItem.findOneAndUpdate(
             { _id: id, user_id: req.user._id }, 
-            { nickname: nickname },
-            { new: true } // Return the updated doc
+            updates, // <--- Apply dynamic updates
+            { new: true } 
         ).populate('plant_id');
 
         if (!item) {

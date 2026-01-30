@@ -13,6 +13,8 @@ const gardenItemSchema = new Schema({
     },
     nickname: { type: String }, // e.g., "Office Desk Plant"
     
+    custom_image: { type: String, default: "" },
+
     // --- THE "TIMER" DATA (Watering & Sun Only) ---
     last_watered: { type: Date, default: Date.now },
     

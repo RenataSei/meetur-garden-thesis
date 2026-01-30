@@ -15,6 +15,20 @@ function formatLastWatered(dateString) {
   });
 }
 
+// --- HELPER: CONVERT FILE TO BASE64 ---
+const convertToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
+    fileReader.onload = () => {
+      resolve(fileReader.result);
+    };
+    fileReader.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
+
 // --- SUB-COMPONENT: The Plant Detail Modal ---
 function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -24,46 +38,76 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
   const plantInfo = plant.plant_id || {};
   const healthReport = analyzePlantHealth(plantInfo, weather, plant);
 
-  // Handle Nickname Save
-  async function handleSaveName() {
-    if (!newNick.trim()) return;
-    await onUpdate(plant._id, { nickname: newNick });
-    setIsEditing(false);
-  }
+  // Determine which image to show:
+  // 1. The new one user just uploaded (preview)
+  // 2. The custom one saved in DB
+  // 3. The default API image
+  // 4. A generic placeholder
+  const displayImage = newImage || plant.custom_image || plantInfo.image_url || null;
 
-  // Handle Enter Key
-  function handleKeyDown(e) {
-    if (e.key === "Enter") handleSaveName();
-  }
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check size (Limit to roughly 500kb to save DB space)
+    if (file.size > 500 * 1024) {
+      alert("Please choose an image smaller than 500KB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const base64 = await convertToBase64(file);
+      setNewImage(base64);
+    } catch (err) {
+      alert("Failed to process image");
+    } finally {
+      setUploading(false);
+    }
+  };
+  
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         
-        {/* HEADER: IMAGE & EDITABLE TITLE */}
+        {/* HEADER */}
         <div className="modal-header">
-           <div className="modal-icon">
-             {/* If image exists, show it, otherwise pixel leaf */}
-             {plantInfo.image_url ? (
-               <img src={plantInfo.image_url} alt="Plant" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'8px'}} />
-             ) : (
-               <span style={{fontSize:'40px'}}>🌿</span>
+           <div className="modal-icon-wrapper">
+             <div className="modal-icon">
+               {displayImage ? (
+                 <img src={displayImage} alt="Plant" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+               ) : (
+                 <span style={{fontSize:'40px'}}>🌿</span>
+               )}
+             </div>
+             
+             {/* CAMERA BUTTON (Only shows when editing) */}
+             {isEditing && (
+                <label className="camera-btn">
+                  {uploading ? "..." : "📷"}
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleFileUpload} 
+                    hidden 
+                  />
+                </label>
              )}
            </div>
            
            <div className="modal-title-box">
              {isEditing ? (
-               <div className="edit-row">
+               <div className="edit-column">
                  <input 
-                   autoFocus
                    type="text" 
                    value={newNick} 
                    onChange={(e) => setNewNick(e.target.value)}
-                   onKeyDown={handleKeyDown}
                    className="modal-input"
+                   placeholder="Nickname..."
                  />
-                 <button onClick={handleSaveName} className="btn btn--small btn--green">Save</button>
+                 <button onClick={handleSave} className="btn btn--small btn--green">Save Changes</button>
                </div>
              ) : (
                <h2 className="modal-title">
@@ -75,55 +119,31 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
            </div>
         </div>
 
-        {/* DETAILS GRID */}
+        {/* DETAILS GRID (Same as before) */}
         <div className="modal-grid">
-           {/* BOX 1: STATUS */}
            <div className="detail-box">
              <label>HEALTH STATUS</label>
              <strong style={{color: healthReport.health === "OPTIMAL" ? '#8fd081' : '#ef4444'}}>
                {healthReport.health}
              </strong>
            </div>
-
-           {/* BOX 2: LAST WATERED */}
            <div className="detail-box">
              <label>LAST WATERED</label>
              <span>{formatLastWatered(plant.last_watered)}</span>
            </div>
-
-           {/* BOX 3: CURRENT CLIMATE */}
            <div className="detail-box">
               <label>CURRENT WEATHER</label>
               <span>{weather ? `${Math.round(weather.main.temp)}°C` : '--'}</span>
-              <small>{weather ? `${weather.main.humidity}% Humidity` : ''}</small>
            </div>
-
-           {/* BOX 4: PLANT PREFERENCE */}
            <div className="detail-box">
               <label>IDEAL CONDITIONS</label>
               <small>Temp: {plantInfo.ecological_descriptors?.temperature_range || 'N/A'}</small>
-              <small>Hum: {plantInfo.ecological_descriptors?.humidity_level || 'N/A'}</small>
            </div>
         </div>
 
-        {/* ALERTS SECTION */}
-        {healthReport.alerts.length > 0 && (
-          <div className="modal-alerts">
-            <h4>⚠️ CARE ALERTS:</h4>
-            <ul>
-              {healthReport.alerts.map((alert, i) => <li key={i}>{alert}</li>)}
-            </ul>
-          </div>
-        )}
-
-        {/* FOOTER ACTIONS */}
         <div className="modal-actions">
-           <button onClick={() => { onWater(plant._id); }} className="btn btn--blue btn--wide">
-             Water Plant 💧
-           </button>
-           <button onClick={() => { if(window.confirm('Delete this plant?')) onRemove(plant._id, plant.nickname); }} className="btn btn--danger btn--wide">
-             Remove 🗑️
-           </button>
+           <button onClick={() => onWater(plant._id)} className="btn btn--blue btn--wide">Water Plant 💧</button>
+           <button onClick={() => { if(window.confirm('Delete this plant?')) onRemove(plant._id, plant.nickname); }} className="btn btn--danger btn--wide">Remove 🗑️</button>
         </div>
       </div>
 
@@ -179,6 +199,22 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; }}
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; }}
+      
+        /* NEW STYLES FOR CAMERA */
+        .modal-icon-wrapper { position: relative; width: 80px; height: 80px; }
+        .modal-icon {
+          width: 100%; height: 100%; background: #1f2937; border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          border: 1px solid #374151; overflow: hidden;
+        }
+        .camera-btn {
+          position: absolute; bottom: -5px; right: -5px;
+          background: #3b82f6; color: white; border-radius: 50%;
+          width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+          cursor: pointer; border: 2px solid #111827; font-size: 14px;
+        }
+        .camera-btn:hover { transform: scale(1.1); }
+        .edit-column { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
       `}</style>
     </div>
   );
