@@ -1,0 +1,197 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+.detail {
+  min-height: 100vh;
+  padding: 48px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at top left, #e9fadc 0, #fdfcfb 45%),
+    radial-gradient(circle at bottom right, #ddeafe 0, #fdfcfb 45%);
+}
+
+/* Header with name and species */
+.detail__header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 0 16px;
+}
+
+.detail__title {
+  font-size: 40px;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  color: #22c55e;
+  margin: 0;
+}
+
+.detail__subtitle {
+  margin: 8px 0 4px;
+  font-size: 18px;
+  color: #4b5563;
+}
+
+.detail__label {
+  font-weight: 600;
+}
+
+.detail__alt-names {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.detail__lead {
+  margin: 12px auto 0;
+  max-width: 720px;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* Main content card */
+.detail__content {
+  width: 100%;
+  max-width: 960px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 32px 28px 28px;
+}
+
+/* Sections inside the card */
+.detail__section + .detail__section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.detail__section-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #9ca3af;
+  margin: 0 0 12px;
+}
+
+/* Basic info list */
+.detail__list {
+  margin: 0;
+}
+
+.detail__row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.detail__row dt {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.detail__row dd {
+  margin: 0;
+  color: #111827;
+}
+
+/* Bullet lists for descriptors */
+.detail__bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.detail__bullets li {
+  font-size: 14px;
+  padding: 4px 0;
+  color: #111827;
+}
+
+.detail__bullet-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.detail__empty {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Actions */
+.detail__actions {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.btn.btn--primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 25px rgba(22, 163, 74, 0.35);
+  text-decoration: none;
+}
+
+/* Loading and error states */
+.detail__loading {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.detail__error {
+  font-size: 14px;
+  color: #b91c1c;
+  background: #fee2e2;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .detail {
+    padding: 32px 12px 56px;
+  }
+
+  .detail__title {
+    font-size: 28px;
+  }
+
+  .detail__content {
+    padding: 24px 18px 22px;
+  }
+
+  .detail__row {
+    grid-template-columns: 120px 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail__row {
+    grid-template-columns: 1fr;
+  }
+
+  .detail__row dt {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+}

@@ -1,0 +1,125 @@
+/* src/pages/Auth.css */
+
+/* We reuse the same color tokens defined in Home.css (:root) */
+
+/* Use the same beige background and bubbles feel */
+.auth {
+  position: relative;
+  min-height: 100vh;
+  padding: 24px 20px 32px;
+  background: radial-gradient(circle at top left, var(--beige-50), #f5e5c0 46%, #f9f1dd);
+  color: var(--black);
+  overflow: hidden;
+}
+
+/* Keep content inside a max width just like Home */
+.auth__inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Center the card */
+.auth__body {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+}
+
+/* The glass card for login and register */
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 22px 20px 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.auth-card__title {
+  margin: 0 0 4px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--black);
+  text-align: left;
+}
+
+.auth-card__subtitle {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: var(--gray-700);
+}
+
+/* Form layout */
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.auth-input,
+.auth-select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 9px 11px;
+  font-size: 14px;
+  outline: none;
+  background: #ffffff;
+  color: var(--black);
+}
+
+.auth-input::placeholder {
+  color: var(--gray-400);
+}
+
+.auth-input:focus,
+.auth-select:focus {
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 1px rgba(76, 175, 107, 0.4);
+}
+
+/* Error box */
+.auth-error {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: #b91c1c;
+  background: #fee2e2;
+  border-radius: 10px;
+  padding: 6px 8px;
+}
+
+/* Use the same button style system as Home, just reuse its classes */
+.auth-actions {
+  margin-top: 8px;
+}
+
+/* Footer under the card */
+.auth-footer {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--gray-700);
+  text-align: center;
+}
+
+.auth-footer a {
+  color: var(--blue-500);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Make it look nice on small screens */
+@media (max-width: 640px) {
+  .auth {
+    padding: 20px 16px 24px;
+  }
+}

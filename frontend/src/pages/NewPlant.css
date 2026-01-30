@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root{
+  --green-600:#4caf6b;
+  --green-400:#8fd081;
+  --beige-50:#fbf2dd;
+  --gray-700:#3a3b3f;
+  --blue-500:#4c78ff;
+  --blue-300:#a9c4f7;
+  --purple-400:#d6a8f0;
+  --white:#fff;
+  --shadow-1:0 10px 30px rgba(0,0,0,.08);
+  --shadow-2:0 12px 40px rgba(76,120,255,.15);
+}
+
+/* ===== Base ===== */
+.new{
+  min-height:100vh;
+  padding:30px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  background:linear-gradient(135deg, var(--green-400) 0%, var(--beige-50) 55%, var(--blue-300) 100%);
+  font-family:'Inter',sans-serif;
+  color:var(--gray-700);
+  position:relative;
+  overflow:hidden;
+}
+
+/* Floating accents */
+.bubble{ position:absolute; border-radius:50%; filter:blur(10px); opacity:.5; pointer-events:none; }
+.bubble--green{ width:160px; height:160px; left:-40px; top:80px; background:var(--green-400) }
+.bubble--blue{  width:220px; height:220px; right:-60px; top:120px; background:var(--blue-300) }
+.bubble--purple{width:140px; height:140px; left:40%; bottom:-40px; background:var(--purple-400) }
+
+/* ===== Header ===== */
+.new__header{
+  width:100%;
+  max-width:900px;
+  background:rgba(255,255,255,.7);
+  border-radius:16px;
+  backdrop-filter:blur(8px);
+  box-shadow:var(--shadow-1);
+  border:1px solid rgba(0,0,0,.05);
+  padding:14px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:30px;
+}
+.header__left{ display:flex; align-items:center; gap:10px }
+
+/* ===== Buttons ===== */
+.btn{
+  border:none;
+  cursor:pointer;
+  text-decoration:none;
+  border-radius:999px;
+  font-weight:600;
+  font-size:14px;
+  padding:10px 18px;
+  transition:all .2s ease;
+}
+.btn--ghost{
+  background:transparent;
+  border:1px solid rgba(0,0,0,.1);
+  color:var(--gray-700);
+}
+.btn--ghost:hover{ background:rgba(255,255,255,.6) }
+
+/* ===== Content ===== */
+.new__content{
+  width:100%;
+  max-width:900px;
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(0,0,0,.06);
+  box-shadow:var(--shadow-2);
+  border-radius:20px;
+  padding:40px;
+  text-align:center;
+}
+
+.new__title{ margin:0; font-size:36px; color:var(--green-600) }
+.new__subtitle{ margin:8px 0 24px; color:#5f646a; font-size:16px }
+
+.new__formcard{
+  background:var(--white);
+  border:1px solid rgba(0,0,0,.05);
+  box-shadow:0 4px 14px rgba(0,0,0,.05);
+  border-radius:18px;
+  padding:24px;
+  text-align:left;
+}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .new__title{ font-size:28px }
+  .new__content{ padding:28px 20px }
+}

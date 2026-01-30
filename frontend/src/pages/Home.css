@@ -1,0 +1,444 @@
+/* ===== 1. FONTS & SETUP ===== */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+:root {
+  /* --- MIDNIGHT GREENHOUSE PALETTE (Same as before) --- */
+  --bg-deep:      #0f172a; 
+  --bg-card:      #1e293b; 
+  --bg-screen:    #ecfdf5; 
+  
+  --leaf-green:   #22c55e; 
+  --dark-green:   #14532d; 
+  
+  --weather-blue: #38bdf8; 
+  --pure-white:   #ffffff;
+  
+  --text-on-dark: #f8fafc; 
+  --text-on-light:#334155; 
+  
+  /* --- SMALLER SETTINGS --- */
+  --border-width: 3px; /* Thinner border (was 4px) */
+  --shadow-hard:  4px 4px 0px rgba(0,0,0,0.4); /* Smaller shadow (was 6px) */
+}
+
+/* NUCLEAR PIXEL OVERRIDE */
+* { 
+  box-sizing: border-box; 
+  font-family: "Press Start 2P", cursive !important; 
+}
+
+html {
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-deep);
+  color: var(--text-on-dark);
+}
+
+/* ===== 2. LAYOUT (Tighter) ===== */
+.home {
+  max-width: 900px; /* Narrower width */
+  margin: 0 auto;
+  padding: 16px; /* Less padding on the sides */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.bubble { display: none; }
+
+/* ===== 3. HEADER (Compact Status Bar) ===== */
+.home__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  background-color: var(--leaf-green);
+  color: var(--dark-green);
+  
+  padding: 12px 16px; /* Smaller padding */
+  border: var(--border-width) solid var(--bg-deep);
+  border-radius: 0; 
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2); 
+  
+  margin-bottom: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand__dot {
+  width: 14px; /* Smaller dot */
+  height: 14px;
+  background-color: #fbbf24;
+  border: 3px solid var(--dark-green);
+  border-radius: 0; 
+}
+
+.brand__name {
+  font-size: 14px; /* Reduced from 24px to 14px */
+  margin: 0;
+  text-transform: uppercase;
+  color: var(--dark-green);
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.3);
+}
+
+/* Header Button */
+.home__header nav .btn {
+  font-size: 8px; /* Tiny button text */
+  padding: 8px 12px;
+  border-width: 2px;
+  box-shadow: none;
+}
+
+/* ===== 4. HERO (Compact Dialogue Box) ===== */
+.hero {
+  background-color: var(--bg-screen); 
+  color: var(--text-on-light);
+  
+  padding: 20px; /* Reduced padding */
+  border: var(--border-width) solid var(--leaf-green);
+  border-radius: 0; 
+  box-shadow: var(--shadow-hard);
+  
+  text-align: left;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+/* The Blinking Cursor */
+.hero::after {
+  content: "▼";
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  color: var(--leaf-green);
+  font-size: 14px;
+  animation: blink 0.8s infinite steps(2, start);
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.hero__title {
+  font-size: 16px; /* Reduced from 22px */
+  line-height: 1.5;
+  color: var(--leaf-green);
+  text-shadow: 2px 2px 0 var(--bg-deep);
+  margin-top: 0;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.hero__text {
+  font-size: 9px; /* Slightly smaller body text */
+  line-height: 2.0; 
+  color: var(--text-on-light);
+  max-width: 100%;
+  margin-bottom: 24px;
+  text-transform: uppercase; 
+}
+
+.hero__cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Hero search (pixel style) */
+.hero__search {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 2px dashed rgba(148, 163, 184, 0.7);
+}
+
+.hero__search-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.hero__search-input {
+  flex: 1;
+  font-size: 9px;
+  padding: 8px 10px;
+  border: var(--border-width) solid var(--bg-deep);
+  border-radius: 0;
+  background-color: #f1f5f9;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,0.25);
+  outline: none;
+}
+
+.hero__search-input:focus {
+  background-color: var(--pure-white);
+  box-shadow: 0 0 0 2px var(--leaf-green);
+}
+
+.hero__search-select {
+  font-size: 8px;
+  padding: 8px 10px;
+  border: var(--border-width) solid var(--bg-deep);
+  border-radius: 0;
+  background-color: #e2e8f0;
+  color: var(--text-on-light);
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+  outline: none;
+}
+
+.hero__search-btn {
+  padding-inline: 14px;
+}
+
+/* ===== 5. BUTTONS (Smaller Actions) ===== */
+.btn {
+  appearance: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  font-size: 9px; /* Smaller font */
+  text-transform: uppercase;
+  padding: 12px 16px; /* Much smaller padding */
+  
+  border: var(--border-width) solid var(--bg-deep);
+  border-radius: 0; 
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.5); 
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.btn--primary {
+  background-color: var(--leaf-green);
+  color: var(--dark-green);
+}
+
+.btn--secondary {
+  background-color: var(--bg-deep);
+  color: var(--pure-white);
+  border-color: var(--leaf-green);
+}
+
+/* ===== 6. CARDS (Compact Grid) ===== */
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px; /* Tighter gap */
+}
+
+.card {
+  background-color: var(--bg-card);
+  border: var(--border-width) solid var(--bg-deep);
+  padding: 16px; /* Reduced padding */
+  border-radius: 0; 
+  position: relative;
+  box-shadow: var(--shadow-hard);
+}
+
+.card__icon {
+  width: 20px; /* Smaller icons */
+  height: 20px;
+  margin-bottom: 12px;
+  border: 2px solid var(--bg-deep);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.card__icon--green { background-color: var(--leaf-green); }
+.card__icon--blue  { background-color: var(--weather-blue); }
+.card__icon--purple{ background-color: #a855f7; }
+
+.card__title {
+  font-size: 10px; /* Reduced from 12px */
+  margin: 0 0 8px;
+  color: var(--pure-white);
+  line-height: 1.4;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 var(--bg-deep);
+}
+
+.card__text {
+  font-size: 8px; /* Smallest readable size */
+  line-height: 1.8;
+  color: #94a3b8; 
+  text-transform: uppercase; 
+}
+
+/* ===== 7. FOOTER ===== */
+.home__footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 8px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 900px) {
+  .features { grid-template-columns: 1fr; }
+  .btn { width: 100%; }
+}
+
+/* =========================================
+   8. DASHBOARD (RETRO PIXEL STYLE)
+   ========================================= */
+
+.dashboard-container {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.dashboard-header {
+  margin-bottom: 32px;
+  border-bottom: 4px dashed var(--dark-green); /* Retro divider */
+  padding-bottom: 16px;
+}
+
+/* Reuse Hero Title style for Dashboard */
+.dashboard-header h2 {
+  font-size: 16px;
+  color: var(--leaf-green);
+  text-shadow: 2px 2px 0 var(--bg-deep);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.dashboard-header p {
+  font-size: 9px;
+  color: #94a3b8;
+  line-height: 1.8;
+  text-transform: uppercase;
+  max-width: 600px;
+}
+
+/* --- GRID LAYOUT --- */
+.garden-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Slightly wider cards */
+  gap: 24px;
+}
+
+/* --- THE PIXEL CARD --- */
+.garden-card {
+  background-color: var(--bg-card);
+  border: var(--border-width) solid var(--bg-deep);
+  padding: 16px;
+  border-radius: 0; /* NO CURVES allowed in pixel art */
+  position: relative;
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.1s;
+}
+
+.garden-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.5); /* Pop up effect */
+}
+
+/* Header: Title & Species */
+.garden-card__header {
+  border-bottom: 2px solid var(--bg-deep);
+  padding-bottom: 8px;
+}
+
+.garden-card__header h3 {
+  font-size: 12px;
+  margin: 0 0 8px 0;
+  color: var(--pure-white);
+  text-transform: uppercase;
+  line-height: 1.4;
+  text-shadow: 2px 2px 0 var(--bg-deep);
+}
+
+.garden-card__header .species {
+  display: block;
+  font-size: 8px;
+  color: var(--leaf-green);
+  text-transform: uppercase;
+}
+
+/* Stats Box (Looks like a game inventory slot) */
+.garden-card__stats {
+  background-color: var(--bg-deep); /* Dark background */
+  padding: 10px;
+  border: 2px solid #334155;
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8px;
+  color: #cbd5e1;
+  text-transform: uppercase;
+}
+
+.stat strong {
+  color: var(--weather-blue); /* Highlight value */
+}
+
+/* --- ACTIONS (Small Pixel Buttons) --- */
+.garden-card__actions {
+  margin-top: auto; /* Push to bottom */
+  display: flex;
+  gap: 8px;
+}
+
+/* Override btn for small card usage */
+.btn--small {
+  flex: 1;
+  padding: 10px 4px; /* Slimmer */
+  font-size: 8px;
+  border-width: 2px;
+  text-align: center;
+  justify-content: center;
+}
+
+.btn--blue {
+  background-color: var(--weather-blue);
+  color: var(--bg-deep);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+}
+
+.btn--danger {
+  background-color: #ef4444;
+  color: white;
+  border-color: var(--bg-deep);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+}
+
+/* --- EMPTY STATE (Dialogue Box) --- */
+.empty-state {
+  background-color: var(--bg-screen);
+  border: var(--border-width) dashed var(--leaf-green);
+  padding: 32px;
+  text-align: center;
+  color: var(--text-on-light);
+  box-shadow: var(--shadow-hard);
+}
+
+.empty-state p {
+  font-size: 10px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+/* Mobile Fix for Grid */
+@media (max-width: 600px) {
+  .garden-grid {
+    grid-template-columns: 1fr;
+  }
+}
