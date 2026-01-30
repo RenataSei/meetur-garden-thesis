@@ -1,7 +1,7 @@
 // src/api.js
 
 // Base URL for your backend.
-const API_BASE = "https://meetur-garden-thesis.onrender.com/api";
+export const API_BASE = "https://meetur-garden-thesis.onrender.com/api";
 // Helper: read token from localStorage and build Authorization header
 function getAuthHeaders() {
   const stored = localStorage.getItem("user");
