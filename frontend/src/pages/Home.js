@@ -32,6 +32,17 @@ const convertToBase64 = (file) => {
     };
   });
 };
+// --- HELPER: FORMAT TEMPERATURE ---
+function formatTemp(tempStr) {
+  if (!tempStr) return "N/A";
+  // Find the numbers in the string, even if they have decimals
+  const nums = tempStr.match(/\d+(\.\d+)?/g); 
+  if (nums && nums.length >= 2) {
+    // Round them to whole numbers for a cleaner UI
+    return `${Math.round(Number(nums[0]))}°C - ${Math.round(Number(nums[1]))}°C`;
+  }
+  return tempStr; // Fallback just in case
+}
 
 // --- SUB-COMPONENT: The Plant Detail Modal ---
 function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
@@ -197,9 +208,9 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
             <span>{weather ? `${Math.round(weather.main.temp)}°C` : "--"}</span>
           </div>
           <div className="detail-box">
-            <label>IDEAL CONDITIONS (DEBUG)</label>
-            <small style={{ wordBreak: 'break-all', color: 'yellow' }}>
-              RAW: {JSON.stringify(plantInfo.ecological_descriptors?.temperature_range)}
+            <label>IDEAL CONDITIONS</label>
+            <small>
+              Temp: {formatTemp(plantInfo.ecological_descriptors?.temperature_range)}
             </small>
           </div>
         </div>
