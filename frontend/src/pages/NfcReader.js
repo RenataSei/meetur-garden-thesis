@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ScannerStyles.css"; // We will make this simple CSS next
 
-export default function Scan() {
+export default function NfcReader() {
   const [status, setStatus] = useState("Tap 'Start' to scan a plant tag...");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -21,12 +20,8 @@ export default function Scan() {
       ndef.onreading = (event) => {
         const decoder = new TextDecoder();
         for (const record of event.message.records) {
-          // We assume we wrote the Plant ID as plain text
           const plantId = decoder.decode(record.data);
           setStatus(`Found plant! Loading...`);
-          
-          // Redirect to the dashboard with the plant ID in the URL query
-          // We will update Home.js to look for this ID and open the modal automatically
           navigate(`/?open=${plantId}`);
         }
       };
@@ -37,13 +32,11 @@ export default function Scan() {
   }
 
   return (
-    <div className="scan-container">
+    <div style={{ textAlign: 'center', padding: '50px 20px', color: 'white' }}>
       <h1>NFC Scanner 📡</h1>
-      <div className="scan-circle">
-        <span style={{fontSize: '50px'}}>📲</span>
-      </div>
-      <p className="scan-status">{status}</p>
-      {error && <p className="scan-error">{error}</p>}
+      <div style={{ fontSize: '80px', margin: '30px 0' }}>📲</div>
+      <p style={{ fontSize: '1.2rem', marginBottom: '20px' }}>{status}</p>
+      {error && <p style={{ color: '#ef4444', padding: '10px', border: '1px solid #ef4444' }}>{error}</p>}
       
       <button onClick={startScan} className="btn btn--primary btn--large">
         START SCANNING

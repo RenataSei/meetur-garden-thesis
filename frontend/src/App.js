@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
-import Scan from './pages/Scan';
+import NfcReader from './pages/NfcReader';
 
 function RequireAuth({ children }) {
   const { user } = useAuthContext();
@@ -100,7 +100,7 @@ export default function App() {
             path="/scan"
             element={
               <RequireAuth>
-                <Scan />
+                <NfcReader />
               </RequireAuth>
             }
           />
