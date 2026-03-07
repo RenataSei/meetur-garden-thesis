@@ -384,16 +384,16 @@ function GardenDashboard({ user }) {
   }
 
   useEffect(() => {
-  // If garden is loaded AND we have an "open" param in the URL
-  const openId = searchParams.get("open");
-  
-  if (garden.length > 0 && openId) {
-    const targetPlant = garden.find(p => p._id === openId);
-    if (targetPlant) {
-      setSelectedPlant(targetPlant); // Auto-open the modal!
+    // If garden is loaded AND we have an "open" param in the URL
+    const openId = searchParams.get("open");
+
+    if (garden.length > 0 && openId) {
+      const targetPlant = garden.find((p) => p._id === openId);
+      if (targetPlant) {
+        setSelectedPlant(targetPlant); // Auto-open the modal!
+      }
     }
-  }
-}, [garden, searchParams]);
+  }, [garden, searchParams]);
 
   useEffect(() => {
     loadGarden();
@@ -659,6 +659,15 @@ export default function Home() {
           <Link to="/plants" className="btn btn--ghost">
             All Plants
           </Link>
+
+          <Link
+            to="/scan"
+            className="btn btn--primary"
+            style={{ background: "#8b5cf6", borderColor: "#8b5cf6" }}
+          >
+            📡 Scan Tag
+          </Link>
+
           {user && (
             <Link to="/logout" className="btn btn--ghost">
               Logout
