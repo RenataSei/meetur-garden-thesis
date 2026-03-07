@@ -197,12 +197,9 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
             <span>{weather ? `${Math.round(weather.main.temp)}°C` : "--"}</span>
           </div>
           <div className="detail-box">
-            <label>IDEAL CONDITIONS</label>
-            <small>
-              Temp:{" "}
-              {Array.isArray(plantInfo.ecological_descriptors?.temperature_range)
-                ? `${plantInfo.ecological_descriptors.temperature_range[0]}°C - ${plantInfo.ecological_descriptors.temperature_range[1]}°C`
-                : plantInfo.ecological_descriptors?.temperature_range || "N/A"}
+            <label>IDEAL CONDITIONS (DEBUG)</label>
+            <small style={{ wordBreak: 'break-all', color: 'yellow' }}>
+              RAW: {JSON.stringify(plantInfo.ecological_descriptors?.temperature_range)}
             </small>
           </div>
         </div>
