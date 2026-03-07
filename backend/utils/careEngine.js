@@ -1,15 +1,18 @@
 // backend/utils/careEngine.js
 
-// Helper to parse ranges like "18-25°C" or "60-80%"
+// Helper to parse ranges like "18-25°C", "15.6 - 23.9 C", or "60-80%"
 const parseRange = (rangeStr) => {
   if (!rangeStr) return null;
 
-  // Remove non-digits (like °C, %, spaces)
-  const cleanStr = rangeStr.replace(/[^0-9-]/g, "");
+  // 🟢 FIX: Added the decimal point (.) inside the brackets!
+  const cleanStr = rangeStr.replace(/[^0-9.-]/g, ""); 
   const parts = cleanStr.split("-");
 
   if (parts.length === 2) {
-    return { min: Number(parts[0]), max: Number(parts[1]) };
+    return { 
+      min: Number(parts[0]), 
+      max: Number(parts[1]) 
+    };
   }
   return null;
 };
