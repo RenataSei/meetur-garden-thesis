@@ -36,7 +36,7 @@ const convertToBase64 = (file) => {
 function formatTemp(tempStr) {
   if (!tempStr) return "N/A";
   // Find the numbers in the string, even if they have decimals
-  const nums = tempStr.match(/\d+(\.\d+)?/g); 
+  const nums = tempStr.match(/\d+(\.\d+)?/g);
   if (nums && nums.length >= 2) {
     // Round them to whole numbers for a cleaner UI
     return `${Math.round(Number(nums[0]))}°C - ${Math.round(Number(nums[1]))}°C`;
@@ -54,7 +54,19 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
 
   // Analyze health again for the modal details
   const plantInfo = plant.plant_id || {};
-  const healthReport = analyzePlantHealth(plantInfo, weather, plant);
+  const cleanPlantInfo = {
+    ...plantInfo,
+    ecological_descriptors: {
+      ...plantInfo.ecological_descriptors,
+      temperature_range:
+        plantInfo.ecological_descriptors?.temperature_range?.replace?.(
+          /\s/g,
+          "",
+        ),
+    },
+  };
+
+  const healthReport = analyzePlantHealth(cleanPlantInfo, weather, plant);
 
   // Determine which image to show:
   const displayImage =
@@ -210,7 +222,8 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
           <div className="detail-box">
             <label>IDEAL CONDITIONS</label>
             <small>
-              Temp: {formatTemp(plantInfo.ecological_descriptors?.temperature_range)}
+              Temp:{" "}
+              {formatTemp(plantInfo.ecological_descriptors?.temperature_range)}
             </small>
           </div>
         </div>
@@ -551,7 +564,20 @@ function GardenDashboard({ user }) {
                 : plantInfo.common_name
               : "Unknown Plant";
 
-            const healthReport = analyzePlantHealth(plantInfo, weather, item);
+            // This ensures that even if there's a sync lag, the data is forced into a readable format
+            const cleanPlantInfo = {
+              ...plantInfo,
+              ecological_descriptors: {
+                ...plantInfo.ecological_descriptors,
+                temperature_range:
+                  plantInfo.ecological_descriptors?.temperature_range?.toString(),
+              },
+            };
+            const healthReport = analyzePlantHealth(
+              cleanPlantInfo,
+              weather,
+              item,
+            );
             let statusColor = "var(--leaf-green)";
             if (healthReport.health === "THIRSTY")
               statusColor = "var(--weather-blue)";
