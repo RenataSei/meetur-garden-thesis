@@ -200,7 +200,9 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
             <label>IDEAL CONDITIONS</label>
             <small>
               Temp:{" "}
-              {plantInfo.ecological_descriptors?.temperature_range || "N/A"}
+              {Array.isArray(plantInfo.ecological_descriptors?.temperature_range)
+                ? `${plantInfo.ecological_descriptors.temperature_range[0]}°C - ${plantInfo.ecological_descriptors.temperature_range[1]}°C`
+                : plantInfo.ecological_descriptors?.temperature_range || "N/A"}
             </small>
           </div>
         </div>
