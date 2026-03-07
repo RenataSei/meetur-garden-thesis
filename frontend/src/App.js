@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
+import Scan from './pages/Scan';
 
 function RequireAuth({ children }) {
   const { user } = useAuthContext();
@@ -91,6 +92,15 @@ export default function App() {
             element={
               <RequireAuth>
                 <Profile />
+              </RequireAuth>
+            }
+          />
+          {/* --- ADDED SCAN ROUTE --- */}
+          <Route
+            path="/scan"
+            element={
+              <RequireAuth>
+                <Scan />
               </RequireAuth>
             }
           />
