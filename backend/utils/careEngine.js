@@ -24,28 +24,26 @@ const differenceInDays = (date1, date2) => {
 
 const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
   const alerts = [];
-  const status = { health: "Optimal", alerts: [], next_actions: {} };
+  // FIX 1: Default to exact ALL CAPS to match your frontend Home.js
+  const status = { health: "OPTIMAL", alerts: [], next_actions: {} }; 
 
   // 1. Check Temperature
-  // Weather API usually returns temp in Celsius if units='metric'
   const currentTemp = weatherData.main.temp;
-  const tempRange = parseRange(plant.ecological_descriptors.temperature_range);
+  const tempRange = parseRange(plant.ecological_descriptors?.temperature_range);
 
   if (tempRange) {
     if (currentTemp < tempRange.min) {
-      alerts.push(
-        `Too Cold! Current temp is ${currentTemp}°C. ${plant.common_name[0]} needs at least ${tempRange.min}°C.`
-      );
+      status.health = "TOO COLD!"; // FIX 3: Set main health status to trigger the red UI border
+      alerts.push(`Too Cold! Current temp is ${currentTemp}°C. Needs at least ${tempRange.min}°C.`);
     } else if (currentTemp > tempRange.max) {
-      alerts.push(
-        `Too Hot! Current temp is ${currentTemp}°C. ${plant.common_name[0]} prefers below ${tempRange.max}°C.`
-      );
+      status.health = "TOO HOT!"; // FIX 3: Set main health status to trigger the red UI border
+      alerts.push(`Too Hot! Current temp is ${currentTemp}°C. Prefers below ${tempRange.max}°C.`);
     }
   }
 
   // 2. Humidity Check
   const currentHumidity = weatherData.main.humidity;
-  const humidityReq = plant.ecological_descriptors.humidity_level || "";
+  const humidityReq = plant.ecological_descriptors?.humidity_level || "";
   if (humidityReq.toLowerCase().includes("high") && currentHumidity < 40) {
     alerts.push(`💧 Air is dry (${currentHumidity}%). Mist this plant.`);
   }
@@ -57,29 +55,26 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
       new Date(gardenItem.last_watered)
     );
 
-    // Parse Frequency from DB (Defaulting to 7 days if parsing fails)
     let requiredDays = 7;
-    const freq = plant.ecological_descriptors.water_frequency.toLowerCase();
+    // FIX 2: Safely handle missing DB fields with (?.) and an empty string fallback
+    const freq = (plant.ecological_descriptors?.water_frequency || "").toLowerCase();
 
     if (freq.includes("daily")) requiredDays = 1;
-    else if (freq.includes("bi-weekly") || freq.includes("2 weeks"))
-      requiredDays = 14;
+    else if (freq.includes("bi-weekly") || freq.includes("2 weeks")) requiredDays = 14;
     else if (freq.includes("weekly")) requiredDays = 7;
 
-    // Smart Adjustment: Rain delays the need for water
-    const isRaining = weatherData.weather[0].main
-      .toLowerCase()
-      .includes("rain");
+    // Safely check weather array in case the API temporarily drops the data
+    const isRaining = weatherData.weather?.[0]?.main?.toLowerCase().includes("rain");
     if (isRaining) {
       requiredDays += 2;
       alerts.push("🌧️ It's raining! Watering pushed back 2 days.");
     }
 
-    // Calculate Countdown
     const dueInDays = requiredDays - daysSinceWatering;
 
     if (dueInDays <= 0) {
-      status.health = "Thirsty";
+      // Only set to THIRSTY if it isn't already dying of heat/cold!
+      if (status.health === "OPTIMAL") status.health = "THIRSTY";
       status.next_actions.water_in = "Now";
       alerts.push(`💧 Time to water!`);
     } else {
@@ -87,16 +82,17 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
     }
   }
 
-  // 4. Sun Exposure Alert (If currently outside)
+  // 4. Sun Exposure Alert
   if (gardenItem && gardenItem.is_in_sun) {
     alerts.push("☀️ Plant is currently under sun exposure.");
   }
 
-  if (alerts.length > 0 && status.health === "Optimal") {
-    status.health = "Needs Attention";
+  // 5. Final Catch-All for Minor Alerts
+  if (alerts.length > 0 && status.health === "OPTIMAL") {
+    status.health = "NEEDS ATTENTION";
   }
+  
   status.alerts = alerts;
-
   return status;
 };
 module.exports = { analyzePlantHealth };
