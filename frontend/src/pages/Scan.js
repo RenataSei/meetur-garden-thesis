@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Scan.css"; // We will make this simple CSS next
+import "./ScannerStyles.css"; // We will make this simple CSS next
 
 export default function Scan() {
   const [status, setStatus] = useState("Tap 'Start' to scan a plant tag...");
