@@ -226,6 +226,44 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
               {formatTemp(plantInfo.ecological_descriptors?.temperature_range)}
             </small>
           </div>
+          {/* --- 🟢 NEW: HYDRATION BAR --- */}
+          <div className="detail-box" style={{ gridColumn: "1 / -1" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "8px",
+              }}
+            >
+              <label>HYDRATION LEVEL</label>
+              <span
+                style={{
+                  fontSize: "10px",
+                  color: "#9ca3af",
+                  fontWeight: "bold",
+                }}
+              >
+                {healthReport.hydration_percent}% -{" "}
+                {healthReport.next_actions.water_in === "Now"
+                  ? "Needs Water"
+                  : `Due in ${healthReport.next_actions.water_in}`}
+              </span>
+            </div>
+            <div className="water-bar-container">
+              <div
+                className="water-bar-fill"
+                style={{
+                  width: `${healthReport.hydration_percent}%`,
+                  backgroundColor:
+                    healthReport.hydration_percent > 40
+                      ? "#3b82f6" // Deep Water Blue
+                      : healthReport.hydration_percent > 15
+                        ? "#fbbf24" // Warning Yellow
+                        : "#ef4444", // Critical Red
+                }}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="modal-actions">
@@ -254,7 +292,8 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
         </div>
       </div>
 
-      <style>{`
+      <style>
+        {`
         .modal-overlay {
           position: fixed; inset: 0; background: rgba(0,0,0,0.75);
           display: flex; align-items: center; justify-content: center; z-index: 9999;
@@ -322,7 +361,21 @@ function PlantModal({ plant, weather, onClose, onUpdate, onWater, onRemove }) {
         }
         .camera-btn:hover { transform: scale(1.1); }
         .edit-column { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
-      `}</style>
+        .water-bar-container {
+          width: 100%; 
+          height: 10px; 
+          background: #111827; /* Deepest background color */
+          border-radius: 6px; 
+          overflow: hidden;
+          border: 1px solid #374151;
+        }
+        .water-bar-fill {
+          height: 100%; 
+          border-radius: 4px; 
+          transition: width 1s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.5s ease;
+        }
+      `}
+      </style>
     </div>
   );
 }

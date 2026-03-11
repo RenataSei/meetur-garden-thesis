@@ -100,14 +100,22 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
 
     const dueInDays = requiredDays - daysSinceWatering;
 
+    // --- Calculate Hydration Percentage (0 to 100) ---
+    // Math.max and Math.min keep the bar strictly between 0% and 100%
+    const hydration = Math.max(0, Math.min(100, Math.round((dueInDays / requiredDays) * 100)));
+    status.hydration_percent = hydration;
+
     if (dueInDays <= 0) {
-      // Only set to THIRSTY if it isn't already dying of heat/cold!
       if (status.health === "OPTIMAL") status.health = "THIRSTY";
       status.next_actions.water_in = "Now";
       alerts.push(`💧 Time to water!`);
     } else {
       status.next_actions.water_in = `${Math.round(dueInDays)} days`;
     }
+  } else {
+    // Fallback if the plant has never been watered
+    status.hydration_percent = 0;
+    status.next_actions.water_in = "Now";
   }
 
   // 4. Sun Exposure Alert
