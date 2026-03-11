@@ -55,7 +55,7 @@ export default function Settings() {
           <button 
             onClick={() => setAlerts(!alerts)}
             className={`btn btn--small ${alerts ? "btn--blue" : "btn--ghost"}`}
-            style={{ width: "80px" }}
+            style={{ minWidth: "90px" }}
           >
             {alerts ? "Enabled" : "Off"}
           </button>
@@ -76,7 +76,7 @@ export default function Settings() {
           <button 
             onClick={() => setHaptics(!haptics)}
             className={`btn btn--small ${haptics ? "btn--primary" : "btn--ghost"}`}
-            style={haptics ? { background: "#8b5cf6", borderColor: "#8b5cf6", width: "80px" } : { width: "80px" }}
+            style={haptics ? { background: "#8b5cf6", borderColor: "#8b5cf6", minWidth: "90px" } : { minWidth: "90px" }}
           >
             {haptics ? "ON" : "OFF"}
           </button>
