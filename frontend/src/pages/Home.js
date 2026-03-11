@@ -754,7 +754,7 @@ export default function Home() {
             className="btn btn--primary"
             style={{ background: "#8b5cf6", borderColor: "#8b5cf6" }}
           >
-            📡 Scan Tag
+            Scan Tag
           </Link>
 
           {user && (
