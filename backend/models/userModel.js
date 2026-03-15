@@ -14,6 +14,11 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  settings: {
+    tempUnit: { type: String, default: "Celsius" },
+    alertsEnabled: { type: Boolean, default: true },
+    hapticsEnabled: { type: Boolean, default: true }
+  },
   // --- Role Field ---
   role: {
     type: String,

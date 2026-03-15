@@ -14,7 +14,7 @@ const loginUser = async (req, res) => {
     const token = createToken(user._id);
 
     // --- NEW: Send the role back to the frontend ---
-    res.status(200).json({email, role: user.role, token}); 
+    res.status(200).json({email, role: user.role, settings: user.settings, token}); 
   } catch (error) {
     res.status(400).json({error: error.message});
   }
@@ -30,11 +30,40 @@ const signupUser = async (req, res) => {
     const user = await User.signup(email, password, role); 
     const token = createToken(user._id);
 
-    // --- NEW: Send the role back to the frontend ---
-    res.status(200).json({email, role: user.role, token}); 
+    // --- NEW: Send the role and settings back to the frontend ---
+    res.status(200).json({email, role: user.role, settings: user.settings, token}); 
   } catch (error) {
     res.status(400).json({error: error.message});
   }
 }
 
-module.exports = { signupUser, loginUser };
+// --- 🟢 NEW: Update User Settings ---
+const updateSettings = async (req, res) => {
+  // We extract the settings from the frontend request
+  const { tempUnit, alertsEnabled, hapticsEnabled } = req.body;
+
+  try {
+    // req.user._id will be provided by your auth middleware
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { 
+        $set: { 
+          "settings.tempUnit": tempUnit,
+          "settings.alertsEnabled": alertsEnabled,
+          "settings.hapticsEnabled": hapticsEnabled
+        } 
+      },
+      { new: true } // This tells Mongoose to return the updated document
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ message: "Settings saved!", settings: user.settings });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+module.exports = { signupUser, loginUser, updateSettings };
