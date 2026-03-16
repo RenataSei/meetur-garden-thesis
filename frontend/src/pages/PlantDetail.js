@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react"; // ADDED useContext
 import { useParams, Link } from "react-router-dom";
-import { PlantsAPI } from "../api";
+import { PlantsAPI, GardenAPI } from "../api";
+import { AuthContext } from "../contexts/AuthContext"; // ADDED AuthContext
 import "./PlantDetail.css";
 
 export default function PlantDetail() {
   const { id } = useParams();
   const [plant, setPlant] = useState(null);
   const [err, setErr] = useState("");
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     PlantsAPI.get(id)
@@ -283,14 +285,17 @@ export default function PlantDetail() {
               </section>
             )}
 
-            <div className="detail__actions">
-              <Link
-                className="btn btn--primary"
-                to={`/plants/${plant._id}/edit`}
-              >
-                Edit Plant
-              </Link>
-            </div>
+            {/* ONLY ADMINS see the Edit button */}
+            {user && user.role === "admin" && (
+              <div className="detail__actions">
+                <Link
+                  className="btn btn--primary"
+                  to={`/plants/${plant._id}/edit`}
+                >
+                  Edit Plant
+                </Link>
+              </div>
+            )}
           </>
         )}
       </section>

@@ -72,4 +72,36 @@ userSchema.statics.login = async function(email, password) {
   return user;
 }
 
+// Static change password method
+userSchema.statics.changePassword = async function(_id, currentPassword, newPassword) {
+  // 1. Validation
+  if (!currentPassword || !newPassword) {
+    throw new Error('Both current and new passwords must be filled');
+  }
+  if (!validator.isStrongPassword(newPassword)) {
+    throw new Error('New password is not strong enough');
+  }
+
+  // 2. Find the user
+  const user = await this.findById(_id);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // 3. Verify the current password
+  const match = await bcrypt.compare(currentPassword, user.password);
+  if (!match) {
+    throw new Error('Incorrect current password');
+  }
+
+  // 4. Hash the new password and save
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(newPassword, salt);
+
+  user.password = hash;
+  await user.save();
+
+  return user;
+}
+
 module.exports = mongoose.model('User', userSchema);

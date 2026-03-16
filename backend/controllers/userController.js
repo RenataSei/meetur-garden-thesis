@@ -66,4 +66,19 @@ const updateSettings = async (req, res) => {
   }
 }
 
-module.exports = { signupUser, loginUser, updateSettings };
+// --- 🟢 NEW: Change Password ---
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    // req.user._id comes from your requireAuth middleware
+    await User.changePassword(req.user._id, currentPassword, newPassword);
+    
+    res.status(200).json({ message: "Password updated successfully!" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+
+module.exports = { signupUser, loginUser, updateSettings, changePassword };

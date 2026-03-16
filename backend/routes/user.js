@@ -15,4 +15,7 @@ router.use(requireAuth);
 
 // update settings route
 router.put('/settings', updateSettings);
+
+// change password route
+router.put('/change-password', changePassword);
 module.exports = router;
