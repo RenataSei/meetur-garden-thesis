@@ -18,7 +18,8 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
-import NfcReader from './pages/NfcReader';
+import NfcReader from "./pages/NfcReader";
+import Tutorials from "./pages/Tutorials";
 
 function RequireAuth({ children }) {
   const { user } = useAuthContext();
@@ -104,6 +105,11 @@ export default function App() {
               </RequireAuth>
             }
           />
+          <Route path="/tutorials" element={
+            <RequireAuth>
+              <Tutorials />
+            </RequireAuth>
+          } />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />

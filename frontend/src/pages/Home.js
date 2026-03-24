@@ -3,6 +3,7 @@ import { analyzePlantHealth } from "../utils/careEngine";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { WeatherContext } from "../contexts/WeatherContext";
+
 import { GardenAPI } from "../api";
 import { useSearchParams } from "react-router-dom";
 import "./Home.css";
