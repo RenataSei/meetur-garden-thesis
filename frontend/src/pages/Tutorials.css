@@ -1,0 +1,101 @@
+/* Container styling */
+.tutorial-tab-content {
+  color: var(--text-main);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.tutorial-header h2 {
+  font-family: 'Press Start 2P', monospace; /* If you want headers to match the retro vibe */
+  font-size: 1.2rem;
+  color: var(--accent-green, #4ade80);
+  margin-bottom: 10px;
+}
+
+.text-muted {
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.6;
+}
+
+/* Sections */
+.tutorial-section {
+  background: var(--bg-card, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.tutorial-section h3 {
+  margin-top: 0;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tutorial-list {
+  padding-left: 20px;
+  margin-bottom: 0;
+  color: var(--text-muted);
+}
+
+.tutorial-list li {
+  margin-bottom: 8px;
+}
+
+.tutorial-list .accent {
+  color: var(--accent-green, #4ade80);
+  font-weight: 600;
+}
+
+/* Troubleshooting Grid */
+.tutorial-troubleshooting {
+  margin-top: 30px;
+  border-top: 1px solid var(--border-color, #334155);
+  padding-top: 20px;
+}
+
+.troubleshoot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.troubleshoot-card {
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid;
+  background: var(--bg-card, #1e293b);
+}
+
+.troubleshoot-card h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.troubleshoot-card ul {
+  padding-left: 20px;
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* Theming for specific issues */
+.troubleshoot-card.warning {
+  border-left-color: #f59e0b; /* Amber */
+}
+.troubleshoot-card.warning h4 {
+  color: #f59e0b;
+}
+
+.troubleshoot-card.info {
+  border-left-color: #38bdf8; /* Light Blue */
+}
+.troubleshoot-card.info h4 {
+  color: #38bdf8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

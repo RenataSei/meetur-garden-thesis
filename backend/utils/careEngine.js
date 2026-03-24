@@ -22,6 +22,13 @@ const differenceInDays = (date1, date2) => {
 
 const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
   const alerts = [];
+  //Guard clause
+  if (!weatherData || !weatherData.main) {
+    return { 
+      status: "Unknown", 
+      message: "Waiting for local weather data..." 
+    };
+  }
   // FIX 1: Default to exact ALL CAPS to match your frontend Home.js
   const status = { health: "OPTIMAL", alerts: [], next_actions: {} };
 
