@@ -666,7 +666,7 @@ function GardenDashboard({ user }) {
                   </div>
                 </div>
 
-                {healthReport.alerts.length > 0 && (
+                {healthReport.alerts?.length > 0 && (
                   <ul
                     style={{
                       listStyle: "none",
@@ -681,7 +681,7 @@ function GardenDashboard({ user }) {
                       gap: "4px",
                     }}
                   >
-                    {healthReport.alerts.map((alert, idx) => (
+                    {healthReport.alerts?.map((alert, idx) => (
                       <li key={idx}>▸ {alert}</li>
                     ))}
                   </ul>
