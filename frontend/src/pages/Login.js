@@ -6,7 +6,6 @@ import "./Auth.css";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { API_BASE } from "../api";
 
-
 export default function Login() {
   const navigate = useNavigate();
   const { user, dispatch } = useAuthContext();
@@ -15,6 +14,10 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // 🟢 NEW: States for 2FA
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [twoFactorToken, setTwoFactorToken] = useState("");
 
   // If already logged in, go to home
   useEffect(() => {
@@ -32,13 +35,22 @@ export default function Login() {
       const res = await fetch(`${API_BASE}/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        // 🟢 NEW: Include twoFactorToken in the body
+        body: JSON.stringify({ email, password, twoFactorToken })
       });
 
       const data = await res.json();
 
       if (!res.ok) {
         setMsg(data.error || "Unable to login");
+        setLoading(false);
+        return;
+      }
+
+      // 🟢 NEW: Check if the backend is asking for a 2FA code
+      if (data.requires2FA) {
+        setRequires2FA(true);
+        setMsg(null); // Clear any previous errors
         setLoading(false);
         return;
       }
@@ -80,35 +92,58 @@ export default function Login() {
 
         <section className="auth__body">
           <div className="auth-card">
-            <h2 className="auth-card__title">Welcome back</h2>
+            <h2 className="auth-card__title">
+              {requires2FA ? "Two-Factor Auth" : "Welcome back"}
+            </h2>
             <p className="auth-card__subtitle">
-              Log in to manage your plants, tasks, and garden notes.
+              {requires2FA 
+                ? "Enter the 6-digit code from your authenticator app." 
+                : "Log in to manage your plants, tasks, and garden notes."}
             </p>
 
             <form className="auth-form" onSubmit={handleSubmit}>
-              <div>
-                <label className="auth-label">Email</label>
-                <input
-                  className="auth-input"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
+              
+              {/* 🟢 NEW: Conditionally render inputs based on 2FA requirement */}
+              {!requires2FA ? (
+                <>
+                  <div>
+                    <label className="auth-label">Email</label>
+                    <input
+                      className="auth-input"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
 
-              <div>
-                <label className="auth-label">Password</label>
-                <input
-                  className="auth-input"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
+                  <div>
+                    <label className="auth-label">Password</label>
+                    <input
+                      className="auth-input"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="auth-label">Authenticator Code</label>
+                  <input
+                    className="auth-input"
+                    type="text"
+                    placeholder="000000"
+                    value={twoFactorToken}
+                    onChange={(e) => setTwoFactorToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    style={{ fontSize: '20px', letterSpacing: '4px', textAlign: 'center' }}
+                    required
+                  />
+                </div>
+              )}
 
               {msg && <p className="auth-error">{msg}</p>}
 
@@ -116,17 +151,33 @@ export default function Login() {
                 <button
                   type="submit"
                   className="btn btn--primary"
-                  disabled={loading}
+                  disabled={loading || (requires2FA && twoFactorToken.length !== 6)}
+                  style={{ width: "100%" }}
                 >
-                  {loading ? "Signing in..." : "Login"}
+                  {loading ? "Verifying..." : (requires2FA ? "Verify Code" : "Login")}
                 </button>
               </div>
+
+              {/* 🟢 NEW: Allow user to go back if they need to change their email/password */}
+              {requires2FA && (
+                <div style={{ textAlign: "center", marginTop: "12px" }}>
+                  <button 
+                    type="button" 
+                    onClick={() => { setRequires2FA(false); setTwoFactorToken(""); setMsg(null); }}
+                    style={{ background: "none", border: "none", color: "#6b7280", cursor: "pointer", fontSize: "12px", textDecoration: "underline" }}
+                  >
+                    Go Back
+                  </button>
+                </div>
+              )}
             </form>
 
-            <div className="auth-footer">
-              Do not have an account yet?{" "}
-              <Link to="/register">Create one</Link>
-            </div>
+            {!requires2FA && (
+              <div className="auth-footer">
+                Do not have an account yet?{" "}
+                <Link to="/register">Create one</Link>
+              </div>
+            )}
           </div>
         </section>
 

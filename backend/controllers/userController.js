@@ -9,13 +9,36 @@ const createToken = (_id) => {
 
 // login user
 const loginUser = async (req, res) => {
-  const {email, password} = req.body;
+  // 🟢 NEW: Extract twoFactorToken from the request body
+  const {email, password, twoFactorToken} = req.body;
 
   try {
     const user = await User.login(email, password);
+
+    // 🟢 NEW: 2FA ENFORCEMENT LOGIC
+    if (user.twoFactorEnabled) {
+      // Step 1: Password is correct, but they haven't sent a 2FA code yet.
+      if (!twoFactorToken) {
+        // Send a 200 OK without the JWT token to tell the frontend we need the 2FA code.
+        return res.status(200).json({ requires2FA: true, email: user.email });
+      }
+
+      // Step 2: They sent a 2FA code. Let's verify it!
+      const verified = speakeasy.totp.verify({
+        secret: user.twoFactorSecret,
+        encoding: 'base32',
+        token: twoFactorToken,
+        window: 1 // Allows a 30-second grace period
+      });
+
+      if (!verified) {
+        return res.status(400).json({ error: "Invalid 2FA code. Please try again." });
+      }
+    }
+
+    // If we reach here, either 2FA is OFF, or 2FA is ON and the code was CORRECT!
     const token = createToken(user._id);
 
-    // --- NEW: Send the role back to the frontend ---
     res.status(200).json({email, role: user.role, settings: user.settings, token}); 
   } catch (error) {
     res.status(400).json({error: error.message});
