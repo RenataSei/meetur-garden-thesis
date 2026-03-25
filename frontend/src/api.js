@@ -20,6 +20,25 @@ function getAuthHeaders() {
   }
 }
 
+export const TwoFactorAPI = {
+  // POST /api/user/2fa/generate
+  generate: () => {
+    return fetch(`${API_BASE}/user/2fa/generate`, {
+      method: "POST",
+      headers: { ...getAuthHeaders() },
+    }).then(handle); // <-- Use your common handler!
+  },
+
+  // POST /api/user/2fa/verify
+  verifySetup: (token) => {
+    return fetch(`${API_BASE}/user/2fa/verify`, { // 🟢 FIXED URL HERE
+      method: "POST",
+      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    }).then(handle); // <-- Use your common handler!
+  }
+};
+
 // Common response handler
 async function handle(res) {
   const ct = res.headers.get("content-type") || "";
