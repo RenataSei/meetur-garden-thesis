@@ -24,8 +24,18 @@ const userSchema = new Schema({
     type: String,
     enum: ['user', 'admin'], // Only allow these two values
     default: 'user'          // Default to 'user' if not specified
+  },
+
+  // --- 2FA Fields ---
+  twoFactorSecret: {
+    type: String,
+    default: null
+  },
+  twoFactorEnabled: {
+    type: Boolean,
+    default: false
   }
-});
+}, { timestamps: true });
 
 // Static signup method
 userSchema.statics.signup = async function(email, password, role) { // Accept role here

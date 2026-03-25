@@ -1,5 +1,7 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 
 const createToken = (_id) => {
   return jwt.sign({_id}, process.env.SECRET, { expiresIn: '3d' });
@@ -80,5 +82,57 @@ const changePassword = async (req, res) => {
   }
 }
 
+// 1. GENERATE THE QR CODE (Called when user clicks "Enable 2FA" in settings)
+const generate2FA = async (req, res) => {
+  try {
+    // We need the user's ID from the auth middleware
+    const user = await User.findById(req.user._id);
 
-module.exports = { signupUser, loginUser, updateSettings, changePassword };
+    // Generate a secure secret specific to this user
+    const secret = speakeasy.generateSecret({
+      name: `Meet-Ur Garden (${user.email})` // This is what shows up in Google Authenticator
+    });
+
+    // Save the secret temporarily (we won't enable 2FA until they prove they scanned it)
+    user.twoFactorSecret = secret.base32;
+    await user.save();
+
+    // Generate the visual QR Code URL
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    res.status(200).json({ qrCodeUrl, secret: secret.base32 });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to generate 2FA secret" });
+  }
+};
+
+// 2. VERIFY AND ENABLE (Called when user types in the 6-digit code to confirm setup)
+const verifyAndEnable2FA = async (req, res) => {
+  const { token } = req.body; // The 6-digit code from their phone
+
+  try {
+    const user = await User.findById(req.user._id);
+
+    // Check if the code they typed matches their secret
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token: token,
+      window: 1 // Allows a 30-second grace period in case they are slow typing
+    });
+
+    if (verified) {
+      // It worked! Officially enable 2FA for this user
+      user.twoFactorEnabled = true;
+      await user.save();
+      res.status(200).json({ message: "2FA successfully enabled!" });
+    } else {
+      res.status(400).json({ error: "Invalid token. Try again." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Server error during verification" });
+  }
+};
+
+
+module.exports = { signupUser, loginUser, updateSettings, changePassword, generate2FA, verifyAndEnable2FA };

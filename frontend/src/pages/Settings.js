@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import TwoFactorSetup from '../components/TwoFactorSetup';
 
 export default function Settings() {
   const { user } = useContext(AuthContext); // Get the logged-in user's token
@@ -132,8 +133,13 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* 🟢 NEW: SAVE BUTTON */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #374151", paddingTop: "20px" }}>
+      {/* 🟢 NEW SECTION: SECURITY & 2FA */}
+      <div style={{ marginBottom: "30px" }}>
+        <TwoFactorSetup />
+      </div>
+
+      {/* SAVE BUTTON */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #374151", paddingTop: "20px", paddingBottom: "40px" }}>
         <button className="btn btn--danger btn--ghost" style={{ padding: "8px 16px" }}>Delete Data</button>
         <button 
           onClick={handleSave} 
