@@ -28,6 +28,7 @@ const plantSchema = new Schema({
     height: { type: Number, required: true },
     maintenance_level: { type: String, required: true },
     life_cycle: { type: String, required: true },
+    image_url: { type: String, required: false },
     flower_descriptors: {
             color: {type: String, required: true},
             flower_inflorescence: {type: String, required: true},

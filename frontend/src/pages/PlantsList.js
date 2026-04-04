@@ -122,7 +122,7 @@ export default function PlantsList() {
     const scientific = lower(plant.scientific_name || "");
     const family = lower(plant.family || "");
     const maintenance = lower(plant.maintenance_level || "");
-
+    const genus = lower(plant.genus_name || "");
     // Genus from scientific name (first word)
     const genusFromScientific = scientific.split(/\s+/)[0] || "";
 
@@ -154,8 +154,8 @@ export default function PlantsList() {
     }
 
     if (searchField === "genus") {
-      return genusFromScientific.includes(query);
-    }
+    return genus.includes(query);
+  }
 
     if (searchField === "maintenance") {
       return maintenance.includes(query);
@@ -167,7 +167,7 @@ export default function PlantsList() {
       scientific.includes(query) ||
       family.includes(query) ||
       maintenance.includes(query) ||
-      genusFromScientific.includes(query) ||
+      genus.includes(query) ||
       full.includes(query)
     );
   });

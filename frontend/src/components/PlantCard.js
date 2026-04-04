@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import "./PlantCard.css";
 
-export default function PlantCard({ plant, onDelete, userRole, onAddToGarden }) {
+export default function PlantCard({
+  plant,
+  onDelete,
+  userRole,
+  onAddToGarden,
+}) {
   // common name in API is an array, use first value if available
   const displayName =
     plant.common_name && plant.common_name.length > 0
@@ -15,6 +20,25 @@ export default function PlantCard({ plant, onDelete, userRole, onAddToGarden }) 
 
   return (
     <article className="plant-card">
+      {/* 🟢 NEW: Render Image if it exists */}
+      {plant.image_url && (
+        <div
+          style={{
+            width: "100%",
+            height: "180px",
+            overflow: "hidden",
+            borderRadius: "16px 16px 0 0",
+            margin: "-18px -18px 10px -18px",
+            width: "calc(100% + 36px)",
+          }}
+        >
+          <img
+            src={plant.image_url}
+            alt={displayName}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        </div>
+      )}
       <header className="plant-card__header">
         <h3 className="plant-card__title">{displayName}</h3>
 
@@ -37,19 +61,22 @@ export default function PlantCard({ plant, onDelete, userRole, onAddToGarden }) 
         {/* 2. "Add to Garden" Button - Visible to everyone (Log in check handles the rest) */}
         {/* We generally hide this from admins to keep their UI clean, or show it if they want a garden too. 
             For now, let's show it for users who are NOT admins, or logged-in users. */}
-        {userRole !== 'admin' && (
-             <button
-             type="button"
-             className="btn plant-card__btn-add" // You might need to style this class green in CSS
-             onClick={onAddToGarden}
-             style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)' }}
-           >
-             + Garden
-           </button>
+        {userRole !== "admin" && (
+          <button
+            type="button"
+            className="btn plant-card__btn-add" // You might need to style this class green in CSS
+            onClick={onAddToGarden}
+            style={{
+              background: "rgba(255, 255, 255, 0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            + Garden
+          </button>
         )}
 
         {/* 3. Delete Button - ONLY visible to Admins */}
-        {userRole === 'admin' && (
+        {userRole === "admin" && (
           <button
             type="button"
             className="btn danger plant-card__btn-danger"

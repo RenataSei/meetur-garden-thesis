@@ -78,6 +78,22 @@ export default function PlantDetail() {
       <div className="detail__header">
         {plant ? (
           <>
+            {/* 🟢 NEW: Show Image on details page */}
+            {plant.image_url && (
+              <img
+                src={plant.image_url}
+                alt={primaryName}
+                style={{
+                  width: "100%",
+                  maxWidth: "500px",
+                  height: "300px",
+                  objectFit: "cover",
+                  borderRadius: "16px",
+                  marginBottom: "20px",
+                  boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
+                }}
+              />
+            )}
             <h1 className="detail__title">{primaryName}</h1>
             <p className="detail__subtitle">
               <span className="detail__label">Species:</span>{" "}

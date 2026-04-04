@@ -256,6 +256,7 @@ const fields = [
   ["Common Name(s)", "common_name", false],
   ["Scientific Name", "scientific_name", false],
   ["Family", "family", false],
+  ["Image URL", "image_url", false],
   ["Description", "description", true],
   ["Height (cm)", "height", false],
   ["Maintenance Level", "maintenance_level", false],
@@ -369,6 +370,7 @@ export default function PlantForm({
       : initialData.common_name || "";
     next.scientific_name = initialData.scientific_name || "";
     next.family = initialData.family || "";
+    next.image_url = initialData.image_url || "";
     next.description = initialData.description || "";
     next.height =
       initialData.height === 0 || initialData.height
@@ -475,6 +477,7 @@ export default function PlantForm({
         common_name: parseCommonNames(data.common_name),
         scientific_name: data.scientific_name.trim(),
         family: data.family.trim(),
+        image_url: data.image_url.trim(),
         description: data.description.trim(),
         height: heightNum,
         maintenance_level: data.maintenance_level.trim(),
