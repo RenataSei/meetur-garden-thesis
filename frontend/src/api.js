@@ -145,14 +145,20 @@ export const GeneraAPI = {
 };
 
 // ---------------------------------------------------
-// WEATHER API (optional helper if you use it later)
+// WEATHER API
 // ---------------------------------------------------
 
 export const WeatherAPI = {
-  // GET /api/weather?city=Manila or other params
+  // GET /api/weather?city=Manila or lat/lon
   get: (params) => {
     const queryString = new URLSearchParams(params).toString();
     return fetch(`${API_BASE}/weather?${queryString}`).then(handle);
+  },
+
+  // 🟢 FIXED: Securely calls YOUR backend instead of OpenWeatherMap directly
+  getForecast: (params) => {
+    const queryString = new URLSearchParams(params).toString();
+    return fetch(`${API_BASE}/weather/forecast?${queryString}`).then(handle);
   }
 };
 

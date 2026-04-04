@@ -14,14 +14,15 @@ export function WeatherProvider({ children }) {
   const fetchByCoords = async (lat, lon) => {
     setLoading(true);
     try {
-      // 🟢 NEW: Fetch both current weather and the 5-day forecast simultaneously
+      // 🟢 FIXED: .catch(e => null) prevents a forecast crash from killing the main weather!
       const [weatherData, forecastData] = await Promise.all([
-        WeatherAPI.get({ lat, lon }), 
-        WeatherAPI.getForecast({ lat, lon }) // Make sure your api.js has a getForecast route!
+        WeatherAPI.get({ lat, lon }).catch(() => null), 
+        WeatherAPI.getForecast({ lat, lon }).catch(() => null) 
       ]);
       
-      setWeather(weatherData);
-      setForecast(forecastData);
+      if (weatherData) setWeather(weatherData);
+      if (forecastData) setForecast(forecastData);
+      
       setError(null);
     } catch (err) {
       setError("Failed to fetch weather data.");
@@ -34,13 +35,15 @@ export function WeatherProvider({ children }) {
   const fetchByCity = async (city) => {
     setLoading(true);
     try {
+      // 🟢 FIXED: Safe Promise fetching
       const [weatherData, forecastData] = await Promise.all([
-        WeatherAPI.get({ city }), 
-        WeatherAPI.getForecast({ city })
+        WeatherAPI.get({ city }).catch(() => null), 
+        WeatherAPI.getForecast({ city }).catch(() => null)
       ]);
       
-      setWeather(weatherData);
-      setForecast(forecastData);
+      if (weatherData) setWeather(weatherData);
+      if (forecastData) setForecast(forecastData);
+      
       setError(null);
     } catch (err) {
       setError("Failed to fetch weather data.");
@@ -48,7 +51,7 @@ export function WeatherProvider({ children }) {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
