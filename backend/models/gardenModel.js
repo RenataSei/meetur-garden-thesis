@@ -17,11 +17,13 @@ const gardenItemSchema = new Schema({
 
     // --- THE "TIMER" DATA (Watering & Sun Only) ---
     last_watered: { type: Date, default: Date.now },
+    last_misted: { type: Date },
     
     // Sun Exposure Tracking
     last_sun_exposure: { type: Date },
     is_in_sun: { type: Boolean, default: false },
     sun_start_time: { type: Date }
+    is_indoors: { type: Boolean, default: true }
 
 }, { timestamps: true });
 
