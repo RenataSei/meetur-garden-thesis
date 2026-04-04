@@ -1,37 +1,72 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-/* Card container - small version of the PlantDetail header style */
+/* ===== THE CARD CONTAINER ===== */
 .plant-card {
   position: relative;
-  padding: 18px 18px 16px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top left, #ecfdf5 0, #fdfcfb 45%),
-    radial-gradient(circle at bottom right, #e0f2fe 0, #fdfcfb 45%);
-  box-shadow:
-    0 14px 40px rgba(15, 23, 42, 0.18),
-    0 0 0 1px rgba(148, 163, 184, 0.18);
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 10px;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  overflow: hidden; /* Keeps the image flush with rounded corners */
+  font-family: "Inter", system-ui, sans-serif;
   color: #0f172a;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-/* header with name plus species, similar feel to detail page */
+/* Hover Effect - Lifts the card slightly */
+.plant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+/* ===== IMAGE SECTION ===== */
+.plant-card__image-wrapper {
+  width: 100%;
+  height: 180px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.plant-card__image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plant-card__image-placeholder {
+  width: 100%;
+  height: 180px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+/* ===== BODY SECTION (Padding lives here now!) ===== */
+.plant-card__body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Pushes actions to the bottom if description is short */
+}
+
+/* Header */
 .plant-card__header {
   text-align: left;
 }
 
 .plant-card__title {
   margin: 0;
-  font-size: 20px;
-  line-height: 1.1;
-  letter-spacing: 0.03em;
+  font-size: 18px;
   font-weight: 700;
-  color: #22c55e;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .plant-card__subtitle {
@@ -41,76 +76,74 @@
 }
 
 .plant-card__subtitle-label {
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   font-size: 11px;
-  color: #9ca3af;
+  color: #94a3b8;
   margin-right: 4px;
 }
 
 .plant-card__subtitle-text {
   font-size: 13px;
+  color: #16a34a; /* Green touch for species */
 }
 
 /* Description preview */
 .plant-card__description {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   font-size: 14px;
-  line-height: 1.5;
-  color: #4b5563;
-  min-height: 3.6em; /* keeps cards similar height even with shorter text */
+  line-height: 1.6;
+  color: #64748b;
+  flex: 1; /* Fills empty space */
 }
 
-/* Actions row */
+/* ===== ACTIONS ===== */
 .plant-card__actions {
-  margin-top: 14px;
+  margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-/* Buttons inherit base .btn styles but get a look that fits this card */
-.plant-card__btn {
-  padding-inline: 16px;
-  padding-block: 8px;
+.plant-card__btn,
+.plant-card__btn-add,
+.plant-card__btn-danger {
+  padding: 8px 16px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
-  background: #0f172a;
-  border-color: #0f172a;
-  color: #f9fafb;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  flex: 1; /* Makes buttons equal width */
+  transition: all 0.15s ease;
 }
 
+/* Specific Button Styles */
+.plant-card__btn {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
 .plant-card__btn:hover {
-  background: #111827;
-  border-color: #111827;
+  background: #e2e8f0;
+}
+
+.plant-card__btn-add {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+.plant-card__btn-add:hover {
+  background: #d1fae5;
 }
 
 .plant-card__btn-danger {
-  padding-inline: 16px;
-  padding-block: 8px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  background: #fee2e2;
-  border-color: #fecaca;
-  color: #b91c1c;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
 }
-
 .plant-card__btn-danger:hover {
-  background: #fecaca;
-  border-color: #fca5a5;
-}
-
-/* Make sure cards stay nice on small screens */
-@media (max-width: 640px) {
-  .plant-card {
-    padding: 16px 14px 14px;
-    border-radius: 18px;
-  }
-
-  .plant-card__title {
-    font-size: 18px;
-  }
+  background: #fee2e2;
 }

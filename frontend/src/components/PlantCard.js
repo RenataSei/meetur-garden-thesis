@@ -20,71 +20,63 @@ export default function PlantCard({
 
   return (
     <article className="plant-card">
-      {/* 🟢 NEW: Render Image if it exists */}
-      {plant.image_url && (
-        <div
-          style={{
-            width: "100%",
-            height: "180px",
-            overflow: "hidden",
-            borderRadius: "16px 16px 0 0",
-            margin: "-18px -18px 10px -18px",
-            width: "calc(100% + 36px)",
-          }}
-        >
-          <img
-            src={plant.image_url}
-            alt={displayName}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
+      {/* 🟢 NEW: Clean Image Wrapper without inline CSS hacks */}
+      {plant.image_url ? (
+        <div className="plant-card__image-wrapper">
+          <img src={plant.image_url} alt={displayName} />
+        </div>
+      ) : (
+        <div className="plant-card__image-placeholder">
+          <span>🌿</span>
         </div>
       )}
-      <header className="plant-card__header">
-        <h3 className="plant-card__title">{displayName}</h3>
 
-        <p className="plant-card__subtitle">
-          <span className="plant-card__subtitle-label">Species:</span>{" "}
-          <span className="plant-card__subtitle-text">
-            <i>{scientificName}</i>
-          </span>
-        </p>
-      </header>
+      {/* 🟢 NEW: Content Body Wrapper */}
+      <div className="plant-card__body">
+        <header className="plant-card__header">
+          <h3 className="plant-card__title">{displayName}</h3>
+          <p className="plant-card__subtitle">
+            <span className="plant-card__subtitle-label">Species:</span>{" "}
+            <span className="plant-card__subtitle-text">
+              <i>{scientificName}</i>
+            </span>
+          </p>
+        </header>
 
-      <p className="plant-card__description">{previewDescription}</p>
+        <p className="plant-card__description">{previewDescription}</p>
 
-      <div className="plant-card__actions">
-        {/* 1. Everyone can Open details */}
-        <Link className="btn plant-card__btn" to={`/plants/${plant._id}`}>
-          Open
-        </Link>
+        <div className="plant-card__actions">
+          {/* 1. Everyone can Open details */}
+          <Link className="btn plant-card__btn" to={`/plants/${plant._id}`}>
+            Open
+          </Link>
 
-        {/* 2. "Add to Garden" Button - Visible to everyone (Log in check handles the rest) */}
-        {/* We generally hide this from admins to keep their UI clean, or show it if they want a garden too. 
-            For now, let's show it for users who are NOT admins, or logged-in users. */}
-        {userRole !== "admin" && (
-          <button
-            type="button"
-            className="btn plant-card__btn-add" // You might need to style this class green in CSS
-            onClick={onAddToGarden}
-            style={{
-              background: "rgba(255, 255, 255, 0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-            }}
-          >
-            + Garden
-          </button>
-        )}
+          {/* 2. "Add to Garden" Button */}
+          {userRole !== "admin" && (
+            <button
+              type="button"
+              className="btn plant-card__btn-add"
+              onClick={onAddToGarden}
+            >
+              + Garden
+            </button>
+          )}
 
-        {/* 3. Delete Button - ONLY visible to Admins */}
-        {userRole === "admin" && (
-          <button
-            type="button"
-            className="btn danger plant-card__btn-danger"
-            onClick={() => onDelete(plant._id)}
-          >
-            Delete
-          </button>
-        )}
+          {/* 3. Delete Button - ONLY visible to Admins */}
+          {userRole === "admin" && (
+            <button
+              type="button"
+              className="btn plant-card__btn-danger"
+              onClick={() => {
+                if (window.confirm("Are you sure you want to delete this plant?")) {
+                  onDelete(plant._id);
+                }
+              }}
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </div>
     </article>
   );

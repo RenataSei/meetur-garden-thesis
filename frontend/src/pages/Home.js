@@ -441,13 +441,18 @@ function LandingView({ handleSearchSubmit }) {
 }
 
 // --- SUB-COMPONENT: The User's "My Garden" Dashboard ---
+// --- SUB-COMPONENT: The User's "My Garden" Dashboard ---
 function GardenDashboard({ user }) {
   const [garden, setGarden] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedPlant, setSelectedPlant] = useState(null); // <--- NEW STATE FOR MODAL
-  const [searchParams] = useSearchParams(); // Get URL params
+  const [selectedPlant, setSelectedPlant] = useState(null); 
+  const [searchParams] = useSearchParams(); 
   const { weather, loading: weatherLoading } = useContext(WeatherContext);
+
+  // 🟢 NEW: Dashboard States
+  const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'plants'
+  const [actionLoading, setActionLoading] = useState(null);
 
   async function loadGarden() {
     try {
@@ -461,14 +466,10 @@ function GardenDashboard({ user }) {
   }
 
   useEffect(() => {
-    // If garden is loaded AND we have an "open" param in the URL
     const openId = searchParams.get("open");
-
     if (garden.length > 0 && openId) {
       const targetPlant = garden.find((p) => p._id === openId);
-      if (targetPlant) {
-        setSelectedPlant(targetPlant); // Auto-open the modal!
-      }
+      if (targetPlant) setSelectedPlant(targetPlant); 
     }
   }, [garden, searchParams]);
 
@@ -476,26 +477,21 @@ function GardenDashboard({ user }) {
     loadGarden();
   }, []);
 
-  // Updated Remove: Closes modal if open
   async function handleRemove(id, name) {
-    // Confirmation handled inside button usually, but safe double check
     try {
       await GardenAPI.remove(id);
       setGarden((prev) => prev.filter((item) => item._id !== id));
-      setSelectedPlant(null); // Close modal
+      setSelectedPlant(null); 
     } catch (err) {
       alert("Failed to remove plant");
     }
   }
 
-  // Updated Water: Refreshes data
   async function handleWater(id) {
     try {
       await GardenAPI.logAction(id, "water");
-      const updatedList = await GardenAPI.list(); // Re-fetch to get new date
+      const updatedList = await GardenAPI.list(); 
       setGarden(updatedList);
-
-      // Update the modal data if it's open
       if (selectedPlant && selectedPlant._id === id) {
         const updatedItem = updatedList.find((i) => i._id === id);
         setSelectedPlant(updatedItem);
@@ -505,14 +501,19 @@ function GardenDashboard({ user }) {
     }
   }
 
-  // NEW: Update Nickname
+  // 🟢 NEW: Quick Water wrapper for the dashboard buttons
+  async function handleQuickWater(e, id) {
+    e.stopPropagation();
+    setActionLoading(id);
+    await handleWater(id);
+    setActionLoading(null);
+  }
+
   async function handleUpdate(id, payload) {
     try {
       await GardenAPI.update(id, payload);
       const updatedList = await GardenAPI.list();
       setGarden(updatedList);
-
-      // Update local modal state immediately
       if (selectedPlant && selectedPlant._id === id) {
         const updatedItem = updatedList.find((i) => i._id === id);
         setSelectedPlant(updatedItem);
@@ -522,9 +523,33 @@ function GardenDashboard({ user }) {
     }
   }
 
+  // 🟢 NEW: Process Data for Bento Boxes & Alerts
+  let totalAlerts = 0;
+  let thirstyPlants = [];
+  
+  const processedGarden = garden.map(item => {
+    const plantInfo = item.plant_id || {};
+    const cleanPlantInfo = {
+      ...plantInfo,
+      ecological_descriptors: {
+        ...plantInfo.ecological_descriptors,
+        temperature_range: plantInfo.ecological_descriptors?.temperature_range?.toString(),
+      },
+    };
+    const healthReport = analyzePlantHealth(cleanPlantInfo, weather, item);
+    
+    if (healthReport.alerts && healthReport.alerts.length > 0) {
+      totalAlerts += healthReport.alerts.length;
+      if (healthReport.health === "THIRSTY" || healthReport.next_actions?.water_in === "Now") {
+        thirstyPlants.push({ ...item, healthReport, cleanPlantInfo });
+      }
+    }
+    return { ...item, healthReport, cleanPlantInfo };
+  });
+
   return (
     <div className="dashboard-container">
-      {/* --- RENDER THE MODAL IF A PLANT IS SELECTED --- */}
+      {/* --- RENDER THE MODAL --- */}
       {selectedPlant && (
         <PlantModal
           plant={selectedPlant}
@@ -536,183 +561,149 @@ function GardenDashboard({ user }) {
         />
       )}
 
-      <div className="dashboard-header">
-        <h2
-          className="hero__title"
-          style={{ fontSize: "2rem", marginBottom: "10px" }}
-        >
-          My Garden 🌿
+      <div className="dashboard-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: '24px' }}>
+        <h2 className="hero__title" style={{ fontSize: "2rem", marginBottom: "8px", textTransform: 'none' }}>
+          Welcome back, {user.email.split("@")[0]} 👋
         </h2>
-        <p
-          className="hero__text"
-          style={{
-            maxWidth: "600px",
-            margin: "0 auto 30px",
-            textAlign: "center",
-          }}
-        >
-          Welcome back, {user.email.split("@")[0]}! Tap a plant to see details.
+        <p className="hero__text" style={{ maxWidth: "600px", margin: "0 0 24px 0", color: "#94a3b8" }}>
+          Here is what is happening in your garden today.
         </p>
+      </div>
 
-        {/* WEATHER WIDGET */}
-        <div
-          style={{
-            background: "var(--bg-deep)",
-            border: "3px solid var(--weather-blue)",
-            padding: "10px 15px",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "15px",
-            boxShadow: "4px 4px 0 rgba(0,0,0,0.5)",
-            marginBottom: "20px",
-          }}
-        >
-          {weatherLoading || !weather ? (
-            <span style={{ fontSize: "10px", color: "#cbd5e1" }}>
-              LOADING WEATHER...
-            </span>
-          ) : (
-            <>
-              <span style={{ fontSize: "24px" }}>
-                {weather.weather[0].main.includes("Rain") ? "🌧️" : "☀️"}
-              </span>
-              <div style={{ textAlign: "left" }}>
-                <div style={{ fontSize: "12px", color: "var(--weather-blue)" }}>
-                  {weather.name}
-                </div>
-                <div
-                  style={{
-                    fontSize: "10px",
-                    color: "#cbd5e1",
-                    marginTop: "4px",
-                  }}
-                >
-                  Temp: {Math.round(weather.main.temp)}°C | Hum:{" "}
-                  {weather.main.humidity}%
-                </div>
-              </div>
-            </>
-          )}
+      {/* --- 🟢 BENTO BOX STATS --- */}
+      <div className="dashboard-bento">
+        <div className="bento-stat bento-stat--green">
+          <span className="bento-icon">🌱</span>
+          <div className="bento-info">
+            <strong>{garden.length}</strong>
+            <span>Total Plants</span>
+          </div>
         </div>
-        <br />
-        <Link to="/plants" className="btn btn--primary">
-          + Add New Plant
-        </Link>
+        
+        <div className="bento-stat bento-stat--blue">
+          <span className="bento-icon">🌤️</span>
+          <div className="bento-info">
+            <strong>{weatherLoading || !weather ? "--" : `${Math.round(weather.main.temp)}°C`}</strong>
+            <span>{weather ? weather.weather[0].main : "Weather"}</span>
+          </div>
+        </div>
+
+        <div className={`bento-stat ${totalAlerts > 0 ? 'bento-stat--orange' : 'bento-stat--perfect'}`}>
+          <span className="bento-icon">{totalAlerts > 0 ? '⚠️' : '✅'}</span>
+          <div className="bento-info">
+            <strong style={{ color: totalAlerts > 0 ? '#fbbf24' : '#34d399' }}>
+              {totalAlerts > 0 ? `${totalAlerts} Alerts` : 'All Good'}
+            </strong>
+            <span>Garden Status</span>
+          </div>
+        </div>
+      </div>
+
+      {/* --- 🟢 TABBED NAVIGATION --- */}
+      <div className="dashboard-tabs">
+        <button 
+          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          Needs Attention {thirstyPlants.length > 0 && <span className="tab-badge">{thirstyPlants.length}</span>}
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'plants' ? 'active' : ''}`}
+          onClick={() => setActiveTab('plants')}
+        >
+          All My Plants
+        </button>
       </div>
 
       {loading && <p className="loading">Loading your garden...</p>}
       {error && <p className="error">{error}</p>}
-      {!loading && !error && garden.length === 0 && (
-        <div className="empty-state">
-          <p>Your garden is currently empty.</p>
-        </div>
+
+      {/* --- 🟢 TAB CONTENT: OVERVIEW (Urgent Actions) --- */}
+      {!loading && !error && activeTab === "overview" && (
+        <section className="tab-content">
+          {thirstyPlants.length === 0 ? (
+            <div className="empty-state">
+              <span style={{fontSize: "40px"}}>✨</span>
+              <p style={{ marginTop: '16px', fontSize: '14px', color: 'var(--pure-white)' }}>Your garden is thriving!</p>
+              <p style={{ textTransform: 'none' }}>No plants need immediate watering or attention right now.</p>
+            </div>
+          ) : (
+            <div className="urgent-list">
+              <h3 className="urgent-title" style={{ color: 'var(--pure-white)', fontFamily: "'Inter', sans-serif", fontSize: '16px', marginBottom: '16px' }}>
+                💧 Quick Actions Required
+              </h3>
+              <div className="garden-grid">
+                {thirstyPlants.map(item => (
+                  <div key={item._id} className="quick-action-card" onClick={() => setSelectedPlant(item)}>
+                    <div className="quick-info">
+                      <h4>{item.nickname || item.cleanPlantInfo.common_name?.[0]}</h4>
+                      <span className="last-watered">Last: {formatLastWatered(item.last_watered)}</span>
+                    </div>
+                    <button 
+                      className="btn btn--small btn--blue" 
+                      onClick={(e) => handleQuickWater(e, item._id)}
+                      disabled={actionLoading === item._id}
+                      style={{ height: 'fit-content', alignSelf: 'center' }}
+                    >
+                      {actionLoading === item._id ? "..." : "WATER NOW"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
       )}
 
-      {!loading && !error && garden.length > 0 && (
-        <div className="garden-grid">
-          {garden.map((item) => {
-            const plantInfo = item.plant_id || {};
-            const commonName = plantInfo.common_name
-              ? Array.isArray(plantInfo.common_name)
-                ? plantInfo.common_name[0]
-                : plantInfo.common_name
-              : "Unknown Plant";
+      {/* --- 🟢 TAB CONTENT: ALL PLANTS (Your original grid) --- */}
+      {!loading && !error && activeTab === "plants" && (
+        <section className="tab-content">
+           {garden.length === 0 ? (
+             <div className="empty-state">
+               <p>Your garden is currently empty.</p>
+               <Link to="/plants" className="btn btn--primary" style={{marginTop: "12px"}}>+ Add New Plant</Link>
+             </div>
+           ) : (
+             <div className="garden-grid">
+               {processedGarden.map(item => {
+                 const { cleanPlantInfo, healthReport } = item;
+                 const commonName = cleanPlantInfo.common_name
+                   ? Array.isArray(cleanPlantInfo.common_name) ? cleanPlantInfo.common_name[0] : cleanPlantInfo.common_name
+                   : "Unknown Plant";
 
-            // This ensures that even if there's a sync lag, the data is forced into a readable format
-            const cleanPlantInfo = {
-              ...plantInfo,
-              ecological_descriptors: {
-                ...plantInfo.ecological_descriptors,
-                temperature_range:
-                  plantInfo.ecological_descriptors?.temperature_range?.toString(),
-              },
-            };
-            const healthReport = analyzePlantHealth(
-              cleanPlantInfo,
-              weather,
-              item,
-            );
-            let statusColor = "var(--leaf-green)";
-            if (healthReport.health === "THIRSTY")
-              statusColor = "var(--weather-blue)";
-            if (healthReport.health === "NEEDS ATTENTION")
-              statusColor = "#fbbf24";
-            if (
-              healthReport.health === "TOO HOT!" ||
-              healthReport.health === "TOO COLD!"
-            )
-              statusColor = "#ef4444";
+                 let statusColor = "var(--leaf-green)";
+                 if (healthReport.health === "THIRSTY") statusColor = "var(--weather-blue)";
+                 if (healthReport.health === "NEEDS ATTENTION") statusColor = "#fbbf24";
+                 if (healthReport.health === "TOO HOT!" || healthReport.health === "TOO COLD!") statusColor = "#ef4444";
 
-            return (
-              <div
-                key={item._id}
-                className="garden-card"
-                style={{ borderColor: statusColor, cursor: "pointer" }}
-                onClick={() => setSelectedPlant(item)} // <--- CLICK TO OPEN MODAL
-              >
-                <div className="garden-card__header">
-                  <h3>{item.nickname}</h3>
-                  <span className="species">{commonName}</span>
-                </div>
-
-                <div
-                  className="garden-card__stats"
-                  style={{ borderColor: statusColor }}
-                >
-                  <div className="stat">
-                    <small>STATUS:</small>
-                    <strong style={{ color: statusColor }}>
-                      {healthReport.health}
-                    </strong>
-                  </div>
-                </div>
-
-                {healthReport.alerts?.length > 0 && (
-                  <ul
-                    style={{
-                      listStyle: "none",
-                      padding: "8px",
-                      margin: 0,
-                      background: "rgba(0,0,0,0.5)",
-                      border: "1px solid #334155",
-                      fontSize: "8px",
-                      color: "#f8fafc",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "4px",
-                    }}
-                  >
-                    {healthReport.alerts?.map((alert, idx) => (
-                      <li key={idx}>▸ {alert}</li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="garden-card__actions">
-                  {/* Prevent bubbling so clicking WATER doesn't open the modal */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleWater(item._id);
-                    }}
-                    className="btn btn--small btn--blue"
-                  >
-                    WATER 💧
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemove(item._id, item.nickname);
-                    }}
-                    className="btn btn--small btn--danger"
-                  >
-                    REMOVE
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                 return (
+                   <div
+                     key={item._id}
+                     className="garden-card"
+                     style={{ borderColor: statusColor, cursor: "pointer" }}
+                     onClick={() => setSelectedPlant(item)} 
+                   >
+                     <div className="garden-card__header">
+                       <h3>{item.nickname}</h3>
+                       <span className="species">{commonName}</span>
+                     </div>
+                     <div className="garden-card__stats" style={{ borderColor: statusColor }}>
+                       <div className="stat">
+                         <small>STATUS:</small>
+                         <strong style={{ color: statusColor }}>{healthReport.health}</strong>
+                       </div>
+                     </div>
+                     {healthReport.alerts?.length > 0 && (
+                       <ul className="card-alerts-list">
+                         {healthReport.alerts?.map((alert, idx) => (<li key={idx}>▸ {alert}</li>))}
+                       </ul>
+                     )}
+                   </div>
+                 );
+               })}
+             </div>
+           )}
+        </section>
       )}
     </div>
   );
