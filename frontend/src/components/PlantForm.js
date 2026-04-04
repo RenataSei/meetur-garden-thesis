@@ -586,6 +586,7 @@ export default function PlantForm({
                 "common_name",
                 "scientific_name",
                 "family",
+                "image_url",
                 "description",
                 "height",
                 "maintenance_level",
