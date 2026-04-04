@@ -2,8 +2,8 @@ const express = require('express');
 const { 
     getGarden, 
     addToGarden, 
-    deleteFromGarden, 
-    logCareAction,
+    removeGardenItem, 
+    logAction,
     updateGardenItem
 } = require('../controllers/gardenController');
 
@@ -22,10 +22,10 @@ router.get('/', getGarden);
 router.post('/', addToGarden);
 
 // 4. REMOVE a plant from the garden
-router.delete('/:id', deleteFromGarden);
+router.delete('/:id', removeGardenItem);
 
 // 5. LOG ACTION (Water/Sun)
-router.patch('/:id/action', logCareAction);
+router.patch('/:id/action', logAction);
 
 // 6. UPDATE GARDEN ITEM (e.g., nickname)
 router.patch('/:id', updateGardenItem);
