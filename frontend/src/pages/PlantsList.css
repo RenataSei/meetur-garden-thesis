@@ -15,21 +15,31 @@
 
 /* ===== Base layout for Your Garden page ===== */
 .list {
-  min-height:100vh;
-  padding:30px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  background:linear-gradient(135deg, var(--green-400) 0%, var(--beige-50) 55%, var(--blue-300) 100%);
-  font-family:'Inter',sans-serif;
-  color:var(--gray-700);
-  position:relative;
-  /* allow the page to grow and scroll */
-  overflow:visible;
+  min-height: 100vh;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* 🟢 Modern Retro Pixel Grid */
+  background-color: #f8fafc;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: 'Inter', sans-serif;
+  color: var(--gray-700);
+  position: relative;
+  overflow: visible;
 }
 
+.list .bubble {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px); /* Increased blur for softness */
+  opacity: 0.15; /* Drastically reduced opacity so it's not tacky */
+  pointer-events: none;
+  z-index: 0;
+}
 /* Floating color bubbles */
-.bubble {
+/*.bubble {
   position:absolute;
   border-radius:50%;
   filter:blur(10px);
@@ -39,7 +49,7 @@
 .bubble--green { width:160px; height:160px; left:-40px; top:80px; background:var(--green-400); }
 .bubble--blue  { width:220px; height:220px; right:-60px; top:120px; background:var(--blue-300); }
 .bubble--purple{ width:140px; height:140px; left:40%; bottom:-40px; background:var(--purple-400); }
-
+*/
 /* ===== Header ===== */
 .list__header {
   width:100%;

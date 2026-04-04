@@ -7,7 +7,10 @@
   position: relative;
   min-height: 100vh;
   padding: 24px 20px 32px;
-  background: radial-gradient(circle at top left, var(--beige-50), #f5e5c0 46%, #f9f1dd);
+  /* 🟢 Modern Retro Pixel Grid */
+  background-color: #f8fafc;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px;
   color: var(--black);
   overflow: hidden;
 }

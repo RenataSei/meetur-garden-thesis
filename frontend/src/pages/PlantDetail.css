@@ -9,10 +9,11 @@
   align-items: center;
   font-family: "Inter", system-ui, sans-serif;
   color: #0f172a;
-  background: radial-gradient(circle at top left, #e9fadc 0, #fdfcfb 45%),
-              radial-gradient(circle at bottom right, #ddeafe 0, #fdfcfb 45%);
+  /* 🟢 Modern Retro Pixel Grid */
+  background-color: #f8fafc;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
-
 /* =========================================
    1. HERO SECTION (Image + Header)
    ========================================= */

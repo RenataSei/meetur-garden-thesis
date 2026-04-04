@@ -15,7 +15,10 @@ const styles = `
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: radial-gradient(circle at top, #e8ffe8 0, #f8fffb 45%, #ffffff 100%);
+  /* 🟢 Modern Retro Pixel Grid */
+  background-color: #f8fafc;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Hero header (big title like screenshot 1) */

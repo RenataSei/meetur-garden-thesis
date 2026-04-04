@@ -9,7 +9,15 @@ export default function AppLayout({ children }) {
       --fab-size: 42px;
     }
 
-    .app-shell { min-height: 100dvh; background:#0b1220; color:#e5e7eb; }
+    .app-shell { 
+      min-height: 100dvh; 
+      /* 🟢 Modern Dark Pixel Grid */
+      background-color: #0b1220; 
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: #e5e7eb; 
+    }
+      
     .app-content { max-width:1200px; margin:0 auto; padding:72px 16px 24px; }
 
     /* Brand: MEETUR (white) + GARDEN (green) */
