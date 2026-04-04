@@ -573,14 +573,7 @@ function GardenDashboard({ user }) {
 
   return (
     <div className="dashboard-container">
-      {/* --- RENDER THE MODALS --- */}
-      {selectedPlant && (
-        <PlantModal
-          // ... your existing PlantModal props
-        />
-      )}
-
-      {/* 🟢 NEW: Render Weather Modal */}
+      {/* 🟢 Render Weather Modal */}
       {showWeatherModal && weather && (
         <WeatherModal 
           weather={weather} 
@@ -588,6 +581,7 @@ function GardenDashboard({ user }) {
         />
       )}
 
+      {/* 🟢 Render Plant Detail Modal */}
       {selectedPlant && (
         <PlantModal
           plant={selectedPlant}

@@ -22,7 +22,7 @@ const gardenItemSchema = new Schema({
     // Sun Exposure Tracking
     last_sun_exposure: { type: Date },
     is_in_sun: { type: Boolean, default: false },
-    sun_start_time: { type: Date }
+    sun_start_time: { type: Date },
     is_indoors: { type: Boolean, default: true }
 
 }, { timestamps: true });
