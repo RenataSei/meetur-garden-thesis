@@ -138,4 +138,37 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
   status.alerts = alerts;
   return status;
 };
+
+// --- 🟢 NEW: FORECAST ANALYZER ---
+const analyzeForecast = (forecastData, plantTempRange) => {
+  if (!forecastData || !forecastData.list) return [];
+  
+  const futureAlerts = [];
+  let rainFound = false;
+  let extremeHeatFound = false;
+
+  // Loop through the 3-hour blocks
+  forecastData.list.forEach((slot) => {
+    const temp = slot.main.temp;
+    const isRaining = slot.weather[0].main.toLowerCase().includes("rain");
+    
+    // Check for upcoming rain
+    if (isRaining && !rainFound) {
+      futureAlerts.push(`🌧️ Rain expected on ${new Date(slot.dt * 1000).toLocaleDateString('en-US', {weekday: 'short'})}. Hold off on deep watering.`);
+      rainFound = true; // Only alert once
+    }
+
+    // Check for extreme heat spikes
+    if (plantTempRange && temp > plantTempRange.max + 2 && !extremeHeatFound) {
+      futureAlerts.push(`🔥 Heatwave warning: Temps hitting ${Math.round(temp)}°C soon. Prepare shade!`);
+      extremeHeatFound = true;
+    }
+  });
+
+  return futureAlerts;
+};
+
+// Update your module.exports to include it:
+module.exports = { analyzePlantHealth, analyzeForecast, parseRange };
+
 module.exports = { analyzePlantHealth };

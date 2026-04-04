@@ -392,33 +392,47 @@ function LandingView({ handleSearchSubmit }) {
   );
 }
 
-// --- SUB-COMPONENT: The Weather Detail Modal ---
-function WeatherModal({ weather, onClose }) {
+// --- SUB-COMPONENT: The Weather Detail & Forecast Modal ---
+function WeatherModal({ weather, forecast, onClose }) {
   if (!weather) return null;
 
-  // Determine a quick "Garden Impact" tip based on conditions
+  // Determine a quick "Garden Impact" tip based on current conditions
   let impactTip = "Conditions are generally mild. Standard watering schedules apply.";
-  if (weather.main.temp > 32) {
-    impactTip = "It's very hot! Soil will dry out much faster today. Keep an eye on moisture levels.";
-  } else if (weather.main.temp < 15) {
-    impactTip = "Cooler temperatures today. Plants won't dry out as fast, so be careful not to overwater.";
-  } else if (weather.main.humidity < 40) {
-    impactTip = "Low humidity detected. Your tropical plants might appreciate a quick misting today.";
-  } else if (weather.weather[0].main.includes("Rain")) {
-    impactTip = "Rain is expected! Great for outdoor plants—hold off on watering them.";
+  if (weather.main.temp > 32) impactTip = "It's very hot! Soil will dry out much faster today.";
+  else if (weather.main.temp < 15) impactTip = "Cooler temperatures today. Be careful not to overwater.";
+  else if (weather.weather[0].main.includes("Rain")) impactTip = "Rain is expected! Great for outdoor plants.";
+
+  // 🟢 Extract Daily Forecast (Grab 1 reading per day from the 3-hour blocks)
+  const dailyData = [];
+  if (forecast && forecast.list) {
+    const seenDays = new Set();
+    forecast.list.forEach(slot => {
+      const date = new Date(slot.dt * 1000);
+      const dayStr = date.toLocaleDateString('en-US', { weekday: 'short' });
+      // Grab the first reading of each new day (usually mid-day depending on timezone)
+      if (!seenDays.has(dayStr) && seenDays.size < 5) {
+        seenDays.add(dayStr);
+        dailyData.push({
+          day: dayStr,
+          temp: Math.round(slot.main.temp),
+          icon: slot.weather[0].main.includes("Rain") ? "🌧️" : slot.weather[0].main.includes("Cloud") ? "⛅" : "☀️"
+        });
+      }
+    });
   }
+
+  // Find max temp to scale the graph bars
+  const maxTemp = dailyData.length > 0 ? Math.max(...dailyData.map(d => d.temp)) : 40;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '550px' }}>
         <button className="modal-close" onClick={onClose}>✕</button>
 
         <div className="modal-header" style={{ marginBottom: "16px" }}>
           <div className="modal-icon-wrapper">
             <div className="modal-icon" style={{ fontSize: "40px" }}>
-              {weather.weather[0].main.includes("Rain") ? "🌧️" 
-               : weather.weather[0].main.includes("Cloud") ? "⛅" 
-               : "☀️"}
+              {weather.weather[0].main.includes("Rain") ? "🌧️" : weather.weather[0].main.includes("Cloud") ? "⛅" : "☀️"}
             </div>
           </div>
           <div className="modal-title-box">
@@ -430,29 +444,65 @@ function WeatherModal({ weather, onClose }) {
         <div className="modal-grid">
           <div className="detail-box">
             <label>CONDITION</label>
-            <strong style={{ textTransform: 'capitalize', color: '#f8fafc' }}>
-              {weather.weather[0].description}
-            </strong>
+            <strong style={{ textTransform: 'capitalize', color: '#f8fafc' }}>{weather.weather[0].description}</strong>
           </div>
           <div className="detail-box">
             <label>FEELS LIKE</label>
             <span>{Math.round(weather.main.feels_like)}°C</span>
           </div>
-          <div className="detail-box">
-            <label>HUMIDITY</label>
-            <span>{weather.main.humidity}%</span>
-          </div>
-          <div className="detail-box">
-            <label>WIND SPEED</label>
-            <span>{weather.wind.speed} m/s</span>
-          </div>
           
           <div className="detail-box" style={{ gridColumn: "1 / -1", borderLeft: "3px solid #38bdf8" }}>
             <label>GARDEN IMPACT</label>
-            <span style={{ fontSize: "13px", color: "#e2e8f0", lineHeight: "1.5", marginTop: "6px", display: "block", fontWeight: "normal" }}>
+            <span style={{ fontSize: "13px", color: "#e2e8f0", lineHeight: "1.5", marginTop: "6px", display: "block" }}>
               {impactTip}
             </span>
           </div>
+
+          {/* 🟢 NEW: RETRO 5-DAY FORECAST GRAPH */}
+          {dailyData.length > 0 && (
+            <div className="detail-box" style={{ gridColumn: "1 / -1", padding: "16px", background: "#0b1220" }}>
+              <label style={{ marginBottom: "16px", display: "block" }}>5-DAY FORECAST</label>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '120px', gap: '8px' }}>
+                {dailyData.map((day, idx) => {
+                  const barHeight = `${(day.temp / maxTemp) * 100}%`;
+                  const isHot = day.temp > 30;
+                  const barColor = isHot ? '#ef4444' : '#38bdf8'; // Red if hot, blue if normal
+
+                  return (
+                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                      <span style={{ fontSize: '14px', marginBottom: '8px' }}>{day.icon}</span>
+                      
+                      {/* The Graph Bar */}
+                      <div style={{ 
+                        width: '100%', 
+                        maxWidth: '30px', 
+                        height: '80px', 
+                        display: 'flex', 
+                        alignItems: 'flex-end',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid #334155',
+                        borderBottom: 'none'
+                      }}>
+                        <div style={{ 
+                          width: '100%', 
+                          height: barHeight, 
+                          background: barColor,
+                          borderTop: '2px solid #fff',
+                          transition: 'height 0.5s ease-out'
+                        }} />
+                      </div>
+                      
+                      <strong style={{ fontSize: '12px', marginTop: '8px', color: '#f8fafc' }}>{day.temp}°</strong>
+                      <small style={{ fontSize: '9px', color: '#9ca3af', fontFamily: "'Press Start 2P', cursive", marginTop: '4px' }}>
+                        {day.day}
+                      </small>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -466,7 +516,7 @@ function GardenDashboard({ user }) {
   const [error, setError] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [searchParams] = useSearchParams();
-  const { weather, loading: weatherLoading } = useContext(WeatherContext);
+  const { weather, forecast ,loading: weatherLoading } = useContext(WeatherContext);
   const [showWeatherModal, setShowWeatherModal] = useState(false);
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -577,6 +627,7 @@ function GardenDashboard({ user }) {
       {showWeatherModal && weather && (
         <WeatherModal 
           weather={weather} 
+          forecast={forecast}
           onClose={() => setShowWeatherModal(false)} 
         />
       )}
