@@ -15,6 +15,10 @@ const gardenItemSchema = new Schema({
     
     custom_image: { type: String, default: "" },
 
+    // 🟢 ADD THESE TWO FIELDS FOR IMMUNITY LOGIC:
+    last_action: { type: String, default: "" }, // e.g., 'mist', 'move_shade', 'water'
+    last_action_date: { type: Date, default: Date.now },
+
     // --- THE "TIMER" DATA (Watering & Sun Only) ---
     last_watered: { type: Date, default: Date.now },
     last_misted: { type: Date },

@@ -29,7 +29,7 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
       message: "Waiting for local weather data..." 
     };
   }
-  // FIX 1: Default to exact ALL CAPS to match your frontend Home.js
+  
   const status = { health: "OPTIMAL", alerts: [], next_actions: {} };
 
   // 1. Check Temperature
@@ -37,45 +37,60 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
   const tempRange = parseRange(plant.ecological_descriptors?.temperature_range);
   const BUFFER = 2.0; // The "Gradient" window in Celsius
 
+  // 🟢 NEW: ACTION IMMUNITY LOGIC
+  // Check if the user took action (mist, shade, inside) within the last 4 hours
+  const lastActionTime = gardenItem && gardenItem.last_action_date ? new Date(gardenItem.last_action_date).getTime() : 0;
+  const hoursSinceLastAction = (Date.now() - lastActionTime) / (1000 * 60 * 60);
+
+  const hasHeatImmunity = hoursSinceLastAction < 4 && 
+    (gardenItem?.last_action === 'mist' || gardenItem?.last_action === 'move_shade');
+    
+  const hasColdImmunity = hoursSinceLastAction < 4 && 
+    (gardenItem?.last_action === 'move_inside');
+
   if (tempRange) {
     // --- TOO COLD LOGIC ---
     if (currentTemp < tempRange.min) {
-      const severity = tempRange.min - currentTemp;
-
-      if (severity > BUFFER) {
-        status.health = "TOO COLD!"; // CRITICAL (Red)
-        alerts.push(
-          `🚨 CRITICAL: Temp is ${currentTemp}°C. Move ${plant.nickname} inside immediately!`,
-        );
+      if (hasColdImmunity) {
+        alerts.push(`🌡️ It is ${currentTemp}°C, but plant is safe inside.`);
       } else {
-        status.health = "NEEDS ATTENTION"; // WARNING (Yellow/Orange)
-        alerts.push(
-          `⚠️ Low Temp Warning: It's ${currentTemp}°C. Getting a bit chilly for this plant.`,
-        );
+        const severity = tempRange.min - currentTemp;
+        if (severity > BUFFER) {
+          status.health = "TOO COLD!"; 
+          alerts.push(`🚨 CRITICAL: Temp is ${currentTemp}°C. Move ${plant.common_name?.[0] || 'plant'} inside immediately!`);
+        } else {
+          status.health = "NEEDS ATTENTION"; 
+          alerts.push(`⚠️ Low Temp Warning: It's ${currentTemp}°C. Getting a bit chilly.`);
+        }
       }
     }
     // --- TOO HOT LOGIC ---
     else if (currentTemp > tempRange.max) {
-      const severity = currentTemp - tempRange.max;
-
-      if (severity > BUFFER) {
-        status.health = "TOO HOT!"; // CRITICAL (Red)
-        alerts.push(
-          `🔥 CRITICAL: Temp is ${currentTemp}°C. Provide shade or mist immediately!`,
-        );
+      if (hasHeatImmunity) {
+        alerts.push(`🌡️ It is ${currentTemp}°C, but plant is protected by recent care.`);
       } else {
-        status.health = "NEEDS ATTENTION"; // WARNING (Yellow/Orange)
-        alerts.push(
-          `☀️ High Temp Warning: It's ${currentTemp}°C. Monitor for wilting.`,
-        );
+        const severity = currentTemp - tempRange.max;
+        if (severity > BUFFER) {
+          status.health = "TOO HOT!"; 
+          alerts.push(`🔥 CRITICAL: Temp is ${currentTemp}°C. Provide shade or mist immediately!`);
+        } else {
+          status.health = "NEEDS ATTENTION"; 
+          alerts.push(`☀️ High Temp Warning: It's ${currentTemp}°C. Monitor for wilting.`);
+        }
       }
     }
   }
+
   // 2. Humidity Check
   const currentHumidity = weatherData.main.humidity;
   const humidityReq = plant.ecological_descriptors?.humidity_level || "";
+  // Check immunity here too! If they just misted, humidity is temporarily fine.
   if (humidityReq.toLowerCase().includes("high") && currentHumidity < 40) {
-    alerts.push(`💧 Air is dry (${currentHumidity}%). Mist this plant.`);
+    if (hoursSinceLastAction < 4 && gardenItem?.last_action === 'mist') {
+      alerts.push(`💧 Air is dry (${currentHumidity}%), but recently misted.`);
+    } else {
+      alerts.push(`💧 Air is dry (${currentHumidity}%). Mist this plant.`);
+    }
   }
 
   // 3. Smart Watering Schedule
@@ -86,29 +101,19 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
     );
 
     let requiredDays = 7;
-    // FIX 2: Safely handle missing DB fields with (?.) and an empty string fallback
-    const freq = (
-      plant.ecological_descriptors?.water_frequency || ""
-    ).toLowerCase();
+    const freq = (plant.ecological_descriptors?.water_frequency || "").toLowerCase();
 
     if (freq.includes("daily")) requiredDays = 1;
-    else if (freq.includes("bi-weekly") || freq.includes("2 weeks"))
-      requiredDays = 14;
+    else if (freq.includes("bi-weekly") || freq.includes("2 weeks")) requiredDays = 14;
     else if (freq.includes("weekly")) requiredDays = 7;
 
-    // Safely check weather array in case the API temporarily drops the data
-    const isRaining = weatherData.weather?.[0]?.main
-      ?.toLowerCase()
-      .includes("rain");
+    const isRaining = weatherData.weather?.[0]?.main?.toLowerCase().includes("rain");
     if (isRaining) {
       requiredDays += 2;
       alerts.push("🌧️ It's raining! Watering pushed back 2 days.");
     }
 
     const dueInDays = requiredDays - daysSinceWatering;
-
-    // --- Calculate Hydration Percentage (0 to 100) ---
-    // Math.max and Math.min keep the bar strictly between 0% and 100%
     const hydration = Math.max(0, Math.min(100, Math.round((dueInDays / requiredDays) * 100)));
     status.hydration_percent = hydration;
 
@@ -120,7 +125,6 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
       status.next_actions.water_in = `${Math.round(dueInDays)} days`;
     }
   } else {
-    // Fallback if the plant has never been watered
     status.hydration_percent = 0;
     status.next_actions.water_in = "Now";
   }
@@ -130,7 +134,7 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
     alerts.push("☀️ Plant is currently under sun exposure.");
   }
 
-  // 5. Final Catch-All for Minor Alerts
+  // 5. Final Catch-All
   if (alerts.length > 0 && status.health === "OPTIMAL") {
     status.health = "NEEDS ATTENTION";
   }
@@ -139,7 +143,7 @@ const analyzePlantHealth = (plant, weatherData, gardenItem = null) => {
   return status;
 };
 
-// --- 🟢 NEW: FORECAST ANALYZER ---
+// --- FORECAST ANALYZER ---
 const analyzeForecast = (forecastData, plantTempRange) => {
   if (!forecastData || !forecastData.list) return [];
   
@@ -147,18 +151,15 @@ const analyzeForecast = (forecastData, plantTempRange) => {
   let rainFound = false;
   let extremeHeatFound = false;
 
-  // Loop through the 3-hour blocks
   forecastData.list.forEach((slot) => {
     const temp = slot.main.temp;
     const isRaining = slot.weather[0].main.toLowerCase().includes("rain");
     
-    // Check for upcoming rain
     if (isRaining && !rainFound) {
       futureAlerts.push(`🌧️ Rain expected on ${new Date(slot.dt * 1000).toLocaleDateString('en-US', {weekday: 'short'})}. Hold off on deep watering.`);
-      rainFound = true; // Only alert once
+      rainFound = true; 
     }
 
-    // Check for extreme heat spikes
     if (plantTempRange && temp > plantTempRange.max + 2 && !extremeHeatFound) {
       futureAlerts.push(`🔥 Heatwave warning: Temps hitting ${Math.round(temp)}°C soon. Prepare shade!`);
       extremeHeatFound = true;
@@ -168,7 +169,5 @@ const analyzeForecast = (forecastData, plantTempRange) => {
   return futureAlerts;
 };
 
-// Update your module.exports to include it:
+// 🟢 FIXED EXPORTS
 module.exports = { analyzePlantHealth, analyzeForecast, parseRange };
-
-module.exports = { analyzePlantHealth };

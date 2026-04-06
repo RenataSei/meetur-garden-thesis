@@ -75,6 +75,10 @@ const logAction = async (req, res) => {
         const updates = {};
         const now = new Date();
 
+        // 🟢 UNIVERSAL TRACKER: This feeds the careEngine's immunity logic
+        updates.last_action = action;
+        updates.last_action_date = now;
+
         // 🟢 NEW: Dynamic Action Switcher
         switch (action) {
             case 'water':
