@@ -397,104 +397,184 @@ function WeatherModal({ weather, forecast, onClose }) {
   if (!weather) return null;
 
   // Determine a quick "Garden Impact" tip based on current conditions
-  let impactTip = "Conditions are generally mild. Standard watering schedules apply.";
-  if (weather.main.temp > 32) impactTip = "It's very hot! Soil will dry out much faster today.";
-  else if (weather.main.temp < 15) impactTip = "Cooler temperatures today. Be careful not to overwater.";
-  else if (weather.weather[0].main.includes("Rain")) impactTip = "Rain is expected! Great for outdoor plants.";
+  let impactTip =
+    "Conditions are generally mild. Standard watering schedules apply.";
+  if (weather.main.temp > 32)
+    impactTip = "It's very hot! Soil will dry out much faster today.";
+  else if (weather.main.temp < 15)
+    impactTip = "Cooler temperatures today. Be careful not to overwater.";
+  else if (weather.weather[0].main.includes("Rain"))
+    impactTip = "Rain is expected! Great for outdoor plants.";
 
   // 🟢 Extract Daily Forecast (Grab 1 reading per day from the 3-hour blocks)
   const dailyData = [];
   if (forecast && forecast.list) {
     const seenDays = new Set();
-    forecast.list.forEach(slot => {
+    forecast.list.forEach((slot) => {
       const date = new Date(slot.dt * 1000);
-      const dayStr = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const dayStr = date.toLocaleDateString("en-US", { weekday: "short" });
       // Grab the first reading of each new day (usually mid-day depending on timezone)
       if (!seenDays.has(dayStr) && seenDays.size < 5) {
         seenDays.add(dayStr);
         dailyData.push({
           day: dayStr,
           temp: Math.round(slot.main.temp),
-          icon: slot.weather[0].main.includes("Rain") ? "🌧️" : slot.weather[0].main.includes("Cloud") ? "⛅" : "☀️"
+          icon: slot.weather[0].main.includes("Rain")
+            ? "🌧️"
+            : slot.weather[0].main.includes("Cloud")
+              ? "⛅"
+              : "☀️",
         });
       }
     });
   }
 
   // Find max temp to scale the graph bars
-  const maxTemp = dailyData.length > 0 ? Math.max(...dailyData.map(d => d.temp)) : 40;
+  const maxTemp =
+    dailyData.length > 0 ? Math.max(...dailyData.map((d) => d.temp)) : 40;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '550px' }}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: "550px" }}
+      >
+        <button className="modal-close" onClick={onClose}>
+          ✕
+        </button>
 
         <div className="modal-header" style={{ marginBottom: "16px" }}>
           <div className="modal-icon-wrapper">
             <div className="modal-icon" style={{ fontSize: "40px" }}>
-              {weather.weather[0].main.includes("Rain") ? "🌧️" : weather.weather[0].main.includes("Cloud") ? "⛅" : "☀️"}
+              {weather.weather[0].main.includes("Rain")
+                ? "🌧️"
+                : weather.weather[0].main.includes("Cloud")
+                  ? "⛅"
+                  : "☀️"}
             </div>
           </div>
           <div className="modal-title-box">
             <h2 className="modal-title">Local Weather</h2>
-            <p className="modal-species" style={{ color: "#38bdf8" }}>{weather.name}</p>
+            <p className="modal-species" style={{ color: "#38bdf8" }}>
+              {weather.name}
+            </p>
           </div>
         </div>
 
         <div className="modal-grid">
           <div className="detail-box">
             <label>CONDITION</label>
-            <strong style={{ textTransform: 'capitalize', color: '#f8fafc' }}>{weather.weather[0].description}</strong>
+            <strong style={{ textTransform: "capitalize", color: "#f8fafc" }}>
+              {weather.weather[0].description}
+            </strong>
           </div>
           <div className="detail-box">
             <label>FEELS LIKE</label>
             <span>{Math.round(weather.main.feels_like)}°C</span>
           </div>
-          
-          <div className="detail-box" style={{ gridColumn: "1 / -1", borderLeft: "3px solid #38bdf8" }}>
+
+          <div
+            className="detail-box"
+            style={{ gridColumn: "1 / -1", borderLeft: "3px solid #38bdf8" }}
+          >
             <label>GARDEN IMPACT</label>
-            <span style={{ fontSize: "13px", color: "#e2e8f0", lineHeight: "1.5", marginTop: "6px", display: "block" }}>
+            <span
+              style={{
+                fontSize: "13px",
+                color: "#e2e8f0",
+                lineHeight: "1.5",
+                marginTop: "6px",
+                display: "block",
+              }}
+            >
               {impactTip}
             </span>
           </div>
 
           {/* 🟢 NEW: RETRO 5-DAY FORECAST GRAPH */}
           {dailyData.length > 0 && (
-            <div className="detail-box" style={{ gridColumn: "1 / -1", padding: "16px", background: "#0b1220" }}>
-              <label style={{ marginBottom: "16px", display: "block" }}>5-DAY FORECAST</label>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '120px', gap: '8px' }}>
+            <div
+              className="detail-box"
+              style={{
+                gridColumn: "1 / -1",
+                padding: "16px",
+                background: "#0b1220",
+              }}
+            >
+              <label style={{ marginBottom: "16px", display: "block" }}>
+                5-DAY FORECAST
+              </label>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-end",
+                  height: "120px",
+                  gap: "8px",
+                }}
+              >
                 {dailyData.map((day, idx) => {
                   const barHeight = `${(day.temp / maxTemp) * 100}%`;
                   const isHot = day.temp > 30;
-                  const barColor = isHot ? '#ef4444' : '#38bdf8'; // Red if hot, blue if normal
+                  const barColor = isHot ? "#ef4444" : "#38bdf8"; // Red if hot, blue if normal
 
                   return (
-                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                      <span style={{ fontSize: '14px', marginBottom: '8px' }}>{day.icon}</span>
-                      
+                    <div
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        flex: 1,
+                      }}
+                    >
+                      <span style={{ fontSize: "14px", marginBottom: "8px" }}>
+                        {day.icon}
+                      </span>
+
                       {/* The Graph Bar */}
-                      <div style={{ 
-                        width: '100%', 
-                        maxWidth: '30px', 
-                        height: '80px', 
-                        display: 'flex', 
-                        alignItems: 'flex-end',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid #334155',
-                        borderBottom: 'none'
-                      }}>
-                        <div style={{ 
-                          width: '100%', 
-                          height: barHeight, 
-                          background: barColor,
-                          borderTop: '2px solid #fff',
-                          transition: 'height 0.5s ease-out'
-                        }} />
+                      <div
+                        style={{
+                          width: "100%",
+                          maxWidth: "30px",
+                          height: "80px",
+                          display: "flex",
+                          alignItems: "flex-end",
+                          background: "rgba(255,255,255,0.05)",
+                          border: "1px solid #334155",
+                          borderBottom: "none",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "100%",
+                            height: barHeight,
+                            background: barColor,
+                            borderTop: "2px solid #fff",
+                            transition: "height 0.5s ease-out",
+                          }}
+                        />
                       </div>
-                      
-                      <strong style={{ fontSize: '12px', marginTop: '8px', color: '#f8fafc' }}>{day.temp}°</strong>
-                      <small style={{ fontSize: '9px', color: '#9ca3af', fontFamily: "'Press Start 2P', cursive", marginTop: '4px' }}>
+
+                      <strong
+                        style={{
+                          fontSize: "12px",
+                          marginTop: "8px",
+                          color: "#f8fafc",
+                        }}
+                      >
+                        {day.temp}°
+                      </strong>
+                      <small
+                        style={{
+                          fontSize: "9px",
+                          color: "#9ca3af",
+                          fontFamily: "'Press Start 2P', cursive",
+                          marginTop: "4px",
+                        }}
+                      >
                         {day.day}
                       </small>
                     </div>
@@ -516,7 +596,11 @@ function GardenDashboard({ user }) {
   const [error, setError] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [searchParams] = useSearchParams();
-  const { weather, forecast ,loading: weatherLoading } = useContext(WeatherContext);
+  const {
+    weather,
+    forecast,
+    loading: weatherLoading,
+  } = useContext(WeatherContext);
   const [showWeatherModal, setShowWeatherModal] = useState(false);
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -625,10 +709,10 @@ function GardenDashboard({ user }) {
     <div className="dashboard-container">
       {/* 🟢 Render Weather Modal */}
       {showWeatherModal && weather && (
-        <WeatherModal 
-          weather={weather} 
+        <WeatherModal
+          weather={weather}
           forecast={forecast}
-          onClose={() => setShowWeatherModal(false)} 
+          onClose={() => setShowWeatherModal(false)}
         />
       )}
 
@@ -675,9 +759,11 @@ function GardenDashboard({ user }) {
           </div>
         </div>
 
-        <div className="bento-stat bento-stat--blue" 
+        <div
+          className="bento-stat bento-stat--blue"
           onClick={() => setShowWeatherModal(true)}
-          style={{ cursor: "pointer" }}>
+          style={{ cursor: "pointer" }}
+        >
           <span className="bento-icon">🌤️</span>
           <div className="bento-info">
             <strong>
@@ -779,98 +865,77 @@ function GardenDashboard({ user }) {
                       </span>
                     </div>
 
-                    {/* 🟢 FIXED: DYNAMIC MODAL ACTIONS */}
-                    <div className="modal-actions" style={{ flexWrap: "wrap" }}>
-                      {/* 1. Show Water if thirsty */}
-                      {(healthReport.health === "THIRSTY" ||
-                        healthReport.next_actions?.water_in === "Now") && (
+                    {/* 🟢 FIXED: DYNAMIC QUICK ACTIONS FOR DASHBOARD */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        alignSelf: "center",
+                        flexWrap: "wrap",
+                        justifyContent: "flex-end",
+                        marginTop: "12px",
+                      }}
+                    >
+                      {/* 1. Always show WATER if it is thirsty, regardless of temperature */}
+                      {(item.healthReport.health === "THIRSTY" ||
+                        item.healthReport.next_actions?.water_in === "Now") && (
                         <button
-                          onClick={() => onAction(plant._id, "water")}
-                          className="btn btn--blue btn--wide"
+                          className="btn btn--small btn--blue"
+                          disabled={actionLoading === item._id}
+                          onClick={(e) =>
+                            handleQuickAction(e, item._id, "water")
+                          }
                         >
-                          Water 💧
+                          WATER 💧
                         </button>
                       )}
 
-                      {/* 2. Show Heat actions */}
-                      {healthReport.health === "TOO HOT!" && (
+                      {/* 2. Show HEAT actions if it is too hot */}
+                      {item.healthReport.health === "TOO HOT!" && (
                         <>
                           <button
-                            onClick={() => onAction(plant._id, "mist")}
-                            className="btn btn--blue btn--wide"
+                            className="btn btn--small btn--blue"
+                            disabled={actionLoading === item._id}
+                            onClick={(e) =>
+                              handleQuickAction(e, item._id, "mist")
+                            }
                           >
-                            Mist 🌬️
+                            MIST 🌬️
                           </button>
                           <button
-                            onClick={() => onAction(plant._id, "move_shade")}
-                            className="btn btn--wide"
+                            className="btn btn--small"
                             style={{
                               background: "#fbbf24",
                               color: "#0f172a",
                               border: "none",
                             }}
+                            disabled={actionLoading === item._id}
+                            onClick={(e) =>
+                              handleQuickAction(e, item._id, "move_shade")
+                            }
                           >
-                            To Shade ⛅
+                            SHADE ⛅
                           </button>
                         </>
                       )}
 
-                      {/* 3. Show Cold actions */}
-                      {healthReport.health === "TOO COLD!" && (
+                      {/* 3. Show COLD actions if it is too cold */}
+                      {item.healthReport.health === "TOO COLD!" && (
                         <button
-                          onClick={() => onAction(plant._id, "move_inside")}
-                          className="btn btn--wide"
+                          className="btn btn--small"
                           style={{
                             background: "#ef4444",
-                            color: "#fff",
-                            border: "none",
-                          }}
-                        >
-                          Move Inside 🏠
-                        </button>
-                      )}
-
-                      {/* 4. If it's perfectly OPTIMAL, still give them the option to water just in case */}
-                      {healthReport.health === "OPTIMAL" &&
-                        healthReport.next_actions?.water_in !== "Now" && (
-                          <button
-                            onClick={() => onAction(plant._id, "water")}
-                            className="btn btn--blue btn--wide"
-                          >
-                            Water 💧
-                          </button>
-                        )}
-
-                      {/* Danger & Tech actions stay at the bottom */}
-                      <div
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          gap: "12px",
-                          marginTop: "8px",
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            if (window.confirm("Delete this plant?"))
-                              onRemove(plant._id, plant.nickname);
-                          }}
-                          className="btn btn--danger btn--wide"
-                        >
-                          Remove 🗑️
-                        </button>
-                        <button
-                          onClick={handleWriteNFC}
-                          className="btn btn--wide"
-                          style={{
-                            background: "#8b5cf6",
                             color: "white",
                             border: "none",
                           }}
+                          disabled={actionLoading === item._id}
+                          onClick={(e) =>
+                            handleQuickAction(e, item._id, "move_inside")
+                          }
                         >
-                          Link NFC 📡
+                          INSIDE 🏠
                         </button>
-                      </div>
+                      )}
                     </div>
                   </div>
                 ))}
