@@ -16,6 +16,8 @@ const plantSchema = new Schema({
     scientific_name: {
         type: String,
         required: true,
+        unique: true,
+        trim: true,
         validate:{
             validator:function(v){
                 return v.length > 0;

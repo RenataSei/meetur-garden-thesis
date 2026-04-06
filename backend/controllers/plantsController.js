@@ -105,10 +105,28 @@ const createPlant = async (req, res) => {
 
   // --- Input Validation ---
   if (!genus_name) {
-    return res
-      .status(400)
-      .json({ error: "genus_name is required to create a plant" });
+    return res.status(400).json({ error: "genus_name is required to create a plant" });
   }
+
+  if (!plantData.scientific_name) {
+    return res.status(400).json({ error: "scientific_name is required." });
+  }
+
+  // 1. 🟢 THE SMART CHECK: Case-insensitive duplicate search BEFORE the transaction
+  const existingPlant = await Plant.findOne({
+    scientific_name: { $regex: new RegExp(`^${plantData.scientific_name.trim()}$`, "i") }
+  });
+
+  if (existingPlant) {
+    // Block the save and send a clear message back to the frontend
+    return res.status(400).json({ 
+      error: `Duplicate Blocked: "${existingPlant.scientific_name}" already exists in the curated database.` 
+    });
+  }
+
+  // Clean the name before saving it to the database
+  plantData.scientific_name = plantData.scientific_name.trim();
+
   // Start a Mongoose session for transaction
   const session = await mongoose.startSession();
 
@@ -124,7 +142,7 @@ const createPlant = async (req, res) => {
       { new: true, upsert: true, runValidators: true, session } // Return new doc, insert if not found, run validators
     );
 
-    //4. Create the Plant *within the transaction*, linking to the Genus
+    // 4. Create the Plant *within the transaction*, linking to the Genus
     const newPlantArray = await Plant.create([plantData], { session });
     const newPlant = newPlantArray[0]; // Since create returns an array
 
@@ -139,8 +157,13 @@ const createPlant = async (req, res) => {
   } catch (error) {
     // 7. If any error occurred, abort the transaction
     await session.abortTransaction();
-
     console.log(error);
+
+    // 🟢 THE SAFETY NET: Catch raw MongoDB duplicate errors (Error Code 11000) just in case
+    if (error.code === 11000) {
+      return res.status(400).json({ error: "A plant with this exact scientific name already exists." });
+    }
+
     const statusCode = error.name === "ValidationError" ? 400 : 500;
     res.status(statusCode).json({ error: error.message });
   } finally {
@@ -204,16 +227,32 @@ const deletePlant = async (req, res) => {
 const updatePlant = async (req, res) => {
   const { id } = req.params;
 
-  // Extract genus_name from body, keep the rest as plantData
-  const { genus_name, ...plantData } = req.body;
+  // Extract genus_name and scientific_name from body
+  const { genus_name, scientific_name, ...plantData } = req.body;
+
+  // 1. 🟢 THE SMART CHECK: Duplicate check (Ignoring the current plant!)
+  if (scientific_name) {
+    const cleanName = scientific_name.trim();
+    const existingPlant = await Plant.findOne({
+      scientific_name: { $regex: new RegExp(`^${cleanName}$`, "i") },
+      _id: { $ne: id } // Exclude the plant we are currently editing
+    });
+
+    if (existingPlant) {
+      return res.status(400).json({ 
+        error: `Duplicate Blocked: "${existingPlant.scientific_name}" already exists.` 
+      });
+    }
+    plantData.scientific_name = cleanName;
+  }
 
   // Start a session for transaction (updates multiple docs)
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
-    //checks if id is valid
-    // 1. Update the Plant document itself
+    
+    // 2. Update the Plant document itself
     const plant = await Plant.findOneAndUpdate(
       { _id: id },
       { ...plantData },
@@ -226,18 +265,16 @@ const updatePlant = async (req, res) => {
       return res.status(404).json({ error: "No such plant" });
     }
 
-    // 2. Handle Genus Change (if genus_name was sent)
+    // 3. Handle Genus Change (if genus_name was sent)
     if (genus_name) {
-      // Find the genus that CURRENTLY holds this plant
       const currentGenus = await Genus.findOne({ plants: id }).session(session);
 
-      // Only do the move logic if the name is different OR if it wasn't linked to a genus before
       if (!currentGenus || currentGenus.genus_name !== genus_name) {
         // A. Remove plant from the OLD genus
         if (currentGenus) {
           await Genus.findByIdAndUpdate(
             currentGenus._id,
-            { $pull: { plants: id } }, // Pull removes the ID from the array
+            { $pull: { plants: id } },
             { session }
           );
         }
@@ -247,7 +284,7 @@ const updatePlant = async (req, res) => {
           { genus_name: genus_name },
           {
             $setOnInsert: { genus_name: genus_name },
-            $addToSet: { plants: id }, // AddToSet prevents duplicates
+            $addToSet: { plants: id },
           },
           { upsert: true, new: true, session }
         );
@@ -256,17 +293,24 @@ const updatePlant = async (req, res) => {
 
     await session.commitTransaction();
 
-    // 3. Construct response (attach the new genus name for the frontend)
-    // We have to fetch the genus again to be sure we send back the right name
     const finalGenus = await Genus.findOne({ plants: id });
     const plantResponse = plant.toObject();
     if (finalGenus) {
       plantResponse.genus_name = finalGenus.genus_name;
     }
 
-    res.status(200).json(plant);
+    res.status(200).json(plantResponse); // Fixed to send back the formatted response
   } catch (error) {
-    res.status(400).json({ error: error.message }); // 400 for validation errors
+    await session.abortTransaction();
+    
+    // Safety Net
+    if (error.code === 11000) {
+      return res.status(400).json({ error: "A plant with this exact scientific name already exists." });
+    }
+    
+    res.status(400).json({ error: error.message });
+  } finally {
+    session.endSession();
   }
 };
 
