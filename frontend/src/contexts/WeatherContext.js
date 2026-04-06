@@ -1,28 +1,27 @@
-// src/contexts/WeatherContext.js
-import { createContext, useState, useEffect } from "react";
-import { WeatherAPI } from "../api"; // Assuming your API handles the openweathermap URL
+import { createContext, useState, useEffect, useContext } from "react";
+import { WeatherAPI } from "../api"; 
+import { AuthContext } from "./AuthContext"; // 🟢 Import AuthContext
 
 export const WeatherContext = createContext();
 
 export function WeatherProvider({ children }) {
   const [weather, setWeather] = useState(null);
-  const [forecast, setForecast] = useState(null); // 🟢 NEW: Forecast state
+  const [forecast, setForecast] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Helper to fetch weather AND forecast by Coordinates
+  // 🟢 Grab the user to check their settings
+  const { user } = useContext(AuthContext); 
+
   const fetchByCoords = async (lat, lon) => {
     setLoading(true);
     try {
-      // 🟢 FIXED: .catch(e => null) prevents a forecast crash from killing the main weather!
       const [weatherData, forecastData] = await Promise.all([
         WeatherAPI.get({ lat, lon }).catch(() => null), 
         WeatherAPI.getForecast({ lat, lon }).catch(() => null) 
       ]);
-      
       if (weatherData) setWeather(weatherData);
       if (forecastData) setForecast(forecastData);
-      
       setError(null);
     } catch (err) {
       setError("Failed to fetch weather data.");
@@ -31,19 +30,15 @@ export function WeatherProvider({ children }) {
     }
   };
 
-  // Helper to fetch weather AND forecast by City Name
   const fetchByCity = async (city) => {
     setLoading(true);
     try {
-      // 🟢 FIXED: Safe Promise fetching
       const [weatherData, forecastData] = await Promise.all([
         WeatherAPI.get({ city }).catch(() => null), 
         WeatherAPI.getForecast({ city }).catch(() => null)
       ]);
-      
       if (weatherData) setWeather(weatherData);
       if (forecastData) setForecast(forecastData);
-      
       setError(null);
     } catch (err) {
       setError("Failed to fetch weather data.");
@@ -52,7 +47,17 @@ export function WeatherProvider({ children }) {
     }
   };
   
+  // 🟢 THE OVERRIDE LOGIC
   useEffect(() => {
+    const customCity = user?.settings?.customLocation;
+
+    // 1. If the user set a custom location, use it and IGNORE the phone's GPS
+    if (customCity && customCity.trim() !== "") {
+      fetchByCity(customCity);
+      return; 
+    }
+
+    // 2. Otherwise, fall back to the phone's GPS
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -66,7 +71,7 @@ export function WeatherProvider({ children }) {
     } else {
       fetchByCity("Manila");
     }
-  }, []);
+  }, [user?.settings?.customLocation]); // 🟢 Re-run instantly if they change this setting!
 
   return (
     <WeatherContext.Provider value={{ weather, forecast, loading, error, fetchByCity }}>

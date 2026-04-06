@@ -9,6 +9,9 @@ const authReducer = (state, action) => {
       return { user: action.payload };
     case "LOGOUT":
       return { user: null };
+      // 🟢 NEW: Add this case to handle settings/profile updates smoothly
+    case "UPDATE_USER":
+      return { user: { ...state.user, ...action.payload } };
     default:
       return state;
   }

@@ -4,8 +4,11 @@ import { AuthContext } from "../contexts/AuthContext";
 import TwoFactorSetup from '../components/TwoFactorSetup';
 import { API_BASE } from "../api";
 
+
+
+
 export default function Settings() {
-  const { user } = useContext(AuthContext); // Get the logged-in user's token
+  const { user, dispatch } = useContext(AuthContext); // Get the logged-in user's token
 
   // UI State
   const [tempUnit, setTempUnit] = useState("Celsius");
@@ -15,6 +18,8 @@ export default function Settings() {
   // Status State
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [customLocation, setCustomLocation] = useState("");
+  
 
   // 🟢 NEW: Load existing settings when the component mounts
   useEffect(() => {
@@ -22,6 +27,7 @@ export default function Settings() {
       setTempUnit(user.settings.tempUnit || "Celsius");
       setAlerts(user.settings.alertsEnabled ?? true);
       setHaptics(user.settings.hapticsEnabled ?? true);
+      setCustomLocation(user.settings.customLocation || "");
     }
   }, [user]);
 
@@ -40,11 +46,29 @@ export default function Settings() {
         body: JSON.stringify({
           tempUnit,
           alertsEnabled: alerts,
-          hapticsEnabled: haptics
+          hapticsEnabled: haptics,
+          customLocation
         })
       });
 
+      // 1. Actually grab the JSON response from your backend!
+      const json = await response.json(); 
+
       if (!response.ok) throw new Error("Failed to save settings");
+      
+      // 2. Update Local Storage so it survives a hard refresh
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      storedUser.settings = json.settings;
+      localStorage.setItem("user", JSON.stringify(storedUser));
+
+      // 3. 🟢 THE SMOOTH UPDATE: Push new settings into React memory instantly
+      dispatch({ type: "UPDATE_USER", payload: { settings: json.settings } });
+
+      setMessage("✅ Preferences successfully saved!");
+
+      // (Optional but recommended): Force a quick reload to ensure the Context updates everywhere 
+      // If your AuthContext exports a 'dispatch' function, you can use that instead of a reload!
+      window.location.reload();
       
       setMessage("✅ Preferences successfully saved!");
       setTimeout(() => setMessage(""), 3000);
@@ -92,6 +116,21 @@ export default function Settings() {
           </select>
         </div>
       </div>
+
+      {/* SECTION: GARDEN LOCATION OVERRIDE */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "15px", paddingTop: "15px", borderTop: "1px dashed #4b5563" }}>
+          <div>
+            <strong style={{ display: "block" }}>Garden Location Override</strong>
+            <small style={{ color: "#9ca3af" }}>Leave blank to use phone's GPS</small>
+          </div>
+          <input 
+            type="text" 
+            value={customLocation} 
+            onChange={(e) => setCustomLocation(e.target.value)}
+            placeholder="e.g., Tokyo, Manila"
+            style={{ background: "#374151", color: "white", border: "1px solid #4b5563", padding: "8px 12px", borderRadius: "6px", outline: "none", width: "150px" }}
+          />
+        </div>
 
       {/* SECTION: NOTIFICATIONS */}
       <div style={{ background: "#1f2937", borderRadius: "12px", padding: "20px", border: "1px solid #374151", marginBottom: "20px" }}>
