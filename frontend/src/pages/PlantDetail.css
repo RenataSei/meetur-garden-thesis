@@ -266,3 +266,94 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================
+   4. INTERACTIVE WIDGETS (Stats & Tabs)
+   ========================================= */
+
+/* The Breathing Hologram Animation */
+.floating-img {
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 20px 20px rgba(0,0,0,0.15));
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+/* RPG Animated Stat Bars */
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.stat-label {
+  font-family: "Press Start 2P", cursive;
+  font-size: 8px;
+  color: #64748b;
+  width: 110px;
+}
+
+.stat-bar-bg {
+  flex: 1;
+  height: 12px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stat-bar-fill {
+  height: 100%;
+  width: 0; /* Starts at 0 for animation */
+  animation: fillBar 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fillBar {
+  from { width: 0; }
+}
+
+/* Interactive Tabs */
+.tabs-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 4px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  font-family: "Press Start 2P", cursive;
+  font-size: 9px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -6px; /* Overlaps border */
+}
+
+.tab-btn:hover {
+  color: #0f172a;
+}
+
+.tab-btn.active {
+  color: #22c55e;
+  border-bottom: 3px solid #22c55e;
+}
+
+.animate-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
