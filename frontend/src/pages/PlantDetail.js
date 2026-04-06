@@ -68,6 +68,11 @@ export default function PlantDetail() {
   const waterStat = calculateWaterStat(ecology.water_frequency);
   const humidityStat = calculateHumidityStat(ecology.humidity_level);
 
+  // These protect the component from crashing while the plant data is fetching
+  if (loading) return <main className="detail"><p style={{textAlign:"center", marginTop:"50px"}}>Loading plant details...</p></main>;
+  if (err) return <main className="detail"><p style={{textAlign:"center", marginTop:"50px", color:"#ef4444"}}>{err}</p></main>;
+  if (!plant) return null;
+
   return (
     <main className="detail">
       <div style={{ width: "100%", maxWidth: "960px", marginBottom: "16px" }}>
