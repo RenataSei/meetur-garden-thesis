@@ -17,7 +17,9 @@ const userSchema = new Schema({
   settings: {
     tempUnit: { type: String, default: "Celsius" },
     alertsEnabled: { type: Boolean, default: true },
-    hapticsEnabled: { type: Boolean, default: true }
+    hapticsEnabled: { type: Boolean, default: true },
+    // 🟢 NEW: The manual location override field!
+    customLocation: { type: String, default: "" }
   },
   // --- Role Field ---
   role: {

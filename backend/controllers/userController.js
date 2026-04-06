@@ -67,7 +67,7 @@ const signupUser = async (req, res) => {
 // --- 🟢 NEW: Update User Settings ---
 const updateSettings = async (req, res) => {
   // We extract the settings from the frontend request
-  const { tempUnit, alertsEnabled, hapticsEnabled } = req.body;
+  const { tempUnit, alertsEnabled, hapticsEnabled, customLocation } = req.body;
 
   try {
     // req.user._id will be provided by your auth middleware
@@ -78,6 +78,7 @@ const updateSettings = async (req, res) => {
           "settings.tempUnit": tempUnit,
           "settings.alertsEnabled": alertsEnabled,
           "settings.hapticsEnabled": hapticsEnabled
+          "settings.customLocation": customLocation
         } 
       },
       { new: true } // This tells Mongoose to return the updated document
