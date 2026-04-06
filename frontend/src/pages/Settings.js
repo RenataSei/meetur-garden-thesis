@@ -32,7 +32,7 @@ export default function Settings() {
 
     try {
       const response = await fetch(`${API_BASE}/user/settings`, {
-        method: "PATCH", // Make sure this matches your backend router.patch! (You had PUT before)
+        method: "PUT", // Make sure this matches your backend router.patch! (You had PUT before)
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${user.token}` 
