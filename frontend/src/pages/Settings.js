@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import TwoFactorSetup from '../components/TwoFactorSetup';
+import { API_BASE } from "../api";
 
 export default function Settings() {
   const { user } = useContext(AuthContext); // Get the logged-in user's token
@@ -24,17 +25,17 @@ export default function Settings() {
     }
   }, [user]);
 
-  // 🟢 NEW: The Save Function
+  // 🟢 FIXED: Use API_BASE to ensure it always hits your Render server
   const handleSave = async () => {
     setIsSaving(true);
     setMessage("");
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api/user/settings`, {
-        method: "PUT",
+      const response = await fetch(`${API_BASE}/user/settings`, {
+        method: "PATCH", // Make sure this matches your backend router.patch! (You had PUT before)
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}` // Ensure your auth token is passed
+          "Authorization": `Bearer ${user.token}` 
         },
         body: JSON.stringify({
           tempUnit,
@@ -46,8 +47,6 @@ export default function Settings() {
       if (!response.ok) throw new Error("Failed to save settings");
       
       setMessage("✅ Preferences successfully saved!");
-      
-      // Clear the success message after 3 seconds
       setTimeout(() => setMessage(""), 3000);
     } catch (error) {
       setMessage("❌ Error saving preferences.");
