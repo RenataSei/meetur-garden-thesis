@@ -77,7 +77,7 @@ const updateSettings = async (req, res) => {
         $set: { 
           "settings.tempUnit": tempUnit,
           "settings.alertsEnabled": alertsEnabled,
-          "settings.hapticsEnabled": hapticsEnabled
+          "settings.hapticsEnabled": hapticsEnabled,
           "settings.customLocation": customLocation
         } 
       },
