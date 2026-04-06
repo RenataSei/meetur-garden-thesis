@@ -92,7 +92,7 @@ export default function Login() {
 
         <section className="auth__body">
           <div className="auth-card">
-            <h2 className="auth-card__title">
+            <h2 className="auth-card__title" style={{ color: "black" }}>
               {requires2FA ? "Two-Factor Auth" : "Welcome back"}
             </h2>
             <p className="auth-card__subtitle">

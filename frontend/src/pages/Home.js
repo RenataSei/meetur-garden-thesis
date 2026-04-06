@@ -819,7 +819,7 @@ function GardenDashboard({ user }) {
                 style={{
                   marginTop: "16px",
                   fontSize: "14px",
-                  color: "var(--pure-white)",
+                  color: "black",
                 }}
               >
                 Your garden is thriving!
