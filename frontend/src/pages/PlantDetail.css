@@ -345,8 +345,9 @@
 }
 
 .tab-btn.active {
-  color: #22c55e;
+  color: #111827;
   border-bottom: 3px solid #22c55e;
+
 }
 
 .animate-in {
