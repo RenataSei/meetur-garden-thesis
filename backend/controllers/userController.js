@@ -23,11 +23,13 @@ const loginUser = async (req, res) => {
         return res.status(200).json({ requires2FA: true, email: user.email });
       }
 
+      const cleanToken = String(twoFactorToken).replace(/\s/g, '').trim();
+
       // Step 2: They sent a 2FA code. Let's verify it!
       const verified = speakeasy.totp.verify({
         secret: user.twoFactorSecret,
         encoding: 'base32',
-        token: twoFactorToken,
+        token: cleanToken,
         window: 1 // Allows a 30-second grace period
       });
 
@@ -133,6 +135,8 @@ const generate2FA = async (req, res) => {
 const verifyAndEnable2FA = async (req, res) => {
   const { token } = req.body; // The 6-digit code from their phone
 
+  const cleanToken = String(token).replace(/\s/g, '').trim();
+
   try {
     const user = await User.findById(req.user._id);
 
@@ -140,7 +144,7 @@ const verifyAndEnable2FA = async (req, res) => {
     const verified = speakeasy.totp.verify({
       secret: user.twoFactorSecret,
       encoding: 'base32',
-      token: token,
+      token: cleanToken,
       window: 1 // Allows a 30-second grace period in case they are slow typing
     });
 
