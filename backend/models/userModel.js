@@ -15,7 +15,7 @@ const userSchema = new Schema({
     required: true
   },
   settings: {
-    tempUnit: { type: String, default: "Celsius" },
+    // Removeed temperatureUnit since we are standardizing on Celsius
     alertsEnabled: { type: Boolean, default: true },
     hapticsEnabled: { type: Boolean, default: true },
     // 🟢 NEW: The manual location override field!

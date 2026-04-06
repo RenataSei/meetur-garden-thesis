@@ -10,11 +10,13 @@ import { WeatherProvider } from './contexts/WeatherContext';
 const root = createRoot(document.getElementById("root"));
 
 root.render(
-  <BrowserRouter>
-    <AuthContextProvider>
-      <WeatherProvider> {/* <--- ADDED THIS WRAPPER */}
-        <App />
+  <React.StrictMode>
+    <AuthContextProvider>      {/* <-- 1. Auth loads first */}
+      <WeatherProvider>        {/* <-- 2. Weather can now see Auth! */}
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </WeatherProvider>
     </AuthContextProvider>
-  </BrowserRouter>
+  </React.StrictMode>
 );

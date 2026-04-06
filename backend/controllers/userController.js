@@ -75,7 +75,7 @@ const updateSettings = async (req, res) => {
       req.user._id,
       { 
         $set: { 
-          "settings.tempUnit": tempUnit,
+          // Removed tempUnit since we're standardizing on Celsius
           "settings.alertsEnabled": alertsEnabled,
           "settings.hapticsEnabled": hapticsEnabled,
           "settings.customLocation": customLocation

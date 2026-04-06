@@ -11,7 +11,7 @@ export default function Settings() {
   const { user, dispatch } = useContext(AuthContext); // Get the logged-in user's token
 
   // UI State
-  const [tempUnit, setTempUnit] = useState("Celsius");
+  // Removed tempUnit since we're standardizing on Celsius
   const [alerts, setAlerts] = useState(true);
   const [haptics, setHaptics] = useState(true);
   
@@ -24,7 +24,7 @@ export default function Settings() {
   // 🟢 NEW: Load existing settings when the component mounts
   useEffect(() => {
     if (user && user.settings) {
-      setTempUnit(user.settings.tempUnit || "Celsius");
+      // Removed tempUnit since we're standardizing on Celsius
       setAlerts(user.settings.alertsEnabled ?? true);
       setHaptics(user.settings.hapticsEnabled ?? true);
       setCustomLocation(user.settings.customLocation || "");
@@ -44,7 +44,7 @@ export default function Settings() {
           "Authorization": `Bearer ${user.token}` 
         },
         body: JSON.stringify({
-          tempUnit,
+          // Removed tempUnit since we're standardizing on Celsius
           alertsEnabled: alerts,
           hapticsEnabled: haptics,
           customLocation
@@ -98,27 +98,11 @@ export default function Settings() {
         </div>
       )}
 
-      {/* SECTION: ENVIRONMENT */}
-      <div style={{ background: "#1f2937", borderRadius: "12px", padding: "20px", border: "1px solid #374151", marginBottom: "20px" }}>
-        <h3 style={{ borderBottom: "1px solid #374151", paddingBottom: "10px", marginBottom: "15px", fontSize: "1.2rem" }}>🌍 Environment</h3>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <strong style={{ display: "block" }}>Temperature Unit</strong>
-            <small style={{ color: "#9ca3af" }}>Display preference for dashboard</small>
-          </div>
-          <select 
-            value={tempUnit} 
-            onChange={(e) => setTempUnit(e.target.value)}
-            style={{ background: "#374151", color: "white", border: "1px solid #4b5563", padding: "8px 12px", borderRadius: "6px", outline: "none" }}
-          >
-            <option value="Celsius">Celsius (°C)</option>
-            <option value="Fahrenheit">Fahrenheit (°F)</option>
-          </select>
-        </div>
-      </div>
 
-      {/* SECTION: GARDEN LOCATION OVERRIDE */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "15px", paddingTop: "15px", borderTop: "1px dashed #4b5563" }}>
+      {/* SECTION: LOCATION */}
+      <div style={{ background: "#1f2937", borderRadius: "12px", padding: "20px", border: "1px solid #374151", marginBottom: "20px" }}>
+        <h3 style={{ borderBottom: "1px solid #374151", paddingBottom: "10px", marginBottom: "15px", fontSize: "1.2rem" }}>📍 Location</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <strong style={{ display: "block" }}>Garden Location Override</strong>
             <small style={{ color: "#9ca3af" }}>Leave blank to use phone's GPS</small>
@@ -131,6 +115,7 @@ export default function Settings() {
             style={{ background: "#374151", color: "white", border: "1px solid #4b5563", padding: "8px 12px", borderRadius: "6px", outline: "none", width: "150px" }}
           />
         </div>
+      </div>
 
       {/* SECTION: NOTIFICATIONS */}
       <div style={{ background: "#1f2937", borderRadius: "12px", padding: "20px", border: "1px solid #374151", marginBottom: "20px" }}>

@@ -48,16 +48,27 @@ export function WeatherProvider({ children }) {
   };
   
   // 🟢 THE OVERRIDE LOGIC
-  useEffect(() => {
-    const customCity = user?.settings?.customLocation;
+ useEffect(() => {
+    // 1. Try to get it from state first
+    let customCity = user?.settings?.customLocation;
 
-    // 1. If the user set a custom location, use it and IGNORE the phone's GPS
+    // 2. If state is empty (because page just refreshed), check local storage instantly
+    if (!customCity) {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        customCity = storedUser?.settings?.customLocation;
+      } catch (e) {
+        console.warn("Could not read local storage for weather override");
+      }
+    }
+
+    // 3. If we found a custom city in either place, use it and STOP!
     if (customCity && customCity.trim() !== "") {
       fetchByCity(customCity);
       return; 
     }
 
-    // 2. Otherwise, fall back to the phone's GPS
+    // 4. If we absolutely have no custom city, then use the phone's GPS
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -71,7 +82,7 @@ export function WeatherProvider({ children }) {
     } else {
       fetchByCity("Manila");
     }
-  }, [user?.settings?.customLocation]); // 🟢 Re-run instantly if they change this setting!
+  }, [user?.settings?.customLocation]); // Re-run if the user changes it in settings
 
   return (
     <WeatherContext.Provider value={{ weather, forecast, loading, error, fetchByCity }}>
