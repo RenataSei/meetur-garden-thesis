@@ -191,9 +191,6 @@ export default function Community() {
                     <h3 style={{ margin: 0, fontSize: "1.2rem", color: "#f8fafc" }}>{blog.title}</h3>
                     <small style={{ color: "#64748b" }}>By {blog.author?.email?.split('@')[0]} • {new Date(blog.createdAt).toLocaleDateString()}</small>
                   </div>
-                  {canDelete && (
-                    <button onClick={() => handleDelete(blog._id)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>🗑️</button>
-                  )}
                 </div>
 
                 {/* POST BODY & IMAGE */}
