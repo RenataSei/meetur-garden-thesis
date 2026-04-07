@@ -98,17 +98,27 @@ export default function Community() {
     }
   };
 
+  const handleFlag = async (id) => {
+    try {
+      await BlogAPI.flag(id);
+      alert("Post flagged for admin review. Thank you for keeping the community safe!");
+    } catch (err) {
+      alert("You have already flagged this post.");
+    }
+  };
+
   // Filter posts based on active tab
   const displayedBlogs = activeTab === 'all' 
     ? blogs 
-    : blogs.filter(blog => blog.author?.email === user.email);
-
+    : activeTab === 'mine'
+      ? blogs.filter(blog => blog.author?.email === user.email)
+      : blogs.filter(blog => blog.isFlagged === true); // The Admin filter!
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto", color: "#f3f4f6" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <h2 style={{ fontSize: "2rem", color: "#8fd081", margin: 0 }}>Community 🌍</h2>
         
-        {/* 🟢 TABS */}
+        {/* TABS */}
         <div style={{ display: "flex", gap: "8px", background: "#1f2937", padding: "4px", borderRadius: "8px" }}>
           <button 
             onClick={() => setActiveTab('all')}
@@ -122,6 +132,15 @@ export default function Community() {
           >
             My Posts
           </button>
+
+          {user.role === 'admin' && (
+            <button 
+              onClick={() => setActiveTab('flagged')}
+              style={{ padding: "8px 16px", borderRadius: "6px", border: "none", cursor: "pointer", background: activeTab === 'flagged' ? "rgba(239, 68, 68, 0.2)" : "transparent", color: activeTab === 'flagged' ? "#ef4444" : "#9ca3af", fontWeight: activeTab === 'flagged' ? "bold" : "normal" }}
+            >
+              🚩 Review Flagged
+            </button>
+          )}
         </div>
       </div>
 
@@ -160,6 +179,7 @@ export default function Community() {
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           {displayedBlogs.map((blog) => {
             const isAuthor = blog.author?._id === user._id;
+            const isAdmin = user.role === 'admin';
             const canDelete = isAuthor || user.role === 'admin';
 
             return (
@@ -179,8 +199,33 @@ export default function Community() {
                 {/* POST BODY & IMAGE */}
                 <p style={{ color: "#d1d5db", lineHeight: "1.6", whiteSpace: "pre-wrap", marginBottom: "16px" }}>{blog.content}</p>
                 {blog.image && (
-                  <img src={blog.image} alt="Post attachment" style={{ width: "100%", maxHeight: "400px", objectFit: "cover", borderRadius: "8px", marginBottom: "16px" }} />
+                  <img src={blog.image} alt="Post attachment" style={{ width: "100%", maxHeight: "400px", objectFit: "contain", borderRadius: "8px", marginBottom: "16px" }} />
                 )}
+
+                {/* 🟢 THE RESTORED ACTION BAR */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #1f2937", paddingTop: "12px", marginBottom: "16px" }}>
+                  
+                  {/* Admin Flag Indicator */}
+                  {isAdmin && blog.isFlagged ? (
+                    <span style={{ background: "rgba(239, 68, 68, 0.2)", color: "#ef4444", padding: "4px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: "bold" }}>
+                      🚩 Flagged for Review
+                    </span>
+                  ) : <div></div> /* Empty div to push buttons to the right */}
+
+                  {/* Buttons */}
+                  <div style={{ display: "flex", gap: "16px" }}>
+                    {!isAuthor && (
+                      <button onClick={() => handleFlag(blog._id)} style={{ background: "none", border: "none", color: "#9ca3af", cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", gap: "4px" }}>
+                        🚩 Report
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button onClick={() => handleDelete(blog._id)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", gap: "4px" }}>
+                        🗑️ Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 {/* 🟢 REPLIES SECTION */}
                 <div style={{ background: "#1f2937", borderRadius: "8px", padding: "16px" }}>
