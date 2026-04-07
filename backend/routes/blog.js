@@ -7,7 +7,8 @@ const {
   createBlog,
   flagBlog,
   deleteBlog,
-  getFlaggedBlogs
+  getFlaggedBlogs,
+  replyToBlog   
 } = require('../controllers/blogController');
 
 // Require auth for all blog routes (Guests can't read/write to the community board)
