@@ -1,6 +1,6 @@
 // src/components/PlantForm.js
 import { useEffect, useMemo, useState } from "react";
-import { PlantAPI } from "../api"; // 🟢 Added API import
+import { PlantsAPI } from "../api"; // 🟢 Added API import
 
 /**
  * Form aligned with backend plantSchema.
@@ -361,7 +361,7 @@ export default function PlantForm({
 
   // 🟢 NEW: Fetch families from database on mount
   useEffect(() => {
-    PlantAPI.getFamilies()
+    PlantsAPI.getFamilies()
       .then((families) => setDbFamilies(families))
       .catch((err) => console.error("Failed to load families", err));
   }, []);
