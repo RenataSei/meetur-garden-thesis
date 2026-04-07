@@ -34,6 +34,7 @@ const createBlog = async (req, res) => {
     const blog = await Blog.create({
       title,
       content,
+      image: image || "",
       tags: tags || [],
       author: req.user._id // Automatically grab the logged-in user's ID
     });
