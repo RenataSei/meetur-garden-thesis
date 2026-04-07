@@ -215,3 +215,45 @@ export const GardenAPI = {
       body: JSON.stringify({ action })
     }).then(handle)
 };
+
+// ---------------------------------------------------
+// COMMUNITY BLOG API
+// ---------------------------------------------------
+export const BlogAPI = {
+  // GET /api/blogs - Fetch the community feed
+  list: () => 
+    fetch(`${API_BASE}/blogs`, { 
+      headers: { ...getAuthHeaders() } 
+    }).then(handle),
+  
+  // POST /api/blogs - Create a new post
+  create: (payload) => 
+    fetch(`${API_BASE}/blogs`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(payload)
+    }).then(handle),
+
+  // PATCH /api/blogs/:id/flag - Report a post
+  flag: (id) => 
+    fetch(`${API_BASE}/blogs/${id}/flag`, {
+      method: 'PATCH',
+      headers: { ...getAuthHeaders() }
+    }).then(handle),
+
+  // DELETE /api/blogs/:id - Delete a post (Admin/Author only)
+  remove: (id) => 
+    fetch(`${API_BASE}/blogs/${id}`, {
+      method: 'DELETE',
+      headers: { ...getAuthHeaders() }
+    }).then(handle),
+
+  // GET /api/blogs/admin/flagged - Admin moderation queue
+  getFlagged: () => 
+    fetch(`${API_BASE}/blogs/admin/flagged`, { 
+      headers: { ...getAuthHeaders() } 
+    }).then(handle),
+};

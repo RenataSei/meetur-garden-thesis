@@ -192,6 +192,7 @@ export default function SidebarMenu() {
           <Link className="menu-btn" to="/">My Garden</Link>
           <Link className="menu-btn" to="/plants">Plant Catalog</Link>
           <Link className="menu-btn" to="/tutorials">Tutorials</Link>
+          <Link className="menu-btn" to="/community">Community</Link>
           <Link className="menu-btn" to="/settings">Settings</Link>
           <Link className="menu-btn" to="/profile">View Profile</Link>
           <Link className="menu-btn" to="/logout">Logout</Link>
