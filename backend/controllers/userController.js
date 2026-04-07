@@ -1,16 +1,16 @@
-const User = require('../models/userModel');
-const jwt = require('jsonwebtoken');
-const speakeasy = require('speakeasy');
-const QRCode = require('qrcode');
+const User = require("../models/userModel");
+const jwt = require("jsonwebtoken");
+const speakeasy = require("speakeasy");
+const QRCode = require("qrcode");
 
 const createToken = (_id) => {
-  return jwt.sign({_id}, process.env.SECRET, { expiresIn: '3d' });
-}
+  return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "3d" });
+};
 
 // login user
 const loginUser = async (req, res) => {
   // 🟢 NEW: Extract twoFactorToken from the request body
-  const {email, password, twoFactorToken} = req.body;
+  const { email, password, twoFactorToken } = req.body;
 
   try {
     const user = await User.login(email, password);
@@ -23,46 +23,66 @@ const loginUser = async (req, res) => {
         return res.status(200).json({ requires2FA: true, email: user.email });
       }
 
-      const cleanToken = String(twoFactorToken).replace(/\s/g, '').trim();
+      const cleanToken = String(twoFactorToken).replace(/\s/g, "").trim();
 
       // Step 2: They sent a 2FA code. Let's verify it!
       const verified = speakeasy.totp.verify({
         secret: user.twoFactorSecret,
-        encoding: 'base32',
+        encoding: "base32",
         token: cleanToken,
-        window: 1 // Allows a 30-second grace period
+        window: 1, // Allows a 30-second grace period
       });
 
       if (!verified) {
-        return res.status(400).json({ error: "Invalid 2FA code. Please try again." });
+        return res
+          .status(400)
+          .json({ error: "Invalid 2FA code. Please try again." });
       }
     }
 
     // If we reach here, either 2FA is OFF, or 2FA is ON and the code was CORRECT!
     const token = createToken(user._id);
 
-    res.status(200).json({email, role: user.role, settings: user.settings, token}); 
+    res
+      .status(200)
+      .json({
+        email,
+        role: user.role,
+        settings: user.settings,
+        nickname: user.nickname,
+        birthday: user.birthday,
+        token,
+      });
   } catch (error) {
-    res.status(400).json({error: error.message});
+    res.status(400).json({ error: error.message });
   }
-}
+};
 
 // signup user
 const signupUser = async (req, res) => {
   // Accept 'role' from the request body
-  const {email, password, role} = req.body; 
+  const { email, password, role } = req.body;
 
   try {
     // Pass role to the model
-    const user = await User.signup(email, password, role); 
+    const user = await User.signup(email, password, role);
     const token = createToken(user._id);
 
     // --- NEW: Send the role and settings back to the frontend ---
-    res.status(200).json({email, role: user.role, settings: user.settings, token}); 
+    res
+      .status(200)
+      .json({
+        email,
+        role: user.role,
+        settings: user.settings,
+        nickname: user.nickname,
+        birthday: user.birthday,
+        token,
+      });
   } catch (error) {
-    res.status(400).json({error: error.message});
+    res.status(400).json({ error: error.message });
   }
-}
+};
 
 // --- 🟢 NEW: Update User Settings ---
 const updateSettings = async (req, res) => {
@@ -73,26 +93,35 @@ const updateSettings = async (req, res) => {
     // req.user._id will be provided by your auth middleware
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { 
-        $set: { 
+      {
+        $set: {
           // Removed tempUnit since we're standardizing on Celsius
           "settings.alertsEnabled": alertsEnabled,
           "settings.hapticsEnabled": hapticsEnabled,
-          "settings.customLocation": customLocation
-        } 
+          "settings.customLocation": customLocation,
+          nickname: nickname,
+          birthday: birthday || null,
+        },
       },
-      { new: true } // This tells Mongoose to return the updated document
+      { new: true }, // This tells Mongoose to return the updated document
     );
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json({ message: "Settings saved!", settings: user.settings });
+    res
+      .status(200)
+      .json({
+        message: "Settings saved!",
+        settings: user.settings,
+        nickname: user.nickname,
+        birthday: user.birthday,
+      });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
+};
 
 // --- 🟢 NEW: Change Password ---
 const changePassword = async (req, res) => {
@@ -101,12 +130,12 @@ const changePassword = async (req, res) => {
   try {
     // req.user._id comes from your requireAuth middleware
     await User.changePassword(req.user._id, currentPassword, newPassword);
-    
+
     res.status(200).json({ message: "Password updated successfully!" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
+};
 
 // 1. GENERATE THE QR CODE (Called when user clicks "Enable 2FA" in settings)
 const generate2FA = async (req, res) => {
@@ -116,7 +145,7 @@ const generate2FA = async (req, res) => {
 
     // Generate a secure secret specific to this user
     const secret = speakeasy.generateSecret({
-      name: `Meet-Ur Garden (${user.email})` // This is what shows up in Google Authenticator
+      name: `Meet-Ur Garden (${user.email})`, // This is what shows up in Google Authenticator
     });
 
     // Save the secret temporarily (we won't enable 2FA until they prove they scanned it)
@@ -136,7 +165,7 @@ const generate2FA = async (req, res) => {
 const verifyAndEnable2FA = async (req, res) => {
   const { token } = req.body; // The 6-digit code from their phone
 
-  const cleanToken = String(token).replace(/\s/g, '').trim();
+  const cleanToken = String(token).replace(/\s/g, "").trim();
 
   try {
     const user = await User.findById(req.user._id);
@@ -144,9 +173,9 @@ const verifyAndEnable2FA = async (req, res) => {
     // Check if the code they typed matches their secret
     const verified = speakeasy.totp.verify({
       secret: user.twoFactorSecret,
-      encoding: 'base32',
+      encoding: "base32",
       token: cleanToken,
-      window: 1 // Allows a 30-second grace period in case they are slow typing
+      window: 1, // Allows a 30-second grace period in case they are slow typing
     });
 
     if (verified) {
@@ -162,5 +191,11 @@ const verifyAndEnable2FA = async (req, res) => {
   }
 };
 
-
-module.exports = { signupUser, loginUser, updateSettings, changePassword, generate2FA, verifyAndEnable2FA };
+module.exports = {
+  signupUser,
+  loginUser,
+  updateSettings,
+  changePassword,
+  generate2FA,
+  verifyAndEnable2FA,
+};
