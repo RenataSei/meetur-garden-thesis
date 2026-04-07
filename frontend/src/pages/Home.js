@@ -6,6 +6,18 @@ import { WeatherContext } from "../contexts/WeatherContext";
 import { GardenAPI } from "../api";
 import "./Home.css";
 
+// Banner imports
+import banner1 from "../assets/Banner1.jpg";
+import banner2 from "../assets/Banner2.jpg";
+import banner3 from "../assets/Banner3.jpg";
+import banner4 from "../assets/Banner4.jpg";
+
+// Product imports
+import product1 from "../assets/Product1.jpg";
+import product2 from "../assets/Product2.jpg";
+import product3 from "../assets/Product3.jpg";
+import product4 from "../assets/Product4.jpg";
+
 // --- HELPER: FORMAT DATE ---
 function formatLastWatered(dateString) {
   if (!dateString) return "Never watered";
@@ -238,7 +250,6 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
           </div>
         </div>
 
-        {/* 🟢 NEW: DYNAMIC MODAL ACTIONS */}
         <div className="modal-actions" style={{ flexWrap: "wrap" }}>
           {healthReport.health === "TOO HOT!" ? (
             <>
@@ -333,11 +344,101 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
   );
 }
 
-// --- SUB-COMPONENT: The Guest Landing View ---
+// 🟢 --- NEW DATA FOR LANDING VIEW ---
+const CAROUSEL_IMAGES = [
+  { url: banner1, title: "Welcome to Meet-Ur Garden", sub: "Discover the perfect addition to your home sanctuary." },
+  { url: banner2, title: "Expert Plant Care", sub: "Track, learn, and grow alongside our community." },
+  { url: banner3, title: "Premium Supplies", sub: "Everything you need to keep your plants thriving." },
+  { url: banner4, title: "Join the Green Revolution", sub: "Your plant parent journey starts here." }
+];
+
+const PRODUCTS = [
+  { id: 1, title: "Plants", desc: "A variety of healthy, well-cared-for plants for your home.", img: product1 },
+  { id: 2, title: "Premium Pots", desc: "Ceramic, terracotta, and self-watering planters.", img: product2 },
+  { id: 3, title: "Pot Mediums", desc: "Aroid mixes, coco coir, and nutrient-rich soil.", img: product3 },
+  { id: 4, title: "Fertilizers", desc: "Organic and synthetic nutrients for explosive growth.", img: product4 }
+];
+
+const landingStyles = `
+  .carousel-container { position: relative; width: 100%; height: 450px; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 48px; }
+  .carousel-track { display: flex; height: 100%; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+  .carousel-slide { min-width: 100%; height: 100%; position: relative; }
+  .carousel-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
+  .carousel-caption { position: absolute; bottom: 40px; left: 40px; color: white; text-shadow: 0 4px 12px rgba(0,0,0,0.8); }
+  .carousel-caption h2 { font-size: 2.5rem; font-weight: 800; margin: 0 0 8px 0; color: #34d399; }
+  .carousel-caption p { font-size: 1.1rem; margin: 0; color: #e5e7eb; }
+  .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.6); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-size: 20px; cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
+  .carousel-btn:hover { background: rgba(52, 211, 153, 0.8); }
+  .btn-left { left: 16px; }
+  .btn-right { right: 16px; }
+
+  .featured-products { margin-top: 64px; margin-bottom: 48px; }
+  .section-header { margin-bottom: 32px; text-align: center; }
+  .section-header h3 { font-size: 2rem; color: #f3f4f6; margin: 0 0 8px 0; }
+  .section-header p { color: #9ca3af; margin: 0; font-size: 1.1rem; }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+  .product-card { background: #1f2937; border: 1px solid #374151; border-radius: 16px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; display: flex; flex-direction: column; }
+  .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); border-color: #34d399; }
+  .product-image { width: 100%; height: 200px; object-fit: cover; }
+  .product-info { padding: 20px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .product-title { font-size: 1.2rem; font-weight: bold; color: #f3f4f6; margin: 0 0 8px 0; }
+  .product-desc { font-size: 0.9rem; color: #9ca3af; margin: 0; line-height: 1.4; }
+
+  .garden-footer { margin-top: 64px; padding-top: 32px; border-top: 1px dashed #374151; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; color: #9ca3af; }
+  .footer-brand h4 { font-size: 1.4rem; color: #f3f4f6; margin: 0 0 8px 0; font-weight: 800; letter-spacing: 1px; }
+  .footer-brand span { color: #34d399; }
+  .footer-details { display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; }
+  .footer-link { color: #34d399; text-decoration: none; transition: opacity 0.2s; }
+  .footer-link:hover { opacity: 0.8; text-decoration: underline; }
+
+  @media (max-width: 768px) {
+    .carousel-container { height: 300px; }
+    .carousel-caption h2 { font-size: 1.8rem; }
+    .garden-footer { flex-direction: column; text-align: center; align-items: center; }
+  }
+`;
+
+// --- SUB-COMPONENT: The Guest Landing View (🟢 UPDATED) ---
 function LandingView({ handleSearchSubmit }) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-advance carousel every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1));
+  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? CAROUSEL_IMAGES.length - 1 : prev - 1));
+
   return (
     <>
-      <section className="hero">
+      <style>{landingStyles}</style>
+
+      {/* 🟢 NEW: HERO CAROUSEL */}
+      <section className="carousel-container">
+        <div 
+          className="carousel-track" 
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
+          {CAROUSEL_IMAGES.map((img, idx) => (
+            <div className="carousel-slide" key={idx}>
+              <img src={img.url} alt={img.title} />
+              <div className="carousel-caption">
+                <h2>{img.title}</h2>
+                <p>{img.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button className="carousel-btn btn-left" onClick={prevSlide}>❮</button>
+        <button className="carousel-btn btn-right" onClick={nextSlide}>❯</button>
+      </section>
+
+      {/* ORIGINAL HERO SEARCH */}
+      <section className="hero" style={{ padding: "0 0 48px 0" }}>
         <h2 className="hero__title">Grow. Track. Thrive.</h2>
         <p className="hero__text">
           Manage your garden with simple create, read, update, and delete tools.
@@ -374,6 +475,28 @@ function LandingView({ handleSearchSubmit }) {
           </div>
         </form>
       </section>
+
+      {/* 🟢 NEW: FEATURED PRODUCTS */}
+      <section className="featured-products">
+        <div className="section-header">
+          <h3>Featured Products</h3>
+          <p>Everything you need for your indoor jungle.</p>
+        </div>
+        
+        <div className="products-grid">
+          {PRODUCTS.map((product) => (
+            <div className="product-card" key={product.id}>
+              <img src={product.img} alt={product.title} className="product-image" />
+              <div className="product-info">
+                <h4 className="product-title">{product.title}</h4>
+                <p className="product-desc">{product.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ORIGINAL FEATURES */}
       <section className="features">
         <article className="card">
           <div className="card__icon card__icon--green" />
@@ -396,7 +519,6 @@ function LandingView({ handleSearchSubmit }) {
 function WeatherModal({ weather, forecast, onClose }) {
   if (!weather) return null;
 
-  // Determine a quick "Garden Impact" tip based on current conditions
   let impactTip =
     "Conditions are generally mild. Standard watering schedules apply.";
   if (weather.main.temp > 32)
@@ -406,14 +528,12 @@ function WeatherModal({ weather, forecast, onClose }) {
   else if (weather.weather[0].main.includes("Rain"))
     impactTip = "Rain is expected! Great for outdoor plants.";
 
-  // 🟢 Extract Daily Forecast (Grab 1 reading per day from the 3-hour blocks)
   const dailyData = [];
   if (forecast && forecast.list) {
     const seenDays = new Set();
     forecast.list.forEach((slot) => {
       const date = new Date(slot.dt * 1000);
       const dayStr = date.toLocaleDateString("en-US", { weekday: "short" });
-      // Grab the first reading of each new day (usually mid-day depending on timezone)
       if (!seenDays.has(dayStr) && seenDays.size < 5) {
         seenDays.add(dayStr);
         dailyData.push({
@@ -429,7 +549,6 @@ function WeatherModal({ weather, forecast, onClose }) {
     });
   }
 
-  // Find max temp to scale the graph bars
   const maxTemp =
     dailyData.length > 0 ? Math.max(...dailyData.map((d) => d.temp)) : 40;
 
@@ -492,7 +611,6 @@ function WeatherModal({ weather, forecast, onClose }) {
             </span>
           </div>
 
-          {/* 🟢 NEW: RETRO 5-DAY FORECAST GRAPH */}
           {dailyData.length > 0 && (
             <div
               className="detail-box"
@@ -518,7 +636,7 @@ function WeatherModal({ weather, forecast, onClose }) {
                 {dailyData.map((day, idx) => {
                   const barHeight = `${(day.temp / maxTemp) * 100}%`;
                   const isHot = day.temp > 30;
-                  const barColor = isHot ? "#ef4444" : "#38bdf8"; // Red if hot, blue if normal
+                  const barColor = isHot ? "#ef4444" : "#38bdf8";
 
                   return (
                     <div
@@ -534,7 +652,6 @@ function WeatherModal({ weather, forecast, onClose }) {
                         {day.icon}
                       </span>
 
-                      {/* The Graph Bar */}
                       <div
                         style={{
                           width: "100%",
@@ -639,7 +756,6 @@ function GardenDashboard({ user }) {
     }
   }
 
-  // 🟢 NEW: Highly dynamic generic action handler
   async function handleAction(id, actionType) {
     try {
       await GardenAPI.logAction(id, actionType);
@@ -654,7 +770,6 @@ function GardenDashboard({ user }) {
     }
   }
 
-  // 🟢 Quick action wrapper for the dashboard to stop propagation
   async function handleQuickAction(e, id, actionType) {
     e.stopPropagation();
     setActionLoading(id);
@@ -707,7 +822,6 @@ function GardenDashboard({ user }) {
 
   return (
     <div className="dashboard-container">
-      {/* 🟢 Render Weather Modal */}
       {showWeatherModal && weather && (
         <WeatherModal
           weather={weather}
@@ -716,7 +830,6 @@ function GardenDashboard({ user }) {
         />
       )}
 
-      {/* 🟢 Render Plant Detail Modal */}
       {selectedPlant && (
         <PlantModal
           plant={selectedPlant}
@@ -809,7 +922,6 @@ function GardenDashboard({ user }) {
       {loading && <p className="loading">Loading your garden...</p>}
       {error && <p className="error">{error}</p>}
 
-      {/* OVERVIEW TAB */}
       {!loading && !error && activeTab === "overview" && (
         <section className="tab-content">
           {attentionPlants.length === 0 ? (
@@ -865,7 +977,6 @@ function GardenDashboard({ user }) {
                       </span>
                     </div>
 
-                    {/* 🟢 FIXED: DYNAMIC QUICK ACTIONS FOR DASHBOARD */}
                     <div
                       style={{
                         display: "flex",
@@ -876,7 +987,6 @@ function GardenDashboard({ user }) {
                         marginTop: "12px",
                       }}
                     >
-                      {/* 1. Always show WATER if it is thirsty, regardless of temperature */}
                       {(item.healthReport.health === "THIRSTY" ||
                         item.healthReport.next_actions?.water_in === "Now") && (
                         <button
@@ -890,7 +1000,6 @@ function GardenDashboard({ user }) {
                         </button>
                       )}
 
-                      {/* 2. Show HEAT actions if it is too hot */}
                       {item.healthReport.health === "TOO HOT!" && (
                         <>
                           <button
@@ -919,7 +1028,6 @@ function GardenDashboard({ user }) {
                         </>
                       )}
 
-                      {/* 3. Show COLD actions if it is too cold */}
                       {item.healthReport.health === "TOO COLD!" && (
                         <button
                           className="btn btn--small"
@@ -945,7 +1053,6 @@ function GardenDashboard({ user }) {
         </section>
       )}
 
-      {/* ALL PLANTS TAB */}
       {!loading && !error && activeTab === "plants" && (
         <section className="tab-content">
           {garden.length === 0 ? (
@@ -1065,13 +1172,36 @@ export default function Home() {
           )}
         </nav>
       </header>
+      
+      {/* 🟢 Either show the User Dashboard or the updated Guest Landing View */}
       {user ? (
         <GardenDashboard user={user} />
       ) : (
         <LandingView handleSearchSubmit={handleSearchSubmit} />
       )}
-      <footer className="home__footer">
-        <small>© {new Date().getFullYear()} Meet-Ur Garden</small>
+
+      {/* 🟢 THE NEW FOOTER (For both guests and users) */}
+      <footer className="garden-footer">
+        <div className="footer-brand">
+          <h4>MEETUR <span>GARDEN</span></h4>
+          <p style={{ margin: 0, maxWidth: "300px" }}>
+            Cultivating a greener community, one leaf at a time. Track, learn, and grow with us.
+          </p>
+        </div>
+
+        <div className="footer-details">
+          <strong>Visit Us</strong>
+          <span>📍 123 Botanical Way, Dasmariñas, Cavite, PH</span>
+          <span>📞 +63 (046) 123-4567</span>
+          <a 
+            href="https://facebook.com" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="footer-link"
+          >
+            📘 Follow us on Facebook
+          </a>
+        </div>
       </footer>
     </main>
   );
