@@ -101,7 +101,7 @@ export default function Community() {
   // Filter posts based on active tab
   const displayedBlogs = activeTab === 'all' 
     ? blogs 
-    : blogs.filter(blog => blog.author?._id === user._id);
+    : blogs.filter(blog => blog.author?.email === user.email);
 
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto", color: "#f3f4f6" }}>
