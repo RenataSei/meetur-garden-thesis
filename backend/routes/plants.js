@@ -8,7 +8,10 @@ const {
     getSinglePlant,
     deletePlant,
     updatePlant,
-    checkPlantHealth
+    checkPlantHealth,
+    getAllGenera,
+    getSingleGenus,
+    getUniqueFamilies
 } = require('../controllers/plantsController');
 
 // Require authentication for ALL plant routes first
