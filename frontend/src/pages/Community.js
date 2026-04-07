@@ -29,6 +29,43 @@ export default function Community() {
   // Reply State (tracks which post we are typing a reply for)
   const [replyInputs, setReplyInputs] = useState({});
 
+  // 🟢 THE AGE CALCULATOR
+  const calculateAge = (birthday) => {
+    if (!birthday) return 0;
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    // Subtract 1 if their birthday hasn't happened yet this year
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const userAge = calculateAge(user?.birthday);
+
+  // 🟢 THE BOUNCER: Check if they are under 18 (or haven't set a birthday)
+  // This MUST sit here, above the main return, so React stops drawing the page if they fail.
+  if (!user?.birthday || userAge < 18) {
+    return (
+      <div style={{ padding: "40px 20px", maxWidth: "600px", margin: "40px auto", textAlign: "center", background: "#1f2937", borderRadius: "12px", border: "1px solid #374151" }}>
+        <span style={{ fontSize: "60px" }}>🛑</span>
+        <h2 style={{ color: "#ef4444", margin: "20px 0 10px 0" }}>Access Denied</h2>
+        <p style={{ color: "#9ca3af", lineHeight: "1.6", marginBottom: "24px" }}>
+          {!user?.birthday 
+            ? "You must set your Date of Birth in your Account Settings to access the Community Board."
+            : "Sorry, you must be at least 18 years old to access the Community Board."}
+        </p>
+        <button onClick={() => window.location.href = '/profile'} className="btn btn--primary">
+          Go to Profile Settings
+        </button>
+      </div>
+    );
+  }
+
+  // --- Normal Component Logic Continues Below ---
+
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -113,6 +150,7 @@ export default function Community() {
     : activeTab === 'mine'
       ? blogs.filter(blog => blog.author?.email === user.email)
       : blogs.filter(blog => blog.isFlagged === true); // The Admin filter!
+
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto", color: "#f3f4f6" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
