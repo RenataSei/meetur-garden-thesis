@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PlantForm from "../components/PlantForm";
 import { createPlant } from "../api/plants";
+import { PlantsAPI } from "../api";
 
 export default function NewPlant() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function NewPlant() {
   const [isAddingNewFamily, setIsAddingNewFamily] = useState(false);
 
   useEffect(() => {
-    PlantAPI.getFamilies()
+    PlantsAPI.getFamilies()
       .then(data => setDbFamilies(data))
       .catch(err => console.error("Failed to load families", err));
   }, []);
