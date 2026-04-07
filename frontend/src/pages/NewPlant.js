@@ -1,4 +1,5 @@
 // src/pages/NewPlant.js
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PlantForm from "../components/PlantForm";
 import { createPlant } from "../api/plants";
