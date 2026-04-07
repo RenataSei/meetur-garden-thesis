@@ -546,8 +546,8 @@ const CAROUSEL_IMAGES = [
 const PRODUCTS = [
   { id: 1, title: "Plants", desc: "A variety of healthy, well-cared-for plants for your home.", img: product1 },
   { id: 2, title: "Premium Pots", desc: "Ceramic, terracotta, and self-watering planters.", img: product2 },
-  { id: 3, title: "Pot Mediums", desc: "Aroid mixes, coco coir, and nutrient-rich soil.", img: product3 },
-  { id: 4, title: "Fertilizers", desc: "Organic and synthetic nutrients for explosive growth.", img: product4 }
+  { id: 3, title: "Fertilizers", desc: "Organic and synthetic nutrients for explosive growth.", img: product3 },
+  { id: 4, title: "Pot Mediums", desc: "Aroid mixes, coco coir, and nutrient-rich soil.", img: product4 }
 ];
 
 const marketingStyles = `
