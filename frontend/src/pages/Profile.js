@@ -42,9 +42,9 @@ export default function Profile() {
         },
         body: JSON.stringify({
           // We must send the existing settings back so they don't get overwritten!
-          alertsEnabled: user.settings?.alertsEnabled,
-          hapticsEnabled: user.settings?.hapticsEnabled,
-          customLocation: user.settings?.customLocation,
+          alertsEnabled: user.settings?.alertsEnabled ?? true,
+          hapticsEnabled: user.settings?.hapticsEnabled ?? true,
+          customLocation: user.settings?.customLocation ?? "",
           // And the new profile data
           nickname,
           birthday: birthday || null

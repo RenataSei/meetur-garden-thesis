@@ -54,6 +54,7 @@ const loginUser = async (req, res) => {
         token,
       });
   } catch (error) {
+    
     res.status(400).json({ error: error.message });
   }
 };
@@ -84,44 +85,48 @@ const signupUser = async (req, res) => {
   }
 };
 
-// --- 🟢 NEW: Update User Settings ---
+// --- Update User Settings ---
 const updateSettings = async (req, res) => {
-  // We extract the settings from the frontend request
-  const { tempUnit, alertsEnabled, hapticsEnabled, customLocation } = req.body;
+  const { alertsEnabled, hapticsEnabled, customLocation, nickname, birthday } = req.body;
 
   try {
-    // req.user._id will be provided by your auth middleware
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        $set: {
-          // Removed tempUnit since we're standardizing on Celsius
-          "settings.alertsEnabled": alertsEnabled,
-          "settings.hapticsEnabled": hapticsEnabled,
-          "settings.customLocation": customLocation,
-          nickname: nickname,
-          birthday: birthday || null,
-        },
-      },
-      { new: true }, // This tells Mongoose to return the updated document
-    );
+    // 1. Build the update object dynamically so we only update what exists
+    const updateFields = {
+      nickname: nickname || "",
+    };
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    // 2. Safely handle the birthday (Only set it if it's a valid date string or null)
+    if (birthday) {
+      updateFields.birthday = new Date(birthday);
+    } else {
+      updateFields.birthday = null;
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Settings saved!",
-        settings: user.settings,
-        nickname: user.nickname,
-        birthday: user.birthday,
-      });
+    // 3. Safely handle nested settings
+    if (alertsEnabled !== undefined) updateFields["settings.alertsEnabled"] = alertsEnabled;
+    if (hapticsEnabled !== undefined) updateFields["settings.hapticsEnabled"] = hapticsEnabled;
+    if (customLocation !== undefined) updateFields["settings.customLocation"] = customLocation;
+
+    // 4. Send to database
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updateFields },
+      { new: true, runValidators: true } 
+    );
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.status(200).json({ 
+      message: "Settings saved!", 
+      settings: user.settings,
+      nickname: user.nickname,
+      birthday: user.birthday
+    });
   } catch (error) {
+    console.log("SETTINGS UPDATE ERROR:", error); // <-- This will print the exact issue in Render/Terminal
     res.status(400).json({ error: error.message });
   }
-};
+}
 
 // --- 🟢 NEW: Change Password ---
 const changePassword = async (req, res) => {
