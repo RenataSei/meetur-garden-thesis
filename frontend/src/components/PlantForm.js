@@ -1,6 +1,5 @@
 // src/components/PlantForm.js
 import { useEffect, useMemo, useState } from "react";
-import { PlantAPI } from "../api"; // 🟢 Added API import
 
 /**
  * Form aligned with backend plantSchema.
@@ -16,13 +15,13 @@ const styles = `
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Modern Retro Pixel Grid */
+  /* 🟢 Modern Retro Pixel Grid */
   background-color: #f8fafc;
   background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-/* Hero header */
+/* Hero header (big title like screenshot 1) */
 .plant-form-hero {
   text-align: center;
   margin-bottom: 24px;
@@ -74,7 +73,7 @@ const styles = `
   margin-top: 8px;
 }
 
-/* Section styling */
+/* Section styling (BASIC INFORMATION, FLOWER DESCRIPTORS, etc.) */
 .section {
   border-radius: 18px;
   padding: 16px 0 6px;
@@ -95,6 +94,14 @@ const styles = `
   text-transform: uppercase;
   color: #9ca3af;
 }
+.section-tag {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+}
 .section-body {
   border-top: 1px solid #e5e7eb;
   padding-top: 10px;
@@ -103,7 +110,7 @@ const styles = `
   gap: 10px;
 }
 
-/* Field rows */
+/* Field rows: label on left, input on right */
 .field-row {
   display: grid;
   grid-template-columns: 210px minmax(0, 1fr);
@@ -147,9 +154,6 @@ select {
   box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
-select {
-  appearance: auto;
-}
 textarea {
   border-radius: 16px;
   min-height: 80px;
@@ -157,6 +161,10 @@ textarea {
 }
 .ta-sm {
   min-height: 60px;
+}
+input[type="text"]::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
 }
 input[type="text"]:focus,
 textarea:focus,
@@ -217,21 +225,37 @@ select:focus {
   transform: translateY(-1px);
   box-shadow: 0 18px 40px rgba(22, 196, 91, 0.45);
 }
+.btn.primary:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 10px 25px rgba(22, 196, 91, 0.3);
+}
 
+/* Responsive tweaks */
 @media (max-width: 900px) {
-  .grid-2 { grid-template-columns: minmax(0, 1fr); }
-  .plant-form-card { padding: 24px 18px 22px; }
+  .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .plant-form-card {
+    padding: 24px 18px 22px;
+  }
 }
 @media (max-width: 640px) {
-  .plant-form-page { padding: 24px 10px 40px; }
-  .plant-form-hero-title { font-size: 2.1rem; }
-  .field-row { grid-template-columns: minmax(0, 1fr); }
+  .plant-form-page {
+    padding: 24px 10px 40px;
+  }
+  .plant-form-hero-title {
+    font-size: 2.1rem;
+  }
+  .field-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 `;
 
-// Field definitions
+// Field definitions, grouped visually in the form layout
 const fields = [
-  ["Genus Name", "genus_name", false],
+  // Basic info
+  ["Genus Name", "genus_name", false], // ADDED
   ["Common Name(s)", "common_name", false],
   ["Scientific Name", "scientific_name", false],
   ["Family", "family", false],
@@ -240,15 +264,21 @@ const fields = [
   ["Height (cm)", "height", false],
   ["Maintenance Level", "maintenance_level", false],
   ["Life Cycle", "life_cycle", false],
+
+  // Flower descriptors
   ["Color", "color", false],
   ["Flower Inflorescence", "flower_inflorescence", false],
   ["Value", "value", false],
   ["Bloom Time", "bloom_time", false],
+
+  // Ecological descriptors
   ["Luminance Level", "luminance_level", false],
   ["pH Level", "pH_level", false],
   ["Humidity Level", "humidity_level", false],
   ["Water Frequency", "water_frequency", false],
   ["Temperature Range", "temperature_range", false],
+
+  // Other notes (optional)
   ["Pests Diseases Notes", "pests_diseases_notes", true],
   ["Propagation Notes", "propagation_notes", true],
   ["Invasive Species Notes", "invasive_species_notes", true],
@@ -256,8 +286,9 @@ const fields = [
   ["Local Permits Notes", "local_permits_notes", true],
 ];
 
+// Keys that are required according to the backend schema
 const REQUIRED_KEYS = new Set([
-  "genus_name",
+  "genus_name", // ADDED
   "common_name",
   "scientific_name",
   "family",
@@ -276,6 +307,7 @@ const REQUIRED_KEYS = new Set([
   "temperature_range",
 ]);
 
+// Fields that should be rendered as dropdowns with predefined options
 const SELECT_OPTIONS = {
   maintenance_level: ["Low", "Moderate", "High"],
   life_cycle: ["Annual", "Biennial", "Perennial"],
@@ -290,6 +322,7 @@ const SELECT_OPTIONS = {
   ],
 };
 
+// Textareas that should be compact
 const COMPACT_TA = new Set([
   "description",
   "pests_diseases_notes",
@@ -301,7 +334,10 @@ const COMPACT_TA = new Set([
 
 function parseCommonNames(raw) {
   if (!raw) return [];
-  return raw.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 }
 
 export default function PlantForm({
@@ -311,11 +347,13 @@ export default function PlantForm({
   onSubmit,
   title = "Plant",
   sub = "Please complete all required fields",
-  simpleLayout = false,
+  simpleLayout = false, // kept for compatibility
 }) {
   const blank = useMemo(() => {
     const obj = {};
-    fields.forEach(([, k]) => { obj[k] = ""; });
+    fields.forEach(([, k]) => {
+      obj[k] = "";
+    });
     return obj;
   }, []);
 
@@ -323,37 +361,36 @@ export default function PlantForm({
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
 
-  // 🟢 NEW: State for Family Dropdown
-  const [dbFamilies, setDbFamilies] = useState([]);
-  const [isAddingNewFamily, setIsAddingNewFamily] = useState(false);
-
-  // 🟢 NEW: Fetch families on mount
-  useEffect(() => {
-    PlantAPI.getFamilies()
-      .then((families) => setDbFamilies(families))
-      .catch((err) => console.error("Failed to load families", err));
-  }, []);
-
   useEffect(() => {
     if (!initialData) return;
+
     const next = { ...blank };
 
+    // Basic mapping
     next.genus_name = initialData.genus_name || "";
-    next.common_name = Array.isArray(initialData.common_name) ? initialData.common_name.join(", ") : initialData.common_name || "";
+    next.common_name = Array.isArray(initialData.common_name)
+      ? initialData.common_name.join(", ")
+      : initialData.common_name || "";
     next.scientific_name = initialData.scientific_name || "";
     next.family = initialData.family || "";
     next.image_url = initialData.image_url || "";
     next.description = initialData.description || "";
-    next.height = initialData.height === 0 || initialData.height ? String(initialData.height) : "";
+    next.height =
+      initialData.height === 0 || initialData.height
+        ? String(initialData.height)
+        : "";
+
     next.maintenance_level = initialData.maintenance_level || "";
     next.life_cycle = initialData.life_cycle || "";
 
+    // Flower descriptors
     const flower = initialData.flower_descriptors || {};
     next.color = flower.color || "";
     next.flower_inflorescence = flower.flower_inflorescence || "";
     next.value = flower.value || "";
     next.bloom_time = flower.bloom_time || "";
 
+    // Ecological descriptors
     const eco = initialData.ecological_descriptors || {};
     next.luminance_level = eco.luminance_level || "";
     next.pH_level = eco.pH_level || "";
@@ -361,6 +398,7 @@ export default function PlantForm({
     next.water_frequency = eco.water_frequency || "";
     next.temperature_range = eco.temperature_range || "";
 
+    // Other notes
     const notes = initialData.other_notes || {};
     next.pests_diseases_notes = notes.pests_diseases_notes || "";
     next.propagation_notes = notes.propagation_notes || "";
@@ -378,20 +416,27 @@ export default function PlantForm({
 
   function validate() {
     const errs = {};
+
     for (const [label, key] of fields) {
       const required = REQUIRED_KEYS.has(key);
       let value = data[key];
 
-      if (typeof value === "string") value = value.trim();
+      if (typeof value === "string") {
+        value = value.trim();
+      }
 
       if (required && (!value && value !== 0)) {
         errs[key] = `${label} is required`;
         continue;
       }
-      if (key === "height" && value && Number.isNaN(Number(value))) {
-        errs[key] = "Height must be a number";
+
+      if (key === "height") {
+        if (value && Number.isNaN(Number(value))) {
+          errs[key] = "Height must be a number";
+        }
       }
     }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -404,7 +449,8 @@ export default function PlantForm({
       setBusy(true);
 
       const heightRaw = data.height.trim();
-      const heightNum = heightRaw === "" ? 0 : Number.isNaN(Number(heightRaw)) ? 0 : Number(heightRaw);
+      const heightNum =
+        heightRaw === "" ? 0 : Number.isNaN(Number(heightRaw)) ? 0 : Number(heightRaw);
 
       const flower_descriptors = {
         color: data.color.trim(),
@@ -461,70 +507,14 @@ export default function PlantForm({
     const isRequired = REQUIRED_KEYS.has(key);
 
     let placeholder = `Enter ${label.toLowerCase()}`;
-    if (key === "common_name") placeholder = "Enter common name(s), separated by commas";
-    else if (key === "height") placeholder = "Enter height in centimeters";
+    if (key === "common_name") {
+      placeholder = "Enter common name(s), separated by commas";
+    } else if (key === "height") {
+      placeholder = "Enter height in centimeters";
+    }
 
     const hasError = !!errors[key];
 
-    // 🟢 NEW: Custom render specifically for the Family field
-    if (key === "family") {
-      // Ensure the current family is in the dropdown if we are editing an existing plant
-      const familyOptions = [...new Set([...dbFamilies, data.family])].filter(Boolean);
-
-      return (
-        <div className="field-row" key={key}>
-          <div className="field-label">
-            <label htmlFor={key}>{label}</label>
-            {isRequired && <span className="field-req">Required</span>}
-          </div>
-          <div className="field-control">
-            {isAddingNewFamily ? (
-              <div style={{ display: "flex", gap: "8px" }}>
-                <input
-                  id={key}
-                  type="text"
-                  value={data[key]}
-                  onChange={(e) => setField(key, e.target.value)}
-                  placeholder="Type new family name..."
-                  style={{ flex: 1 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => { setIsAddingNewFamily(false); setField(key, ""); }}
-                  className="btn"
-                  style={{ minWidth: "auto", padding: "8px 14px", height: "100%" }}
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <select
-                id={key}
-                value={data[key]}
-                onChange={(e) => {
-                  if (e.target.value === "ADD_NEW") {
-                    setIsAddingNewFamily(true);
-                    setField(key, "");
-                  } else {
-                    setField(key, e.target.value);
-                  }
-                }}
-              >
-                <option value="" disabled>Select a family</option>
-                {familyOptions.map((fam, idx) => (
-                  <option key={idx} value={fam}>{fam}</option>
-                ))}
-                <option disabled>──────────</option>
-                <option value="ADD_NEW">+ Add New Family...</option>
-              </select>
-            )}
-            {hasError ? <div className="field-error">{errors[key]}</div> : <div className="field-helper"></div>}
-          </div>
-        </div>
-      );
-    }
-
-    // Default render for all other fields
     return (
       <div className="field-row" key={key}>
         <div className="field-label">
@@ -548,7 +538,9 @@ export default function PlantForm({
             >
               <option value="">Select {label.toLowerCase()}</option>
               {SELECT_OPTIONS[key].map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           ) : (
@@ -579,7 +571,9 @@ export default function PlantForm({
       <div className="plant-form-hero">
         <h1 className="plant-form-hero-title">{heroTitle}</h1>
         <p className="plant-form-hero-sub">{sub}</p>
-        <p className="plant-form-hero-small">Fields marked as required must be filled</p>
+        <p className="plant-form-hero-small">
+          Fields marked as required must be filled
+        </p>
       </div>
 
       <form className="plant-form-card" onSubmit={handleSubmit} noValidate>
@@ -590,7 +584,17 @@ export default function PlantForm({
               <div className="section-title">Basic information</div>
             </div>
             <div className="section-body">
-              {["genus_name", "common_name", "scientific_name", "family", "image_url", "description", "height", "maintenance_level", "life_cycle"].map((key) => renderField(key))}
+              {[
+                "genus_name",
+                "common_name",
+                "scientific_name",
+                "family",
+                "image_url",
+                "description",
+                "height",
+                "maintenance_level",
+                "life_cycle",
+              ].map((key) => renderField(key))}
             </div>
           </div>
 
@@ -599,7 +603,9 @@ export default function PlantForm({
               <div className="section-title">Flower descriptors</div>
             </div>
             <div className="section-body">
-              {["color", "flower_inflorescence", "value", "bloom_time"].map((key) => renderField(key))}
+              {["color", "flower_inflorescence", "value", "bloom_time"].map(
+                (key) => renderField(key)
+              )}
             </div>
           </div>
         </div>
@@ -611,7 +617,13 @@ export default function PlantForm({
               <div className="section-title">Ecological descriptors</div>
             </div>
             <div className="section-body">
-              {["luminance_level", "pH_level", "humidity_level", "water_frequency", "temperature_range"].map((key) => renderField(key))}
+              {[
+                "luminance_level",
+                "pH_level",
+                "humidity_level",
+                "water_frequency",
+                "temperature_range",
+              ].map((key) => renderField(key))}
             </div>
           </div>
 
@@ -620,17 +632,34 @@ export default function PlantForm({
               <div className="section-title">Other notes</div>
             </div>
             <div className="section-body">
-              {["pests_diseases_notes", "propagation_notes", "invasive_species_notes", "conservation_status_notes", "local_permits_notes"].map((key) => renderField(key))}
+              {[
+                "pests_diseases_notes",
+                "propagation_notes",
+                "invasive_species_notes",
+                "conservation_status_notes",
+                "local_permits_notes",
+              ].map((key) => renderField(key))}
             </div>
           </div>
         </div>
 
         <div className="footer">
           {onCancel && (
-            <button type="button" className="btn" onClick={onCancel} disabled={busy}>Cancel</button>
+            <button
+              type="button"
+              className="btn"
+              onClick={onCancel}
+              disabled={busy}
+            >
+              Cancel
+            </button>
           )}
           <button type="submit" className="btn primary" disabled={busy}>
-            {busy ? "Saving..." : mode === "edit" ? "Save Changes" : "Create Plant"}
+            {busy
+              ? "Saving..."
+              : mode === "edit"
+              ? "Save Changes"
+              : "Create Plant"}
           </button>
         </div>
       </form>
