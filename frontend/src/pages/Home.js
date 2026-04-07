@@ -344,177 +344,6 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
   );
 }
 
-// 🟢 --- NEW DATA FOR LANDING VIEW ---
-const CAROUSEL_IMAGES = [
-  { url: banner1, title: "Welcome to Meet-Ur Garden", sub: "Discover the perfect addition to your home sanctuary." },
-  { url: banner2, title: "Expert Plant Care", sub: "Track, learn, and grow alongside our community." },
-  { url: banner3, title: "Premium Supplies", sub: "Everything you need to keep your plants thriving." },
-  { url: banner4, title: "Join the Green Revolution", sub: "Your plant parent journey starts here." }
-];
-
-const PRODUCTS = [
-  { id: 1, title: "Plants", desc: "A variety of healthy, well-cared-for plants for your home.", img: product1 },
-  { id: 2, title: "Premium Pots", desc: "Ceramic, terracotta, and self-watering planters.", img: product2 },
-  { id: 3, title: "Pot Mediums", desc: "Aroid mixes, coco coir, and nutrient-rich soil.", img: product3 },
-  { id: 4, title: "Fertilizers", desc: "Organic and synthetic nutrients for explosive growth.", img: product4 }
-];
-
-const landingStyles = `
-  .carousel-container { position: relative; width: 100%; height: 450px; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 48px; }
-  .carousel-track { display: flex; height: 100%; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
-  .carousel-slide { min-width: 100%; height: 100%; position: relative; }
-  .carousel-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
-  .carousel-caption { position: absolute; bottom: 40px; left: 40px; color: white; text-shadow: 0 4px 12px rgba(0,0,0,0.8); }
-  .carousel-caption h2 { font-size: 2.5rem; font-weight: 800; margin: 0 0 8px 0; color: #34d399; }
-  .carousel-caption p { font-size: 1.1rem; margin: 0; color: #e5e7eb; }
-  .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.6); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-size: 20px; cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
-  .carousel-btn:hover { background: rgba(52, 211, 153, 0.8); }
-  .btn-left { left: 16px; }
-  .btn-right { right: 16px; }
-
-  .featured-products { margin-top: 64px; margin-bottom: 48px; }
-  .section-header { margin-bottom: 32px; text-align: center; }
-  .section-header h3 { font-size: 2rem; color: #f3f4f6; margin: 0 0 8px 0; }
-  .section-header p { color: #9ca3af; margin: 0; font-size: 1.1rem; }
-  .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
-  .product-card { background: #1f2937; border: 1px solid #374151; border-radius: 16px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; display: flex; flex-direction: column; }
-  .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); border-color: #34d399; }
-  .product-image { width: 100%; height: 200px; object-fit: cover; }
-  .product-info { padding: 20px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-  .product-title { font-size: 1.2rem; font-weight: bold; color: #f3f4f6; margin: 0 0 8px 0; }
-  .product-desc { font-size: 0.9rem; color: #9ca3af; margin: 0; line-height: 1.4; }
-
-  .garden-footer { margin-top: 64px; padding-top: 32px; border-top: 1px dashed #374151; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; color: #9ca3af; }
-  .footer-brand h4 { font-size: 1.4rem; color: #f3f4f6; margin: 0 0 8px 0; font-weight: 800; letter-spacing: 1px; }
-  .footer-brand span { color: #34d399; }
-  .footer-details { display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; }
-  .footer-link { color: #34d399; text-decoration: none; transition: opacity 0.2s; }
-  .footer-link:hover { opacity: 0.8; text-decoration: underline; }
-
-  @media (max-width: 768px) {
-    .carousel-container { height: 300px; }
-    .carousel-caption h2 { font-size: 1.8rem; }
-    .garden-footer { flex-direction: column; text-align: center; align-items: center; }
-  }
-`;
-
-// --- SUB-COMPONENT: The Guest Landing View (🟢 UPDATED) ---
-function LandingView({ handleSearchSubmit }) {
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Auto-advance carousel every 5 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1));
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const nextSlide = () => setCurrentSlide((prev) => (prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1));
-  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? CAROUSEL_IMAGES.length - 1 : prev - 1));
-
-  return (
-    <>
-      <style>{landingStyles}</style>
-
-      {/* 🟢 NEW: HERO CAROUSEL */}
-      <section className="carousel-container">
-        <div 
-          className="carousel-track" 
-          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-        >
-          {CAROUSEL_IMAGES.map((img, idx) => (
-            <div className="carousel-slide" key={idx}>
-              <img src={img.url} alt={img.title} />
-              <div className="carousel-caption">
-                <h2>{img.title}</h2>
-                <p>{img.sub}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <button className="carousel-btn btn-left" onClick={prevSlide}>❮</button>
-        <button className="carousel-btn btn-right" onClick={nextSlide}>❯</button>
-      </section>
-
-      {/* ORIGINAL HERO SEARCH */}
-      <section className="hero" style={{ padding: "0 0 48px 0" }}>
-        <h2 className="hero__title">Grow. Track. Thrive.</h2>
-        <p className="hero__text">
-          Manage your garden with simple create, read, update, and delete tools.
-        </p>
-        <div className="hero__cta">
-          <Link to="/login" className="btn btn--primary">
-            Login to Start
-          </Link>
-          <Link to="/register" className="btn btn--secondary">
-            Register
-          </Link>
-        </div>
-
-        <form className="hero__search" onSubmit={handleSearchSubmit}>
-          <div className="hero__search-row">
-            <input
-              type="text"
-              name="query"
-              className="hero__search-input"
-              placeholder="SEARCH PLANTS..."
-            />
-            <select
-              name="field"
-              className="hero__search-select"
-              defaultValue="none"
-            >
-              <option value="none">ANY FIELD</option>
-              <option value="family">FAMILY</option>
-              <option value="genus">GENUS NAME</option>
-            </select>
-            <button type="submit" className="btn btn--primary hero__search-btn">
-              SEARCH
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {/* 🟢 NEW: FEATURED PRODUCTS */}
-      <section className="featured-products">
-        <div className="section-header">
-          <h3>Featured Products</h3>
-          <p>Everything you need for your indoor jungle.</p>
-        </div>
-        
-        <div className="products-grid">
-          {PRODUCTS.map((product) => (
-            <div className="product-card" key={product.id}>
-              <img src={product.img} alt={product.title} className="product-image" />
-              <div className="product-info">
-                <h4 className="product-title">{product.title}</h4>
-                <p className="product-desc">{product.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ORIGINAL FEATURES */}
-      <section className="features">
-        <article className="card">
-          <div className="card__icon card__icon--green" />
-          <h3 className="card__title">Quick Entries</h3>
-        </article>
-        <article className="card">
-          <div className="card__icon card__icon--blue" />
-          <h3 className="card__title">Smart Views</h3>
-        </article>
-        <article className="card">
-          <div className="card__icon card__icon--purple" />
-          <h3 className="card__title">Safe Changes</h3>
-        </article>
-      </section>
-    </>
-  );
-}
-
 // --- SUB-COMPONENT: The Weather Detail & Forecast Modal ---
 function WeatherModal({ weather, forecast, onClose }) {
   if (!weather) return null;
@@ -706,6 +535,122 @@ function WeatherModal({ weather, forecast, onClose }) {
   );
 }
 
+// 🟢 --- MARKETING & SHOP DATA ---
+const CAROUSEL_IMAGES = [
+  { url: banner1, title: "Welcome to Meet-Ur Garden", sub: "Discover the perfect addition to your home sanctuary." },
+  { url: banner2, title: "Expert Plant Care", sub: "Track, learn, and grow alongside our community." },
+  { url: banner3, title: "Premium Supplies", sub: "Everything you need to keep your plants thriving." },
+  { url: banner4, title: "Join the Green Revolution", sub: "Your plant parent journey starts here." }
+];
+
+const PRODUCTS = [
+  { id: 1, title: "Plants", desc: "A variety of healthy, well-cared-for plants for your home.", img: product1 },
+  { id: 2, title: "Premium Pots", desc: "Ceramic, terracotta, and self-watering planters.", img: product2 },
+  { id: 3, title: "Pot Mediums", desc: "Aroid mixes, coco coir, and nutrient-rich soil.", img: product3 },
+  { id: 4, title: "Fertilizers", desc: "Organic and synthetic nutrients for explosive growth.", img: product4 }
+];
+
+const marketingStyles = `
+  .carousel-container { position: relative; width: 100%; height: 450px; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 48px; }
+  .carousel-track { display: flex; height: 100%; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+  .carousel-slide { min-width: 100%; height: 100%; position: relative; }
+  .carousel-slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
+  .carousel-caption { position: absolute; bottom: 40px; left: 40px; color: white; text-shadow: 0 4px 12px rgba(0,0,0,0.8); }
+  .carousel-caption h2 { font-size: 2.5rem; font-weight: 800; margin: 0 0 8px 0; color: #34d399; }
+  .carousel-caption p { font-size: 1.1rem; margin: 0; color: #e5e7eb; }
+  .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.6); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-size: 20px; cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s; display: flex; align-items: center; justify-content: center; z-index: 10; }
+  .carousel-btn:hover { background: rgba(52, 211, 153, 0.8); }
+  .btn-left { left: 16px; }
+  .btn-right { right: 16px; }
+
+  .featured-products { margin-top: 16px; margin-bottom: 64px; }
+  .section-header { margin-bottom: 32px; text-align: center; }
+  .section-header h3 { font-size: 2rem; color: #f3f4f6; margin: 0 0 8px 0; }
+  .section-header p { color: #9ca3af; margin: 0; font-size: 1.1rem; }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+  .product-card { background: #1f2937; border: 1px solid #374151; border-radius: 16px; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; display: flex; flex-direction: column; }
+  .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); border-color: #34d399; }
+  .product-image { width: 100%; height: 200px; object-fit: cover; }
+  .product-info { padding: 20px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .product-title { font-size: 1.2rem; font-weight: bold; color: #f3f4f6; margin: 0 0 8px 0; }
+  .product-desc { font-size: 0.9rem; color: #9ca3af; margin: 0; line-height: 1.4; }
+
+  .garden-footer { margin-top: 64px; padding-top: 32px; border-top: 1px dashed #374151; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; color: #9ca3af; }
+  .footer-brand h4 { font-size: 1.4rem; color: #f3f4f6; margin: 0 0 8px 0; font-weight: 800; letter-spacing: 1px; }
+  .footer-brand span { color: #34d399; }
+  .footer-details { display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; }
+  .footer-link { color: #34d399; text-decoration: none; transition: opacity 0.2s; }
+  .footer-link:hover { opacity: 0.8; text-decoration: underline; }
+
+  @media (max-width: 768px) {
+    .carousel-container { height: 300px; }
+    .carousel-caption h2 { font-size: 1.8rem; }
+    .garden-footer { flex-direction: column; text-align: center; align-items: center; }
+  }
+`;
+
+// 🟢 --- SUB-COMPONENT: The Carousel & Shop Showcase ---
+function MarketingShowcase() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-advance carousel every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1));
+  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? CAROUSEL_IMAGES.length - 1 : prev - 1));
+
+  return (
+    <>
+      <style>{marketingStyles}</style>
+
+      {/* CAROUSEL */}
+      <section className="carousel-container">
+        <div 
+          className="carousel-track" 
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
+          {CAROUSEL_IMAGES.map((img, idx) => (
+            <div className="carousel-slide" key={idx}>
+              <img src={img.url} alt={img.title} />
+              <div className="carousel-caption">
+                <h2>{img.title}</h2>
+                <p>{img.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button className="carousel-btn btn-left" onClick={prevSlide}>❮</button>
+        <button className="carousel-btn btn-right" onClick={nextSlide}>❯</button>
+      </section>
+
+      {/* FEATURED PRODUCTS */}
+      <section className="featured-products">
+        <div className="section-header">
+          <h3>Featured Products</h3>
+          <p>Everything you need for your indoor jungle.</p>
+        </div>
+        
+        <div className="products-grid">
+          {PRODUCTS.map((product) => (
+            <div className="product-card" key={product.id}>
+              <img src={product.img} alt={product.title} className="product-image" />
+              <div className="product-info">
+                <h4 className="product-title">{product.title}</h4>
+                <p className="product-desc">{product.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
 // --- SUB-COMPONENT: The User's "My Garden" Dashboard ---
 function GardenDashboard({ user }) {
   const [garden, setGarden] = useState([]);
@@ -853,7 +798,7 @@ function GardenDashboard({ user }) {
             textTransform: "none",
           }}
         >
-          Welcome back, {user.email.split("@")[0]} 👋
+          Welcome back, {user?.email?.split("@")[0]} 👋
         </h2>
         <p
           className="hero__text"
@@ -1149,6 +1094,7 @@ export default function Home() {
       <span className="bubble bubble--green" />
       <span className="bubble bubble--blue" />
       <span className="bubble bubble--purple" />
+      
       <header className="home__header">
         <div className="brand">
           <div className="brand__dot" />
@@ -1173,14 +1119,39 @@ export default function Home() {
         </nav>
       </header>
       
-      {/* 🟢 Either show the User Dashboard or the updated Guest Landing View */}
-      {user ? (
-        <GardenDashboard user={user} />
-      ) : (
-        <LandingView handleSearchSubmit={handleSearchSubmit} />
-      )}
+      {/* 🟢 1. ALWAYS SHOW THE CAROUSEL AND SHOP AT THE TOP */}
+      <MarketingShowcase />
 
-      {/* 🟢 THE NEW FOOTER (For both guests and users) */}
+      {/* 🟢 2. THE PLANT SEARCH BAR (Moved above dashboard) */}
+      <section className="hero" style={{ padding: "0 0 48px 0" }}>
+        <form className="hero__search" onSubmit={handleSearchSubmit}>
+          <div className="hero__search-row">
+            <input
+              type="text"
+              name="query"
+              className="hero__search-input"
+              placeholder="SEARCH PLANTS..."
+            />
+            <select
+              name="field"
+              className="hero__search-select"
+              defaultValue="none"
+            >
+              <option value="none">ANY FIELD</option>
+              <option value="family">FAMILY</option>
+              <option value="genus">GENUS NAME</option>
+            </select>
+            <button type="submit" className="btn btn--primary hero__search-btn">
+              SEARCH
+            </button>
+          </div>
+        </form>
+      </section>
+
+      {/* 🟢 3. SHOW THE DASHBOARD */}
+      {user && <GardenDashboard user={user} />}
+
+      {/* 🟢 4. THE FOOTER */}
       <footer className="garden-footer">
         <div className="footer-brand">
           <h4>MEETUR <span>GARDEN</span></h4>
