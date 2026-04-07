@@ -786,27 +786,6 @@ function GardenDashboard({ user }) {
         />
       )}
 
-      <div
-        className="dashboard-header"
-        style={{ borderBottom: "none", paddingBottom: 0, marginBottom: "24px" }}
-      >
-        <h2
-          className="hero__title"
-          style={{
-            fontSize: "2rem",
-            marginBottom: "8px",
-            textTransform: "none",
-          }}
-        >
-          Welcome back, {user?.email?.split("@")[0]} 👋
-        </h2>
-        <p
-          className="hero__text"
-          style={{ maxWidth: "600px", margin: "0 0 24px 0", color: "#94a3b8" }}
-        >
-          Here is what is happening in your garden today.
-        </p>
-      </div>
 
       <div className="dashboard-bento">
         <div className="bento-stat bento-stat--green">
@@ -1118,6 +1097,28 @@ export default function Home() {
           )}
         </nav>
       </header>
+
+      <div
+        className="dashboard-header"
+        style={{ borderBottom: "none", paddingBottom: 0, marginBottom: "24px" }}
+      >
+        <h2
+          className="hero__title"
+          style={{
+            fontSize: "2rem",
+            marginBottom: "8px",
+            textTransform: "none",
+          }}
+        >
+          Welcome back, {user?.email?.split("@")[0]} 👋
+        </h2>
+        <p
+          className="hero__text"
+          style={{ maxWidth: "600px", margin: "0 0 24px 0", color: "#94a3b8" }}
+        >
+          Here is what is happening in your garden today.
+        </p>
+      </div>
       
       {/* 🟢 1. ALWAYS SHOW THE CAROUSEL AND SHOP AT THE TOP */}
       <MarketingShowcase />
