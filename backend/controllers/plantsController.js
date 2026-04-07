@@ -393,6 +393,21 @@ const checkPlantHealth = async (req, res) => {
     }
 };
 
+// Get a dynamic list of all unique families currently in the database
+const getUniqueFamilies = async (req, res) => {
+  try {
+    // .distinct() returns an array of unique values for a specific field
+    const families = await Plant.distinct("family");
+    
+    // Clean it up: remove any null/empty strings and sort alphabetically
+    const cleanFamilies = families.filter(f => f).sort();
+    
+    res.status(200).json(cleanFamilies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 //exports the functions to the routes file "plants.js"
 module.exports = {
   createPlant,
@@ -404,4 +419,5 @@ module.exports = {
   // Genus functions
   getAllGenera,
   getSingleGenus,
+  getUniqueFamilies,
 };

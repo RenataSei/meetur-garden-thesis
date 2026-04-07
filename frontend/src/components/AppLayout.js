@@ -1,7 +1,12 @@
+import { useLocation } from "react-router-dom";
 import HamburgerButton from "./HamburgerButton";
 import SidebarMenu from "./SidebarMenu";
 
 export default function AppLayout({ children }) {
+  const location = useLocation();
+
+
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
   const styles = `
     :root {
       --fab-top: 16px;
@@ -75,9 +80,13 @@ export default function AppLayout({ children }) {
           </a>
         </div>
 
-        {/* Upper-right hamburger and the global drawer */}
-        <HamburgerButton />
-        <SidebarMenu />
+        {/* HIDE HAMBURGER AND MENU ON AUTH PAGES */}
+        {!isAuthPage && (
+          <>
+            <HamburgerButton />
+            <SidebarMenu />
+          </>
+        )}
 
         <main className="app-content">{children}</main>
       </div>

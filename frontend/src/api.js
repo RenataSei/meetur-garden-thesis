@@ -89,6 +89,8 @@ export const PlantsAPI = {
         if (Array.isArray(data)) return data;
         return [];
       });
+
+      
   },
 
   // GET /api/plants/:id
@@ -128,7 +130,13 @@ export const PlantsAPI = {
       headers: {
         ...getAuthHeaders()
       }
-    }).then(handle)
+    }).then(handle),
+
+    // Fetch unique families
+    getFamilies: () => 
+    fetch(`${API_BASE}/plants/families/unique`, { 
+      headers: { ...getAuthHeaders() } 
+    }).then(handle),
 };
 
 // ---------------------------------------------------

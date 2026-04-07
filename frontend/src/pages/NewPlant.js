@@ -5,6 +5,14 @@ import { createPlant } from "../api/plants";
 
 export default function NewPlant() {
   const navigate = useNavigate();
+  const [dbFamilies, setDbFamilies] = useState([]);
+  const [isAddingNewFamily, setIsAddingNewFamily] = useState(false);
+
+  useEffect(() => {
+    PlantAPI.getFamilies()
+      .then(data => setDbFamilies(data))
+      .catch(err => console.error("Failed to load families", err));
+  }, []);
 
   async function handleCreate(payload) {
     try {

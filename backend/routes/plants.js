@@ -26,6 +26,7 @@ const requireAdmin = (req, res, next) => {
 // --- PUBLIC ROUTES (Accessible by User & Admin) ---
 router.get('/', getAllPlants);
 router.get('/:id', getSinglePlant);
+router.get('/families/unique', getUniqueFamilies);
 
 // --- ADMIN ONLY ROUTES ---
 router.post('/', requireAdmin, createPlant);       // Only Admin can create
