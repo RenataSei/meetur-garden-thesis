@@ -16,13 +16,13 @@ const styles = `
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Modern Retro Pixel Grid */
+  /* 🟢 Modern Retro Pixel Grid */
   background-color: #f8fafc;
   background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-/* Hero header */
+/* Hero header (big title like screenshot 1) */
 .plant-form-hero {
   text-align: center;
   margin-bottom: 24px;
@@ -74,7 +74,7 @@ const styles = `
   margin-top: 8px;
 }
 
-/* Section styling */
+/* Section styling (BASIC INFORMATION, FLOWER DESCRIPTORS, etc.) */
 .section {
   border-radius: 18px;
   padding: 16px 0 6px;
@@ -95,6 +95,14 @@ const styles = `
   text-transform: uppercase;
   color: #9ca3af;
 }
+.section-tag {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+}
 .section-body {
   border-top: 1px solid #e5e7eb;
   padding-top: 10px;
@@ -103,7 +111,7 @@ const styles = `
   gap: 10px;
 }
 
-/* Field rows */
+/* Field rows: label on left, input on right */
 .field-row {
   display: grid;
   grid-template-columns: 210px minmax(0, 1fr);
@@ -157,6 +165,10 @@ textarea {
 }
 .ta-sm {
   min-height: 60px;
+}
+input[type="text"]::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
 }
 input[type="text"]:focus,
 textarea:focus,
@@ -217,21 +229,36 @@ select:focus {
   transform: translateY(-1px);
   box-shadow: 0 18px 40px rgba(22, 196, 91, 0.45);
 }
+.btn.primary:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 10px 25px rgba(22, 196, 91, 0.3);
+}
 
+/* Responsive tweaks */
 @media (max-width: 900px) {
-  .grid-2 { grid-template-columns: minmax(0, 1fr); }
-  .plant-form-card { padding: 24px 18px 22px; }
+  .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .plant-form-card {
+    padding: 24px 18px 22px;
+  }
 }
 @media (max-width: 640px) {
-  .plant-form-page { padding: 24px 10px 40px; }
-  .plant-form-hero-title { font-size: 2.1rem; }
-  .field-row { grid-template-columns: minmax(0, 1fr); }
+  .plant-form-page {
+    padding: 24px 10px 40px;
+  }
+  .plant-form-hero-title {
+    font-size: 2.1rem;
+  }
+  .field-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 `;
 
 // Field definitions
 const fields = [
-  ["Genus Name", "genus_name", false],
+  ["Genus Name", "genus_name", false], // ADDED
   ["Common Name(s)", "common_name", false],
   ["Scientific Name", "scientific_name", false],
   ["Family", "family", false],
@@ -257,7 +284,7 @@ const fields = [
 ];
 
 const REQUIRED_KEYS = new Set([
-  "genus_name",
+  "genus_name", // ADDED
   "common_name",
   "scientific_name",
   "family",
@@ -332,7 +359,7 @@ export default function PlantForm({
   const [dbFamilies, setDbFamilies] = useState([]);
   const [isAddingNewFamily, setIsAddingNewFamily] = useState(false);
 
-  // 🟢 NEW: Fetch families on mount
+  // 🟢 NEW: Fetch families from database on mount
   useEffect(() => {
     PlantAPI.getFamilies()
       .then((families) => setDbFamilies(families))
@@ -341,6 +368,7 @@ export default function PlantForm({
 
   useEffect(() => {
     if (!initialData) return;
+
     const next = { ...blank };
 
     next.genus_name = initialData.genus_name || "";
@@ -355,6 +383,7 @@ export default function PlantForm({
       initialData.height === 0 || initialData.height
         ? String(initialData.height)
         : "";
+
     next.maintenance_level = initialData.maintenance_level || "";
     next.life_cycle = initialData.life_cycle || "";
 
@@ -388,20 +417,27 @@ export default function PlantForm({
 
   function validate() {
     const errs = {};
+
     for (const [label, key] of fields) {
       const required = REQUIRED_KEYS.has(key);
       let value = data[key];
 
-      if (typeof value === "string") value = value.trim();
+      if (typeof value === "string") {
+        value = value.trim();
+      }
 
-      if (required && !value && value !== 0) {
+      if (required && (!value && value !== 0)) {
         errs[key] = `${label} is required`;
         continue;
       }
-      if (key === "height" && value && Number.isNaN(Number(value))) {
-        errs[key] = "Height must be a number";
+
+      if (key === "height") {
+        if (value && Number.isNaN(Number(value))) {
+          errs[key] = "Height must be a number";
+        }
       }
     }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -415,11 +451,7 @@ export default function PlantForm({
 
       const heightRaw = data.height.trim();
       const heightNum =
-        heightRaw === ""
-          ? 0
-          : Number.isNaN(Number(heightRaw))
-            ? 0
-            : Number(heightRaw);
+        heightRaw === "" ? 0 : Number.isNaN(Number(heightRaw)) ? 0 : Number(heightRaw);
 
       const flower_descriptors = {
         color: data.color.trim(),
@@ -476,18 +508,18 @@ export default function PlantForm({
     const isRequired = REQUIRED_KEYS.has(key);
 
     let placeholder = `Enter ${label.toLowerCase()}`;
-    if (key === "common_name")
+    if (key === "common_name") {
       placeholder = "Enter common name(s), separated by commas";
-    else if (key === "height") placeholder = "Enter height in centimeters";
+    } else if (key === "height") {
+      placeholder = "Enter height in centimeters";
+    }
 
     const hasError = !!errors[key];
 
-    // 🟢 NEW: Custom render specifically for the Family field
+    // 🟢 NEW: Custom logic specifically for the Family field dropdown
     if (key === "family") {
-      // Ensure the current family is in the dropdown if we are editing an existing plant
-      const familyOptions = [...new Set([...dbFamilies, data.family])].filter(
-        Boolean,
-      );
+      // Create a unique, sorted list of families including the current one (if editing)
+      const familyOptions = [...new Set([...dbFamilies, data.family])].filter(Boolean).sort();
 
       return (
         <div className="field-row" key={key}>
@@ -508,16 +540,12 @@ export default function PlantForm({
                 />
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsAddingNewFamily(false);
-                    setField(key, "");
+                  onClick={() => { 
+                    setIsAddingNewFamily(false); 
+                    setField(key, ""); // Clear on cancel
                   }}
                   className="btn"
-                  style={{
-                    minWidth: "auto",
-                    padding: "8px 14px",
-                    height: "100%",
-                  }}
+                  style={{ minWidth: "auto", padding: "8px 14px" }}
                 >
                   Cancel
                 </button>
@@ -529,19 +557,15 @@ export default function PlantForm({
                 onChange={(e) => {
                   if (e.target.value === "ADD_NEW") {
                     setIsAddingNewFamily(true);
-                    setField(key, "");
+                    setField(key, ""); // Clear for typing
                   } else {
                     setField(key, e.target.value);
                   }
                 }}
               >
-                <option value="" disabled>
-                  Select a family
-                </option>
+                <option value="" disabled>Select a family...</option>
                 {familyOptions.map((fam, idx) => (
-                  <option key={idx} value={fam}>
-                    {fam}
-                  </option>
+                  <option key={idx} value={fam}>{fam}</option>
                 ))}
                 <option disabled>──────────</option>
                 <option value="ADD_NEW">+ Add New Family...</option>
@@ -557,7 +581,7 @@ export default function PlantForm({
       );
     }
 
-    // Default render for all other fields
+    // Default rendering for all other text/select/textarea fields
     return (
       <div className="field-row" key={key}>
         <div className="field-label">
@@ -647,7 +671,7 @@ export default function PlantForm({
             </div>
             <div className="section-body">
               {["color", "flower_inflorescence", "value", "bloom_time"].map(
-                (key) => renderField(key),
+                (key) => renderField(key)
               )}
             </div>
           </div>
@@ -701,8 +725,8 @@ export default function PlantForm({
             {busy
               ? "Saving..."
               : mode === "edit"
-                ? "Save Changes"
-                : "Create Plant"}
+              ? "Save Changes"
+              : "Create Plant"}
           </button>
         </div>
       </form>
