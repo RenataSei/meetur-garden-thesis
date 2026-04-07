@@ -20,6 +20,12 @@ const getBlogs = async (req, res) => {
 const createBlog = async (req, res) => {
   const { title, content, tags, image } = req.body;
     
+  console.log("--- NEW POST INCOMING ---");
+  console.log("Title:", title);
+  console.log("Did we get an image string?:", !!image);
+  console.log("Image string length:", image ? image.length : 0);
+  console.log("-------------------------");
+
   if (!title || !content) {
     return res.status(400).json({ error: "Title and content are required." });
   }
