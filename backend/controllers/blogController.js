@@ -8,8 +8,8 @@ const getBlogs = async (req, res) => {
     // Fetch all blogs, newest first, and populate the author's email so we can display it
     const blogs = await Blog.find({})
       .sort({ createdAt: -1 })
-      .populate('author', 'email'); // Only fetch the email field from the User model
-      
+      .populate('author', 'email') // Only fetch the email field from the User model
+      .populate('replies.author', 'email'); // 🟢 Fetch emails for repliers!
     res.status(200).json(blogs);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -18,8 +18,8 @@ const getBlogs = async (req, res) => {
 
 // 2. CREATE A NEW BLOG POST
 const createBlog = async (req, res) => {
-  const { title, content, tags } = req.body;
-
+  const { title, content, tags, image } = req.body;
+    
   if (!title || !content) {
     return res.status(400).json({ error: "Title and content are required." });
   }
@@ -36,6 +36,28 @@ const createBlog = async (req, res) => {
     await blog.populate('author', 'email');
 
     res.status(201).json(blog);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const replyToBlog = async (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
+
+  if (!text) return res.status(400).json({ error: "Reply text is required." });
+
+  try {
+    const blog = await Blog.findByIdAndUpdate(
+      id,
+      { $push: { replies: { author: req.user._id, text: text } } },
+      { new: true }
+    )
+    .populate('author', 'email')
+    .populate('replies.author', 'email');
+
+    if (!blog) return res.status(404).json({ error: "Post not found" });
+    res.status(200).json(blog);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -121,5 +143,6 @@ module.exports = {
   createBlog,
   flagBlog,
   deleteBlog,
-  getFlaggedBlogs
+  getFlaggedBlogs,
+  replyToBlog
 };

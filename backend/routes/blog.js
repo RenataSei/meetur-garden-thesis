@@ -18,6 +18,7 @@ router.get('/', getBlogs);           // Fetch feed
 router.post('/', createBlog);        // Create a post
 router.patch('/:id/flag', flagBlog); // Report a post
 router.delete('/:id', deleteBlog);   // Delete a post (Controller checks permissions)
+router.post('/:id/reply', replyToBlog); // Add a reply to a post
 
 // Admin Specific Routes
 router.get('/admin/flagged', getFlaggedBlogs); // View moderation queue

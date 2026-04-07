@@ -256,4 +256,15 @@ export const BlogAPI = {
     fetch(`${API_BASE}/blogs/admin/flagged`, { 
       headers: { ...getAuthHeaders() } 
     }).then(handle),
+
+  // POST /api/blogs/:id/reply - Add a reply to a post
+  reply: (id, text) => 
+    fetch(`${API_BASE}/blogs/${id}/reply`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify({ text })
+    }).then(handle),
 };
