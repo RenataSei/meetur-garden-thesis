@@ -145,9 +145,9 @@
 
 /* "Open" Button - Matches your .btn--secondary */
 .plant-card__btn {
-  background-color: var(--bg-deep, #22c55e); 
+  background-color: var(--leaf-green, #22c55e); 
   color: var(--pure-white, #ffffff);
-  border-color: var(--leaf-green, #0f172a);
+  border-color: var(--bg-deep, #0f172a);
 }
 
 /* "+ Garden" Button - Matches your .btn--primary */
