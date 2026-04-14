@@ -26,8 +26,7 @@
 * {
   box-sizing: border-box;
 }
-
-html {
+.btn
   -webkit-font-smoothing: antialiased; /* Better readability */
 }
 
@@ -231,7 +230,6 @@ h3,
 
   font-size: 9px; /* Smaller font */
   text-transform: uppercase;
-  padding: 12px 16px; /* Much smaller padding */
 
   border: var(--border-width) solid var(--bg-deep);
   border-radius: 0;
@@ -831,12 +829,22 @@ h3,
    ========================================= */
 .notification-wrapper { position: relative; }
 .btn-bell { 
-  position: relative; padding: 10px; font-size: 14px; 
+  position: relative; 
+  font-size: 14px; 
+  
+  /* 🟢 Optical Centering */
   line-height: 1;
   padding: 12px 10px 8px;
-  background: var(--bg-deep); color: white; border: 2px solid #334155; 
-  cursor: pointer; border-radius: 0; box-shadow: 2px 2px 0 rgba(0,0,0,0.5); 
-  display: flex; align-items: center; justify-content: center; 
+  
+  background: var(--bg-deep); 
+  color: white; 
+  border: 2px solid #334155; 
+  cursor: pointer; 
+  border-radius: 0; 
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.5); 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
   transition: transform 0.1s;
 }
 .btn-bell:active { transform: translate(2px, 2px); box-shadow: 0 0 0 rgba(0,0,0,0.5); }
