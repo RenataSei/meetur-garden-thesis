@@ -109,19 +109,27 @@
 .plant-card__btn,
 .plant-card__btn-add,
 .plant-card__btn-danger {
- padding: 10px 16px; /* Slightly taller default */
+  /* 1. Reset browser defaults so links and buttons act the same */
+  appearance: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0; 
+  
+  /* 2. Force a specific height instead of using padding */
+  height: 40px; 
+  line-height: 1; /* Stops the font from creating fake space */
+
+  /* 3. Bulletproof Flexbox Centering */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  flex: 1;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  text-align: center;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  flex: 1; 
   transition: all 0.15s ease;
 }
 
