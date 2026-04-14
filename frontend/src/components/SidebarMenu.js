@@ -1,42 +1,11 @@
-import { useState, useEffect, useContext } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom"; 
 import { useSidebar } from "../contexts/SidebarContext";
-import { WeatherContext } from "../contexts/WeatherContext";
 import { AuthContext } from "../contexts/AuthContext";
-import { GardenAPI } from "../api";
-import { analyzePlantHealth } from "../utils/careEngine";
 
 export default function SidebarMenu() {
   const { isOpen, close } = useSidebar();
-  
-  // --- STATE FOR ALERTS ---
   const { user } = useContext(AuthContext);
-  const { weather } = useContext(WeatherContext);
-  const [garden, setGarden] = useState([]);
-
-  // Fetch Logic: Wait for User + Weather, or if Menu opens
-  useEffect(() => {
-    if (user && weather) {
-      // Small delay to ensure the database token is ready
-      const timer = setTimeout(() => {
-        GardenAPI.list()
-          .then(data => setGarden(data))
-          .catch(err => console.error("Sidebar fetch failed", err));
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, user, weather]); 
-
-  // Calculate Alerts
-  const allAlerts = garden.reduce((acc, item) => {
-    const plantInfo = item.plant_id || {};
-    const healthReport = analyzePlantHealth(plantInfo, weather, item);
-    const plantAlerts = healthReport.alerts.map(alert => ({
-      nickname: item.nickname,
-      message: alert
-    }));
-    return [...acc, ...plantAlerts];
-  }, []);
 
   const styles = `
     /* Overlay */
@@ -73,28 +42,8 @@ export default function SidebarMenu() {
       display: flex; align-items: center; gap: 10px;
     }
 
-    /* --- ALERT UI STYLES --- */
-    .alert-badge {
-      background: #ef4444; color: white; font-size: 12px;
-      padding: 2px 8px; border-radius: 12px; font-weight: bold;
-    }
-    /* Updated Container: Always visible background */
-    .alerts-container {
-      padding: 16px 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      transition: background 0.3s ease;
-    }
-    .alerts-list {
-      list-style: none; padding: 0; margin: 0;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .alert-item {
-      font-size: 13px; background: rgba(239, 68, 68, 0.1);
-      padding: 10px; border-left: 3px solid #ef4444; border-radius: 4px;
-    }
-
     /* Menu list */
-    .menu-list { padding: 10px 32px 20px 20px; display: grid; gap: 10px; }
+    .menu-list { padding: 20px 32px 20px 20px; display: grid; gap: 10px; }
     .menu-btn {
       display: block; text-decoration: none; color: #f3f4f6;
       background: linear-gradient(180deg, #1f2937, #111827);
@@ -144,48 +93,10 @@ export default function SidebarMenu() {
   return (
     <>
       <style>{styles}</style>
-
       <div className={`drawer-overlay ${isOpen ? "open" : ""}`} onClick={close} aria-hidden="true" />
-
       <aside className={`drawer-panel ${isOpen ? "open" : ""}`} role="dialog" aria-modal="true">
         <div className="drawer-header">
-          <div className="drawer-title">
-            Menu
-            {/* BADGE IN HEADER TITLE */}
-            {allAlerts.length > 0 && <span className="alert-badge">{allAlerts.length} Alerts</span>}
-          </div>
-        </div>
-
-        {/* --- NOTIFICATION CENTER: ALWAYS VISIBLE --- */}
-        <div className="alerts-container" style={{ 
-            // If alerts exist, use light RED background. If healthy, use light GREEN background.
-            background: allAlerts.length > 0 ? 'rgba(239, 68, 68, 0.05)' : 'rgba(143, 208, 129, 0.05)'
-        }}>
-          {allAlerts.length > 0 ? (
-            /* CASE 1: THERE ARE ALERTS */
-            <>
-              <h4 style={{ margin: '0 0 10px 0', fontSize: '11px', color: '#ef4444', textTransform: 'uppercase' }}>
-                ⚠️ Immediate Action Required
-              </h4>
-              <ul className="alerts-list">
-                {allAlerts.map((alert, idx) => (
-                  <li key={idx} className="alert-item">
-                    <strong style={{ color: '#8fd081' }}>[{alert.nickname}]</strong><br/>
-                    {alert.message}
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            /* CASE 2: NO ALERTS (GARDEN IS HEALTHY) */
-            <div style={{ 
-              display: 'flex', alignItems: 'center', gap: '8px',
-              color: '#8fd081', fontSize: '13px', fontWeight: '600'
-            }}>
-              <span style={{ fontSize: '16px' }}>✅</span> 
-              <span>Garden Status: Optimal</span>
-            </div>
-          )}
+          <div className="drawer-title">Menu</div>
         </div>
 
         <nav className="menu-list" onClick={close}>
@@ -195,8 +106,8 @@ export default function SidebarMenu() {
           <Link className="menu-btn" to="/community">Community</Link>
           <Link className="menu-btn" to="/settings">Settings</Link>
           <Link className="menu-btn" to="/profile">View Profile</Link>
-          <Link className="menu-btn" to="/logout">Logout</Link>
           <Link className="menu-btn" to="/radar">Live Radar</Link>
+          {user && <Link className="menu-btn" to="/logout" style={{ color: "#ef4444" }}>Logout</Link>}
         </nav>
 
         <div className="drawer-footer">

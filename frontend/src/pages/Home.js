@@ -1054,6 +1054,77 @@ function GardenDashboard({ user }) {
   );
 }
 
+// --- SUB-COMPONENT: The Notification Bell ---
+function NotificationCenter({ user }) {
+  const [garden, setGarden] = useState([]);
+  const { weather } = useContext(WeatherContext);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (user && weather) {
+      GardenAPI.list().then(setGarden).catch(console.error);
+    }
+  }, [user, weather]);
+
+  const allAlerts = garden.reduce((acc, item) => {
+    const plantInfo = item.plant_id || {};
+    const cleanPlantInfo = {
+      ...plantInfo,
+      ecological_descriptors: {
+        ...plantInfo.ecological_descriptors,
+        temperature_range: plantInfo.ecological_descriptors?.temperature_range?.toString(),
+      },
+    };
+    const healthReport = analyzePlantHealth(cleanPlantInfo, weather, item);
+    const plantAlerts = (healthReport.alerts || []).map(alert => ({
+      nickname: item.nickname || "Plant",
+      message: alert
+    }));
+    return [...acc, ...plantAlerts];
+  }, []);
+
+  return (
+    <div className="notification-wrapper">
+      <button className="btn-bell" onClick={() => setIsOpen(!isOpen)}>
+        🔔
+        {allAlerts.length > 0 && <span className="bell-badge">{allAlerts.length}</span>}
+      </button>
+
+      {isOpen && (
+        <>
+          <div className="dropdown-overlay" onClick={() => setIsOpen(false)} />
+          <div className="notification-dropdown">
+            <div className="alerts-container" style={{
+              background: allAlerts.length > 0 ? 'rgba(239, 68, 68, 0.05)' : 'rgba(143, 208, 129, 0.05)'
+            }}>
+              {allAlerts.length > 0 ? (
+                <>
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: '11px', color: '#ef4444', textTransform: 'uppercase', fontFamily: "'Inter', sans-serif", fontWeight: 'bold' }}>
+                    ⚠️ Immediate Action Required
+                  </h4>
+                  <ul className="alerts-list">
+                    {allAlerts.map((alert, idx) => (
+                      <li key={idx} className="alert-item">
+                        <strong style={{ color: '#8fd081' }}>[{alert.nickname}]</strong><br/>
+                        {alert.message}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8fd081', fontSize: '13px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}>
+                  <span style={{ fontSize: '16px' }}>✅</span>
+                  <span>Garden Status: Optimal</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // --- MAIN COMPONENT ---
 export default function Home() {
   const navigate = useNavigate();
@@ -1093,11 +1164,9 @@ export default function Home() {
           >
             Scan Tag
           </Link>
-          {user && (
-            <Link to="/logout" className="btn btn--ghost">
-              Logout
-            </Link>
-          )}
+
+          {user && <NotificationCenter user={user} />}
+          
         </nav>
       </header>
 
