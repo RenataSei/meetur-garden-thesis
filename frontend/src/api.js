@@ -167,7 +167,9 @@ export const WeatherAPI = {
   getForecast: (params) => {
     const queryString = new URLSearchParams(params).toString();
     return fetch(`${API_BASE}/weather/forecast?${queryString}`).then(handle);
-  }
+  },
+
+  getMapConfig: () => fetch(`${API_BASE}/weather/config`).then(handle)
 };
 
 // ---------------------------------------------------
