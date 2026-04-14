@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { analyzePlantHealth } from "../utils/careEngine";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { WeatherContext } from "../contexts/WeatherContext";
 import { GardenAPI } from "../api";
@@ -215,7 +215,7 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
+                justify-content: "space-between",
                 marginBottom: "8px",
               }}
             >
@@ -582,7 +582,7 @@ const marketingStyles = `
   .footer-link { color: #34d399; text-decoration: none; transition: opacity 0.2s; }
   .footer-link:hover { opacity: 0.8; text-decoration: underline; }
 
- @media (max-width: 768px) {
+  @media (max-width: 768px) {
     .carousel-container { height: 350px; } /* Give it a bit more room */
     .carousel-caption { bottom: 24px; left: 24px; right: 24px; text-align: center; }
     .carousel-caption h2 { font-size: 1.5rem; }
@@ -1127,20 +1127,7 @@ function NotificationCenter({ user }) {
 
 // --- MAIN COMPONENT ---
 export default function Home() {
-  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-
-  function handleSearchSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const query = (formData.get("query") || "").toString().trim();
-    const field = (formData.get("field") || "none").toString();
-    const params = new URLSearchParams();
-    if (query) params.set("search", query);
-    if (field && field !== "none") params.set("field", field);
-    const searchString = params.toString();
-    navigate(searchString ? `/plants?${searchString}` : "/plants");
-  }
 
   return (
     <main className="home">
@@ -1153,7 +1140,7 @@ export default function Home() {
           <div className="brand__dot" />
           <h1 className="brand__name">Meet-Ur Garden</h1>
         </div>
-        <nav style={{ display: "flex", gap: "10px" }}>
+        <nav style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <Link to="/plants" className="btn btn--ghost">
             All Plants
           </Link>
@@ -1195,32 +1182,6 @@ export default function Home() {
       {/* 🟢 1. ALWAYS SHOW THE CAROUSEL AND SHOP AT THE TOP */}
       <MarketingShowcase />
 
-      {/* 🟢 2. THE PLANT SEARCH BAR (Moved above dashboard) */}
-      <section className="hero" style={{ padding: "0 0 48px 0" }}>
-        <form className="hero__search" onSubmit={handleSearchSubmit}>
-          <div className="hero__search-row">
-            <input
-              type="text"
-              name="query"
-              className="hero__search-input"
-              placeholder="SEARCH PLANTS..."
-            />
-            <select
-              name="field"
-              className="hero__search-select"
-              defaultValue="none"
-            >
-              <option value="none">ANY FIELD</option>
-              <option value="family">FAMILY</option>
-              <option value="genus">GENUS NAME</option>
-            </select>
-            <button type="submit" className="btn btn--primary hero__search-btn">
-              SEARCH
-            </button>
-          </div>
-        </form>
-      </section>
-
       {/* 🟢 3. SHOW THE DASHBOARD */}
       {user && <GardenDashboard user={user} />}
 
@@ -1250,3 +1211,5 @@ export default function Home() {
     </main>
   );
 }
+
+
