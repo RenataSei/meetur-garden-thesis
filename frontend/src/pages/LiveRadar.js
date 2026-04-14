@@ -129,6 +129,43 @@ const styles = `
     border: 1px solid #374151;
   }
 
+  /* 🟢 MAP LEGEND STYLES */
+  .map-legend {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    background: rgba(17, 24, 39, 0.9);
+    backdrop-filter: blur(4px);
+    border: 1px solid #374151;
+    padding: 12px 16px;
+    border-radius: 12px;
+    z-index: 1000; /* This forces it to float above the map! */
+    color: #f3f4f6;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  
+  .legend-title {
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #38bdf8;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  
+  .legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -282,6 +319,28 @@ export default function LiveRadar() {
 
       {/* THE MAP */}
       <div className="map-wrapper">
+
+        {/* 🟢 THE NEW LEGEND */}
+        <div className="map-legend">
+          <div className="legend-title">Precipitation</div>
+          <div className="legend-row">
+            <div className="legend-color" style={{ background: '#a7f3d0' }}></div> 
+            <span>Light Rain</span>
+          </div>
+          <div className="legend-row">
+            <div className="legend-color" style={{ background: '#fde047' }}></div> 
+            <span>Moderate</span>
+          </div>
+          <div className="legend-row">
+            <div className="legend-color" style={{ background: '#ef4444' }}></div> 
+            <span>Heavy Rain</span>
+          </div>
+          <div className="legend-row">
+            <div className="legend-color" style={{ background: '#a855f7' }}></div> 
+            <span>Extreme</span>
+          </div>
+        </div>
+
         {apiKey ? (
           <MapContainer 
             center={activeCoords} 
