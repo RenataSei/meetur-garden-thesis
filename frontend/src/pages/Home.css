@@ -108,7 +108,9 @@ h3,
 /* Header Button */
 .home__header nav .btn {
   font-size: 8px; /* Tiny button text */
-  padding: 8px 12px;
+  line-height: 1; 
+  padding: 14px 16px 10px;
+ 
   border-width: 2px;
   box-shadow: none;
 }
