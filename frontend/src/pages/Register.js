@@ -88,7 +88,7 @@ export default function Register() {
 
         <section className="auth__body">
           <div className="auth-card">
-            <h2 className="auth-card__title">Create account</h2>
+            <h2 className="auth-card__title" style={{ background: "black" }}>Create account</h2>
             <p className="auth-card__subtitle">
               Sign up to track every plant and garden task in one place.
             </p>
