@@ -109,13 +109,13 @@
 .plant-card__btn,
 .plant-card__btn-add,
 .plant-card__btn-danger {
-  /* 1. Retro Aesthetics */
+  /* 1. Theme matching Home.css */
   font-family: "Press Start 2P", cursive;
-  font-size: 8px; /* Pixel fonts need to be smaller */
+  font-size: 9px;
   text-transform: uppercase;
-  border: 3px solid #0f172a; /* Hard retro border */
-  border-radius: 0; /* Square edges */
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5); /* 8-bit drop shadow */
+  border: 3px solid var(--bg-deep, #0f172a); 
+  border-radius: 0;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
 
   /* 2. Bulletproof Centering */
   appearance: none;
@@ -135,7 +135,7 @@
   transition: transform 0.1s, box-shadow 0.1s;
 }
 
-/* Retro Click Animation */
+/* Active click state matching Home.css */
 .plant-card__btn:active,
 .plant-card__btn-add:active,
 .plant-card__btn-danger:active {
@@ -143,32 +143,26 @@
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* Specific Button Colors (Updated to match the retro theme) */
+/* "Open" Button - Matches your .btn--secondary */
 .plant-card__btn {
-  background: #38bdf8; /* Retro Blue */
-  color: #0f172a;
-}
-.plant-card__btn:hover {
-  background: #7dd3fc;
+  background-color: var(--bg-deep, #0f172a); 
+  color: var(--pure-white, #ffffff);
+  border-color: var(--leaf-green, #22c55e);
 }
 
+/* "+ Garden" Button - Matches your .btn--primary */
 .plant-card__btn-add {
-  background: #22c55e; /* Retro Green */
-  color: #0f172a;
-}
-.plant-card__btn-add:hover {
-  background: #4ade80;
+  background-color: var(--leaf-green, #22c55e);
+  color: var(--dark-green, #14532d);
+  border-color: var(--bg-deep, #0f172a);
 }
 
+/* "Delete" Button - Danger */
 .plant-card__btn-danger {
-  background: #ef4444; /* Retro Red */
-  color: #ffffff;
+  background-color: #ef4444; 
+  color: var(--pure-white, #ffffff);
+  border-color: var(--bg-deep, #0f172a);
 }
-.plant-card__btn-danger:hover {
-  background: #f87171;
-}
-
-
 
 /* =========================================
    MASTER MOBILE RESPONSIVENESS
