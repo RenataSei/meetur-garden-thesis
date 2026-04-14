@@ -47,7 +47,7 @@ export default function PlantCard({
 
         <div className="plant-card__actions">
           {/* 1. Everyone can Open details */}
-          <Link className="btn plant-card__btn" to={`/plants/${plant._id}`}>
+          <Link className="plant-card__btn" to={`/plants/${plant._id}`}>
             Open
           </Link>
 
@@ -55,7 +55,7 @@ export default function PlantCard({
           {userRole !== "admin" && (
             <button
               type="button"
-              className="btn plant-card__btn-add"
+              className=" plant-card__btn-add"
               onClick={onAddToGarden}
             >
               + Garden
@@ -66,7 +66,7 @@ export default function PlantCard({
           {userRole === "admin" && (
             <button
               type="button"
-              className="btn plant-card__btn-danger"
+              className=" plant-card__btn-danger"
               onClick={() => {
                 if (window.confirm("Are you sure you want to delete this plant?")) {
                   onDelete(plant._id);
