@@ -1,7 +1,24 @@
-import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+import { useState, useEffect, useContext } from "react";
+import { MapContainer, TileLayer, LayersControl, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
 import { WeatherAPI } from "../api";
+import { WeatherContext } from "../contexts/WeatherContext"; // 🟢 Bring in the Weather
 import "leaflet/dist/leaflet.css";
+
+// --- 🟢 FIX FOR LEAFLET PINS IN REACT ---
+// React bundlers often break Leaflet's default pin images. This forces them to load.
+import markerIconPng from "leaflet/dist/images/marker-icon.png";
+import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
+
+const DefaultIcon = L.icon({
+  iconUrl: markerIconPng,
+  shadowUrl: markerShadowPng,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+// ----------------------------------------
 
 const styles = `
   .radar-page {
@@ -44,18 +61,17 @@ const styles = `
     overflow: hidden;
     border: 2px solid #374151;
     box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    background: #0f172a; /* Fallback color before map loads */
+    background: #0f172a; 
     position: relative;
+    z-index: 1; /* Keeps map behind modals */
   }
 
-  /* Fix for Leaflet in dark mode to not flash white */
   .leaflet-container {
     background: #0f172a !important; 
     height: 100%;
     width: 100%;
   }
 
-  /* Custom styling for the layer control box */
   .leaflet-control-layers {
     background: #1f2937 !important;
     border: 1px solid #374151 !important;
@@ -67,18 +83,40 @@ const styles = `
     border-radius: 12px !important;
   }
 
+  /* Make the popup look dark mode friendly */
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background: #1f2937;
+    color: #f3f4f6;
+    border: 1px solid #374151;
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
 `;
 
+// 🟢 NEW: Component to automatically move the map when location changes
+function MapRecenter({ coords }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(coords, map.getZoom());
+  }, [coords, map]);
+  return null;
+}
+
 export default function LiveRadar() {
   const [apiKey, setApiKey] = useState(null);
   const [error, setError] = useState(null);
 
-  // Dasmariñas, Cavite Coordinates
-  const DASCA_COORDS = [14.3294, 120.9367];
+  // 🟢 Access user's active weather data from Context
+  const { weather } = useContext(WeatherContext);
+
+  // Determine active coordinates. 
+  // If WeatherContext has loaded, use those exact coordinates. Otherwise fallback to Dasmariñas.
+  const activeCoords = weather && weather.coord 
+    ? [weather.coord.lat, weather.coord.lon] 
+    : [14.3294, 120.9367];
 
   useEffect(() => {
     WeatherAPI.getMapConfig()
@@ -106,32 +144,49 @@ export default function LiveRadar() {
       <div className="radar-header">
         <h1 className="radar-title">📡 Live Weather Radar</h1>
         <p className="radar-desc">
-          Track precipitation and cloud cover across Cavite in real-time to protect your outdoor plants.
+          Track precipitation and cloud cover across {weather?.name || "your area"} in real-time.
         </p>
       </div>
 
       <div className="map-wrapper">
         {apiKey ? (
           <MapContainer 
-            center={DASCA_COORDS} 
-            zoom={11} 
+            center={activeCoords} 
+            zoom={10} 
             scrollWheelZoom={true}
-            style={{ height: "600px", width: "100%" }} 
+            style={{ height: "600px", width: "100%" }}
           >
-            {/* Base Map (Dark Mode CartoDB Map) */}
+            {/* Smoothly moves the map if the user updates their location settings */}
+            <MapRecenter coords={activeCoords} />
+
+            {/* Base Map (Dark Mode) */}
             <TileLayer
               attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
 
-            {/* Weather Overlays (Users can toggle between Rain and Clouds) */}
+            {/* 🟢 NEW: The User's Location Pin */}
+            <Marker position={activeCoords}>
+              <Popup>
+                <strong style={{ color: "#34d399", fontSize: "14px" }}>
+                  {weather?.name || "Your Location"}
+                </strong>
+                <br />
+                {weather?.weather[0]?.description && (
+                  <span style={{ textTransform: "capitalize", color: "#9ca3af" }}>
+                    {weather.weather[0].description}
+                  </span>
+                )}
+              </Popup>
+            </Marker>
+
+            {/* Weather Overlays */}
             <LayersControl position="topright">
-              
               <LayersControl.Overlay checked name="🌧️ Precipitation (Rain)">
                 <TileLayer
                   attribution='&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>'
                   url={`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`}
-                  opacity={0.7}
+                  opacity={0.8}
                 />
               </LayersControl.Overlay>
 
@@ -142,8 +197,8 @@ export default function LiveRadar() {
                   opacity={0.7}
                 />
               </LayersControl.Overlay>
-
             </LayersControl>
+
           </MapContainer>
         ) : (
           <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center", color: "#38bdf8" }}>
