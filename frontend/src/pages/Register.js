@@ -80,9 +80,9 @@ export default function Register() {
           </div>
 
           <nav>
-            <Link to="/login" className="btn btn--ghost">
+            {/*<Link to="/login" className="btn btn--ghost">
               Already have an account
-            </Link>
+            </Link>*/}
           </nav>
         </header>
 
@@ -103,6 +103,7 @@ export default function Register() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  style={{ background: "#0f172a" }}
                 />
               </div>
 
@@ -115,6 +116,7 @@ export default function Register() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  style={{ background: "#0f172a" }}
                 />
               </div>
 
@@ -127,6 +129,7 @@ export default function Register() {
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   required
+                  style={{ background: "#0f172a" }}
                 />
               </div>
 
