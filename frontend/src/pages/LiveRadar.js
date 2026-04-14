@@ -67,7 +67,7 @@ const styles = `
   }
 
   .leaflet-container {
-    background: #0f172a !important; 
+    background: #e5e7eb !important; /* Light gray fallback */
     height: 100%;
     width: 100%;
   }
@@ -159,10 +159,10 @@ export default function LiveRadar() {
             {/* Smoothly moves the map if the user updates their location settings */}
             <MapRecenter coords={activeCoords} />
 
-            {/* Base Map (Dark Mode) */}
+           {/* Base Map (Standard Light Mode) */}
             <TileLayer
-              attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
             {/* 🟢 NEW: The User's Location Pin */}
