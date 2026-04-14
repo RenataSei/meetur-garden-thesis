@@ -103,63 +103,72 @@
   margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 
 .plant-card__btn,
 .plant-card__btn-add,
 .plant-card__btn-danger {
-  /* 1. Reset browser defaults so links and buttons act the same */
+  /* 1. Retro Aesthetics */
+  font-family: "Press Start 2P", cursive;
+  font-size: 8px; /* Pixel fonts need to be smaller */
+  text-transform: uppercase;
+  border: 3px solid #0f172a; /* Hard retro border */
+  border-radius: 0; /* Square edges */
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5); /* 8-bit drop shadow */
+
+  /* 2. Bulletproof Centering */
   appearance: none;
   box-sizing: border-box;
   margin: 0;
-  padding: 0; 
-  
-  /* 2. Force a specific height instead of using padding */
-  height: 40px; 
-  line-height: 1; /* Stops the font from creating fake space */
+  padding: 0;
+  height: 40px;
+  line-height: 1;
 
-  /* 3. Bulletproof Flexbox Centering */
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   flex: 1;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.15s ease;
+  transition: transform 0.1s, box-shadow 0.1s;
 }
 
-/* Specific Button Styles */
+/* Retro Click Animation */
+.plant-card__btn:active,
+.plant-card__btn-add:active,
+.plant-card__btn-danger:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Specific Button Colors (Updated to match the retro theme) */
 .plant-card__btn {
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #e2e8f0;
+  background: #38bdf8; /* Retro Blue */
+  color: #0f172a;
 }
 .plant-card__btn:hover {
-  background: #e2e8f0;
+  background: #7dd3fc;
 }
 
 .plant-card__btn-add {
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
+  background: #22c55e; /* Retro Green */
+  color: #0f172a;
 }
 .plant-card__btn-add:hover {
-  background: #d1fae5;
+  background: #4ade80;
 }
 
 .plant-card__btn-danger {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: #ef4444; /* Retro Red */
+  color: #ffffff;
 }
 .plant-card__btn-danger:hover {
-  background: #fee2e2;
+  background: #f87171;
 }
+
+
 
 /* =========================================
    MASTER MOBILE RESPONSIVENESS
