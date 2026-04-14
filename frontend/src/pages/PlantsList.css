@@ -292,8 +292,67 @@
   color:#6b7280;
 }
 
-/* ===== Responsive ===== */
-@media(max-width:768px){
-  .list__title { font-size:24px; }
-  .list__content { padding:28px 20px; }
+/* =========================================
+   MASTER MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 768px) {
+  /* 1. Page Padding */
+  .list { 
+    padding: 16px; 
+  }
+  
+  /* 2. Header & Add Button */
+  .list__header { 
+    flex-direction: column; 
+    gap: 16px; 
+    padding: 16px;
+    text-align: center;
+  }
+  .list__title { 
+    font-size: 24px; 
+  }
+  .list__header .list__add-btn {
+    width: 100%;
+    text-align: center;
+    padding: 14px; /* Better touch target */
+  }
+
+  /* 3. Search Bar Stacking */
+  .list__search {
+    padding: 16px;
+  }
+  .list__search-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .list__search-input,
+  .list__search-select,
+  .list__search-btn {
+    width: 100%;
+    min-height: 44px; /* Apple UI recommended minimum touch size */
+    font-size: 14px;
+  }
+
+  /* 4. Content Area */
+  .list__content { 
+    padding: 24px 16px; 
+  }
+
+  /* 5. Pagination Stacking */
+  .list__pagination {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .list__page-numbers {
+    justify-content: center;
+    width: 100%;
+  }
+  .list__page-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+  .list__page-number {
+    min-width: 40px; /* Make numbers easier to tap */
+    height: 40px;
+  }
 }

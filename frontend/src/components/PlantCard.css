@@ -109,14 +109,19 @@
 .plant-card__btn,
 .plant-card__btn-add,
 .plant-card__btn-danger {
-  padding: 8px 16px;
+ padding: 10px 16px; /* Slightly taller default */
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  text-align: center;
-  flex: 1; /* Makes buttons equal width */
+  
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  flex: 1; 
   transition: all 0.15s ease;
 }
 
@@ -146,4 +151,45 @@
 }
 .plant-card__btn-danger:hover {
   background: #fee2e2;
+}
+
+/* =========================================
+   MASTER MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 768px) {
+  .plant-card__image-wrapper,
+  .plant-card__image-placeholder {
+    height: 200px; /* Give the image a bit more presence on mobile */
+  }
+
+  .plant-card__body {
+    padding: 16px; /* Slightly less padding to maximize screen space */
+  }
+
+  .plant-card__title {
+    font-size: 20px; /* Make the title more readable */
+  }
+
+  .plant-card__actions {
+    gap: 12px; /* More space between buttons so users don't misclick */
+  }
+
+  .plant-card__btn,
+  .plant-card__btn-add,
+  .plant-card__btn-danger {
+    min-height: 44px; /* Apple/Google UI standard for touch targets */
+    font-size: 14px;
+  }
+}
+
+/* For ultra-small phones (like iPhone SE), stack the buttons */
+@media (max-width: 380px) {
+  .plant-card__actions {
+    flex-direction: column;
+  }
+  .plant-card__btn,
+  .plant-card__btn-add,
+  .plant-card__btn-danger {
+    width: 100%;
+  }
 }
