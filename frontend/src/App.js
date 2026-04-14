@@ -21,6 +21,7 @@ import Logout from "./pages/Logout";
 import NfcReader from "./pages/NfcReader";
 import Tutorials from "./pages/Tutorials";
 import Community from "./pages/Community";
+import LiveRadar from "./pages/LiveRadar";
 
 function RequireAuth({ children }) {
   const { user } = useAuthContext();
@@ -122,6 +123,14 @@ export default function App() {
                 <Community />
               </RequireAuth>
             }
+          />
+
+          <Route path="/radar" 
+          element={
+            <RequireAuth>
+              <LiveRadar />
+            </RequireAuth>
+        } 
           />
 
           {/* Fallback */}
