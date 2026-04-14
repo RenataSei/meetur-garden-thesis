@@ -582,9 +582,12 @@ const marketingStyles = `
   .footer-link { color: #34d399; text-decoration: none; transition: opacity 0.2s; }
   .footer-link:hover { opacity: 0.8; text-decoration: underline; }
 
-  @media (max-width: 768px) {
-    .carousel-container { height: 300px; }
-    .carousel-caption h2 { font-size: 1.8rem; }
+ @media (max-width: 768px) {
+    .carousel-container { height: 350px; } /* Give it a bit more room */
+    .carousel-caption { bottom: 24px; left: 24px; right: 24px; text-align: center; }
+    .carousel-caption h2 { font-size: 1.5rem; }
+    .carousel-caption p { font-size: 0.9rem; }
+    .carousel-btn { width: 36px; height: 36px; font-size: 16px; } /* Smaller arrows */
     .garden-footer { flex-direction: column; text-align: center; align-items: center; }
   }
 `;

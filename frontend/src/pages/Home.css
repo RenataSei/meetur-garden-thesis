@@ -311,15 +311,7 @@ h3,
   text-transform: uppercase;
 }
 
-/* ===== MOBILE ===== */
-@media (max-width: 900px) {
-  .features {
-    grid-template-columns: 1fr;
-  }
-  .btn {
-    width: 100%;
-  }
-}
+
 
 /* =========================================
    8. DASHBOARD (RETRO PIXEL STYLE)
@@ -471,12 +463,7 @@ h3,
   text-transform: uppercase;
 }
 
-/* Mobile Fix for Grid */
-@media (max-width: 600px) {
-  .garden-grid {
-    grid-template-columns: 1fr;
-  }
-}
+
 
 /* =========================================
    9. INTERACTIVE DASHBOARD WIDGETS
@@ -832,4 +819,67 @@ h3,
   transition:
     width 1s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.5s ease;
+}
+
+/* =========================================
+   11. MASTER MOBILE RESPONSIVENESS
+   ========================================= */
+@media (max-width: 768px) {
+  /* 1. Header & Navigation Stacking */
+  .home__header {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+  .home__header nav {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .home__header nav .btn {
+    flex: 1; /* Makes buttons stretch evenly */
+    text-align: center;
+  }
+
+  /* 2. Marketing Features Grid */
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+  /* 3. Dashboard UI */
+  .garden-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-tabs {
+    flex-wrap: wrap; /* Prevents tabs from scrolling off screen */
+  }
+  .tab-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  /* 4. Quick Action Cards (Stack buttons under text) */
+  .quick-action-card {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .quick-action-card > div:last-child {
+    width: 100%;
+    justify-content: flex-start !important; /* Align buttons left */
+  }
+
+  /* 5. Modals (Prevent squishing) */
+  .modal-grid {
+    grid-template-columns: 1fr; /* Stacks the 4 stat boxes */
+  }
+  .modal-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .edit-column {
+    align-items: center;
+  }
+  .modal-actions {
+    flex-direction: column; /* Stack the big buttons */
+  }
 }
