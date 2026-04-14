@@ -215,7 +215,7 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
             <div
               style={{
                 display: "flex",
-                justify-content: "space-between",
+                justifyContent: "space-between",
                 marginBottom: "8px",
               }}
             >
