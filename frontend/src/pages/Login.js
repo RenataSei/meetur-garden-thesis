@@ -128,6 +128,7 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      style={{ background: "#0f172a" }}
                     />
                   </div>
                 </>
