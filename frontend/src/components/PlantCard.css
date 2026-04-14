@@ -115,8 +115,8 @@
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  
-  
+  text-align: center;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
