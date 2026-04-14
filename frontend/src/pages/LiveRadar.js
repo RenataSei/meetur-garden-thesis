@@ -112,7 +112,12 @@ export default function LiveRadar() {
 
       <div className="map-wrapper">
         {apiKey ? (
-          <MapContainer center={DASCA_COORDS} zoom={11} scrollWheelZoom={true}>
+          <MapContainer 
+            center={DASCA_COORDS} 
+            zoom={11} 
+            scrollWheelZoom={true}
+            style={{ height: "600px", width: "100%" }} 
+          >
             {/* Base Map (Dark Mode CartoDB Map) */}
             <TileLayer
               attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
