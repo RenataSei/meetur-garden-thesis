@@ -83,11 +83,11 @@ export default function Login() {
             <h1 className="brand__name">Meet-Ur Garden</h1>
           </div>
 
-          <nav>
+          {/*<nav>
             <Link to="/" className="btn btn--ghost">
               Back to landing
             </Link>
-          </nav>
+          </nav>*/}
         </header>
 
         <section className="auth__body">
@@ -115,6 +115,7 @@ export default function Login() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      style={{ background: "#0f172a" }}
                     />
                   </div>
 
@@ -152,7 +153,7 @@ export default function Login() {
                   type="submit"
                   className="btn btn--primary"
                   disabled={loading || (requires2FA && twoFactorToken.length !== 6)}
-                  style={{ width: "100%" }}
+                  style={{ width: "100%", background: "#22c55e"}}
                 >
                   {loading ? "Verifying..." : (requires2FA ? "Verify Code" : "Login")}
                 </button>
