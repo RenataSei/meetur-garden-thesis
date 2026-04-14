@@ -114,7 +114,7 @@
   font-size: 9px;
   text-transform: uppercase;
   border: 3px solid var(--bg-deep, #0f172a); 
-  border-radius: 0;
+  border-radius: 10px;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
 
   /* 2. Bulletproof Centering */
