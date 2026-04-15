@@ -1197,7 +1197,7 @@ export default function Home() {
         <div className="footer-details">
           <strong>Visit Us</strong>
           <span>📍 Km 44, Emilio Aguinaldo Highway, Bypass, Brgy. Tubuan 2, Silang, Cavite , Silang, PH</span>
-          <span>📞 +63 (046) 123-4567</span>
+          <span>📞 +63 921 531 1819 </span>
           <a 
             href="https://web.facebook.com/Dhoies.Garden2" 
             target="_blank" 
