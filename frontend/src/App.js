@@ -22,6 +22,8 @@ import NfcReader from "./pages/NfcReader";
 import Tutorials from "./pages/Tutorials";
 import Community from "./pages/Community";
 import LiveRadar from "./pages/LiveRadar";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function RequireAuth({ children }) {
   const { user } = useAuthContext();
@@ -40,6 +42,10 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/logout" element={<Logout />} />
+
+          {/* Public Password Reset Routes */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* Protected routes */}
           <Route
@@ -125,12 +131,13 @@ export default function App() {
             }
           />
 
-          <Route path="/radar" 
-          element={
-            <RequireAuth>
-              <LiveRadar />
-            </RequireAuth>
-        } 
+          <Route
+            path="/radar"
+            element={
+              <RequireAuth>
+                <LiveRadar />
+              </RequireAuth>
+            }
           />
 
           {/* Fallback */}

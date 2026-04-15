@@ -36,7 +36,7 @@ export default function Login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // 🟢 NEW: Include twoFactorToken in the body
-        body: JSON.stringify({ email, password, twoFactorToken })
+        body: JSON.stringify({ email, password, twoFactorToken }),
       });
 
       const data = await res.json();
@@ -96,13 +96,12 @@ export default function Login() {
               {requires2FA ? "Two-Factor Auth" : "Welcome back"}
             </h2>
             <p className="auth-card__subtitle">
-              {requires2FA 
-                ? "Enter the 6-digit code from your authenticator app." 
+              {requires2FA
+                ? "Enter the 6-digit code from your authenticator app."
                 : "Log in to manage your plants, tasks, and garden notes."}
             </p>
 
             <form className="auth-form" onSubmit={handleSubmit}>
-              
               {/* 🟢 NEW: Conditionally render inputs based on 2FA requirement */}
               {!requires2FA ? (
                 <>
@@ -131,6 +130,26 @@ export default function Login() {
                       style={{ background: "#0f172a" }}
                     />
                   </div>
+
+                  {/* 🟢 NEW: Forgot Password Link */}
+                  <div
+                    style={{
+                      textAlign: "right",
+                      marginTop: "-10px",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    <Link
+                      to="/forgot-password"
+                      style={{
+                        color: "#38bdf8",
+                        fontSize: "0.85rem",
+                        textDecoration: "none",
+                      }}
+                    >
+                      Forgot Password?
+                    </Link>
+                  </div>
                 </>
               ) : (
                 <div>
@@ -140,8 +159,16 @@ export default function Login() {
                     type="text"
                     placeholder="000000"
                     value={twoFactorToken}
-                    onChange={(e) => setTwoFactorToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    style={{ fontSize: '20px', letterSpacing: '4px', textAlign: 'center' }}
+                    onChange={(e) =>
+                      setTwoFactorToken(
+                        e.target.value.replace(/\D/g, "").slice(0, 6),
+                      )
+                    }
+                    style={{
+                      fontSize: "20px",
+                      letterSpacing: "4px",
+                      textAlign: "center",
+                    }}
                     required
                   />
                 </div>
@@ -153,20 +180,37 @@ export default function Login() {
                 <button
                   type="submit"
                   className="btn btn--primary"
-                  disabled={loading || (requires2FA && twoFactorToken.length !== 6)}
-                  style={{ width: "100%", background: "#22c55e"}}
+                  disabled={
+                    loading || (requires2FA && twoFactorToken.length !== 6)
+                  }
+                  style={{ width: "100%", background: "#22c55e" }}
                 >
-                  {loading ? "Verifying..." : (requires2FA ? "Verify Code" : "Login")}
+                  {loading
+                    ? "Verifying..."
+                    : requires2FA
+                      ? "Verify Code"
+                      : "Login"}
                 </button>
               </div>
 
               {/* 🟢 NEW: Allow user to go back if they need to change their email/password */}
               {requires2FA && (
                 <div style={{ textAlign: "center", marginTop: "12px" }}>
-                  <button 
-                    type="button" 
-                    onClick={() => { setRequires2FA(false); setTwoFactorToken(""); setMsg(null); }}
-                    style={{ background: "none", border: "none", color: "#6b7280", cursor: "pointer", fontSize: "12px", textDecoration: "underline" }}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRequires2FA(false);
+                      setTwoFactorToken("");
+                      setMsg(null);
+                    }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#6b7280",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      textDecoration: "underline",
+                    }}
                   >
                     Go Back
                   </button>
