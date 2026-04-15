@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 // 🟢 Your custom local images
 import fullLightImg from '../assets/fulllight.png'; 
-import partialShadeImg from '../assets/partualshade.png';
+import partialShadeImg from '../assets/partialshade.png';
 import dappledLightImg from '../assets/dappledshade.png';
 import fullShadeImg from '../assets/fullshade.png';
 
