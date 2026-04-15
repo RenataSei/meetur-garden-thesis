@@ -6,12 +6,12 @@ export default function Tutorials() {
 
   // --- DATA STRUCTURES ---
   const propagationVideos = [
-    { title: "Cutting", embed: "https://www.youtube.com/embed/placeholder1" },
-    { title: "Division", embed: "https://www.youtube.com/embed/placeholder2" },
-    { title: "Layering", embed: "https://www.youtube.com/embed/placeholder3" },
-    { title: "Grafting", embed: "https://www.youtube.com/embed/placeholder4" },
-    { title: "Budding", embed: "https://www.youtube.com/embed/placeholder5" },
-    { title: "Tissue Culture", embed: "https://www.youtube.com/embed/placeholder6" }
+    { title: "Cutting", embed: "https://youtu.be/b7vBCf6nNU0?si=Ru8dFVTPhn6rS-6B" },
+    { title: "Division", embed: "https://youtu.be/PzRZlYtnYFg?si=hW6WvFwys5aNnnPR" },
+    { title: "Layering", embed: "https://youtu.be/SkT0EmGk2RI?si=uZASNhwnMJns27_B" },
+    { title: "Grafting", embed: "https://youtu.be/QW_kS1ORqQ4?si=P7JVkZH7daD-o4UY" },
+    { title: "Budding", embed: "https://youtu.be/e5aww4rtE3o?si=M5xTclVniRm2NNro" },
+    
   ];
 
   const lightTypes = [
