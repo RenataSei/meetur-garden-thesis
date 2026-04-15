@@ -2,6 +2,8 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const speakeasy = require("speakeasy");
 const QRCode = require("qrcode");
+const crypto = require("crypto"); // For generating secure random tokens
+const nodemailer = require("nodemailer"); // For sending emails
 
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "3d" });
@@ -196,6 +198,95 @@ const verifyAndEnable2FA = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    
+    // We return a generic message even if the user isn't found. 
+    // This prevents hackers from using this form to guess which emails are registered.
+    if (!user) {
+      return res.status(200).json({ message: "If an account with that email exists, a reset link has been sent." });
+    }
+
+    // 1. Generate a random reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // 2. Save the token and an expiration date (e.g., 1 hour from now) to the user
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour in milliseconds
+    await user.save();
+
+    // 3. Set up Nodemailer to send the email
+    // NOTE: You will need to add EMAIL_USER and EMAIL_PASS to your .env file
+    const transporter = nodemailer.createTransport({
+      service: "Gmail", // You can use Gmail, SendGrid, Outlook, etc.
+      auth: {
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASS, 
+      },
+    });
+
+    // Determine the frontend URL (Localhost for dev, real URL for production)
+    const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
+    const resetLink = `${frontendURL}/reset-password/${resetToken}`;
+
+    const mailOptions = {
+      from: `"Meet-Ur Garden" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Password Reset Request",
+      text: `You requested a password reset. Please click the following link to choose a new password: \n\n ${resetLink} \n\n If you did not request this, please ignore this email.`,
+      html: `<p>You requested a password reset. Please click the button below to choose a new password:</p>
+             <a href="${resetLink}" style="background-color: #38bdf8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
+             <p>This link will expire in 1 hour.</p>
+             <p>If you did not request this, please ignore this email.</p>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "If an account with that email exists, a reset link has been sent." });
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    res.status(500).json({ error: "An error occurred while sending the email." });
+  }
+};
+
+// Reset Password Controller
+const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    // 1. Find the user with this token, ensuring it hasn't expired yet
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }, // $gt means "greater than" current time
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Password reset token is invalid or has expired." });
+    }
+
+    // 2. Hash the new password
+    const bcrypt = require("bcrypt");
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
+    // 3. Update the user's password and clear the reset fields
+    user.password = hash;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Password successfully updated." });
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    res.status(500).json({ error: "An error occurred while resetting the password." });
+  }
+};
+
+// Make sure to export the new functions at the bottom!
 module.exports = {
   signupUser,
   loginUser,
@@ -203,4 +294,6 @@ module.exports = {
   changePassword,
   generate2FA,
   verifyAndEnable2FA,
+  forgotPassword, // Added
+  resetPassword,  // Added
 };

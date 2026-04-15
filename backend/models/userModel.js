@@ -16,7 +16,7 @@ const userSchema = new Schema(
       required: true,
     },
 
-    // 🟢 NEW: Profile Fields
+    // Profile Fields
     nickname: { type: String, default: "" },
     birthday: { type: Date, default: null },
 
@@ -24,7 +24,7 @@ const userSchema = new Schema(
       // Removeed temperatureUnit since we are standardizing on Celsius
       alertsEnabled: { type: Boolean, default: true },
       hapticsEnabled: { type: Boolean, default: true },
-      // 🟢 NEW: The manual location override field!
+      // The manual location override field!
       customLocation: { type: String, default: "" },
     },
     // --- Role Field ---
@@ -42,6 +42,16 @@ const userSchema = new Schema(
     twoFactorEnabled: {
       type: Boolean,
       default: false,
+    },
+
+    // Password Reset Fields
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true },

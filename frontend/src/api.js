@@ -278,3 +278,29 @@ export const BlogAPI = {
       body: JSON.stringify({ text })
     }).then(handle),
 };
+
+// ---------------------------------------------------
+// USER / AUTH API
+// ---------------------------------------------------
+
+export const UserAPI = {
+  // POST /api/user/forgot-password
+  forgotPassword: (email) => 
+    fetch(`${API_BASE}/user/forgot-password`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email })
+    }).then(handle),
+
+  // POST /api/user/reset-password/:token
+  resetPassword: (token, password) => 
+    fetch(`${API_BASE}/user/reset-password/${token}`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password })
+    }).then(handle)
+};

@@ -1,16 +1,33 @@
 const express = require('express');
-const { loginUser, signupUser, updateSettings, changePassword } = require('../controllers/userController');
 const router = express.Router();
 const requireAuth = require('../middleware/requireAuth');
-const { generate2FA, verifyAndEnable2FA } = require('../controllers/userController');
+
+// 🟢 Consolidated all imports into one clean block
+const { 
+  loginUser, 
+  signupUser, 
+  updateSettings, 
+  changePassword,
+  generate2FA, 
+  verifyAndEnable2FA,
+  forgotPassword, // NEW
+  resetPassword   // NEW
+} = require('../controllers/userController');
+
 // login route
 router.post('/login', loginUser);
 
 // signup route
 router.post('/signup', signupUser);
 
+// 🟢 NEW: Password Reset Routes (Must be public, placed before requireAuth)
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
+
+// ----------------------------------------------------------------------
 // By putting requireAuth here, any route below this line requires a valid token
 router.use(requireAuth);
+// ----------------------------------------------------------------------
 
 // update settings route
 router.put('/settings', updateSettings);

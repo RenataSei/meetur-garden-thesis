@@ -1,7 +1,7 @@
 // src/pages/ResetPassword.js
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { API_BASE } from "../api";
+import { UserAPI } from "../api";
 import "./Home.css";
 import "./Auth.css";
 
@@ -28,25 +28,16 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/user/reset-password/${token}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
+      // 🟢 USE CLEAN API CALL
+      await UserAPI.resetPassword(token, password);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Failed to reset password. The link might be expired.");
-      } else {
-        setMsg("Password successfully reset! Redirecting to login...");
-        setTimeout(() => {
-          navigate("/login");
-        }, 3000);
-      }
+      setMsg("Password successfully reset! Redirecting to login...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (err) {
       console.error(err);
-      setError("Network error. Please try again later.");
+      setError(err.message || "Failed to reset password. The link might be expired.");
     } finally {
       setLoading(false);
     }

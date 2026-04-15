@@ -1,7 +1,7 @@
 // src/pages/ForgotPassword.js
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { API_BASE } from "../api";
+import { UserAPI } from "../api";
 import "./Home.css";
 import "./Auth.css";
 
@@ -18,26 +18,18 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/user/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Unable to process request.");
-      } else {
-        setMsg("If an account with that email exists, a reset link has been sent.");
-        setEmail(""); // Clear the input
-      }
+      // CLEAN API CALL
+      await UserAPI.forgotPassword(email);
+      
+      setMsg("If an account with that email exists, a reset link has been sent.");
+      setEmail(""); // Clear the input
     } catch (err) {
       console.error(err);
-      setError("Network error. Please try again later.");
+      setError(err.message || "Network error. Please try again later.");
     } finally {
       setLoading(false);
     }
+    
   };
 
   return (
