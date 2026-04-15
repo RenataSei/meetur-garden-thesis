@@ -55,6 +55,17 @@
   padding-top: 20px;
 }
 
+/* Add this to Tutorials.css */
+.tutorial-image {
+  width: 100%;
+  height: 200px; /* Forces all images to be the same height */
+  object-fit: cover; /* Prevents the images from stretching or squishing */
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #374151;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
 .troubleshoot-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

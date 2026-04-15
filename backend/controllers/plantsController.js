@@ -95,6 +95,8 @@ const getSinglePlant = async (req, res) => {
   }
 };
 
+
+
 // create a new plant AND link it to its Genus
 const createPlant = async (req, res) => {
   // We expect the genus_name and all other plant fields in req.body
@@ -176,6 +178,10 @@ const createPlant = async (req, res) => {
 const deletePlant = async (req, res) => {
   const { id } = req.params;
 
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: "Access denied. Only Admins can add plants..." });
+  }
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ error: "No such plant" });
   }
@@ -226,6 +232,10 @@ const deletePlant = async (req, res) => {
 //update a plant
 const updatePlant = async (req, res) => {
   const { id } = req.params;
+
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: "Access denied. Only Admins can add plants..." });
+  }
 
   // Extract genus_name and scientific_name from body
   const { genus_name, scientific_name, ...plantData } = req.body;
