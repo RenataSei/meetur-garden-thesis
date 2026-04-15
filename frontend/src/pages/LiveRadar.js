@@ -235,7 +235,7 @@ export default function LiveRadar() {
     let heatwaveFound = false;
     let stormFound = false;
 
-    testForecast.list.forEach((slot) => {
+    forecast.list.forEach((slot) => {
       const date = new Date(slot.dt * 1000);
       const dayStr = date.toLocaleDateString("en-US", { weekday: "short" });
       const fullDateStr = date.toLocaleDateString("en-US", { weekday: "long", hour: "numeric" });
