@@ -4,7 +4,6 @@ import L from "leaflet";
 import { WeatherAPI } from "../api";
 import { WeatherContext } from "../contexts/WeatherContext";
 import "leaflet/dist/leaflet.css";
-const { weather, forecast } = useContext(WeatherContext);
 
 // 🚨 TEMPORARY TEST DATA: REMOVE AFTER TESTING
 const testForecast = {
@@ -223,6 +222,7 @@ export default function LiveRadar() {
   const [apiKey, setApiKey] = useState(null);
   const [error, setError] = useState(null);
 
+  // 🟢 Correct placement of the hook inside the component
   const { weather, forecast } = useContext(WeatherContext);
 
   const activeCoords = weather && weather.coord 
