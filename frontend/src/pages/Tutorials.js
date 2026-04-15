@@ -6,11 +6,11 @@ export default function Tutorials() {
 
   // --- DATA STRUCTURES ---
   const propagationVideos = [
-    { title: "Cutting", embed: "https://youtu.be/b7vBCf6nNU0?si=Ru8dFVTPhn6rS-6B" },
-    { title: "Division", embed: "https://youtu.be/PzRZlYtnYFg?si=hW6WvFwys5aNnnPR" },
-    { title: "Layering", embed: "https://youtu.be/SkT0EmGk2RI?si=uZASNhwnMJns27_B" },
-    { title: "Grafting", embed: "https://youtu.be/QW_kS1ORqQ4?si=P7JVkZH7daD-o4UY" },
-    { title: "Budding", embed: "https://youtu.be/e5aww4rtE3o?si=M5xTclVniRm2NNro" },
+    { title: "Cutting", embed: "https://www.youtube.com/embed/b7vBCf6nNU0?si=WjYula6PmhLJ-RsS" },
+    { title: "Division", embed: "https://www.youtube.com/embed/PzRZlYtnYFg?si=JFLAtKfF5Sv8kVLb" },
+    { title: "Layering", embed: "https://www.youtube.com/embed/SkT0EmGk2RI?si=mFtEMM6boWoCiDlN" },
+    { title: "Grafting", embed: "https://www.youtube.com/embed/QW_kS1ORqQ4?si=I6UVWfChV6VWPNxW" },
+    { title: "Budding", embed: "https://www.youtube.com/embed/e5aww4rtE3o?si=jlKv0v_Xg3CeuAY0" },
     
   ];
 
