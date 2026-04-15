@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 // 🟢 Your custom local images
-import fullLightImg from '../../assets/fulllight.png'; 
-import partialShadeImg from '../../assets/partualshade.png';
-import dappledLightImg from '../../assets/dappledshade.png';
-import fullShadeImg from '../../assets/fullshade.png';
+import fullLightImg from '../assets/fulllight.png'; 
+import partialShadeImg from '../assets/partualshade.png';
+import dappledLightImg from '../assets/dappledshade.png';
+import fullShadeImg from '../assets/fullshade.png';
 
 export default function Tutorials() {
   const [activeTab, setActiveTab] = useState("propagation");
