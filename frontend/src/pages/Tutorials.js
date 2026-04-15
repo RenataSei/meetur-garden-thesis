@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+// 🟢 Your custom local images
+import fullLightImg from '../../assets/fulllight.png'; 
+import partialShadeImg from '../../assets/partualshade.png';
+import dappledLightImg from '../../assets/dappledshade.png';
+import fullShadeImg from '../../assets/fullshade.png';
+
 export default function Tutorials() {
   const [activeTab, setActiveTab] = useState("propagation");
 
@@ -11,14 +17,14 @@ export default function Tutorials() {
     { title: "Layering", embed: "https://www.youtube.com/embed/SkT0EmGk2RI?si=mFtEMM6boWoCiDlN" },
     { title: "Grafting", embed: "https://www.youtube.com/embed/QW_kS1ORqQ4?si=I6UVWfChV6VWPNxW" },
     { title: "Budding", embed: "https://www.youtube.com/embed/e5aww4rtE3o?si=jlKv0v_Xg3CeuAY0" },
-    
   ];
 
+  // 🟢 UPDATED: Swapped 'icon' for 'image' and linked your imported assets
   const lightTypes = [
-    { name: "Full Light", icon: "☀️", desc: "Direct sunlight for at least 6 hours a day. Ideal for most succulents and fruiting plants." },
-    { name: "Partial Shade", icon: "⛅", desc: "3-6 hours of sun, preferably in the cooler morning hours. Protect from harsh afternoon sun." },
-    { name: "Dappled Light", icon: "🍃", desc: "Sunlight filtered through the leaves of taller trees. Bright, but never direct." },
-    { name: "Full Shade", icon: "☁️", desc: "Less than 3 hours of direct sun. Thrives in bright indirect light or ambient room lighting." }
+    { name: "Full Light", image: fullLightImg, desc: "Direct sunlight for at least 6 hours a day. Ideal for most succulents and fruiting plants." },
+    { name: "Partial Shade", image: partialShadeImg, desc: "3-6 hours of sun, preferably in the cooler morning hours. Protect from harsh afternoon sun." },
+    { name: "Dappled Light", image: dappledLightImg, desc: "Sunlight filtered through the leaves of taller trees. Bright, but never direct." },
+    { name: "Full Shade", image: fullShadeImg, desc: "Less than 3 hours of direct sun. Thrives in bright indirect light or ambient room lighting." }
   ];
 
   return (
@@ -86,8 +92,20 @@ export default function Tutorials() {
       {activeTab === "shade" && (
         <div style={{ animation: "fadeIn 0.3s ease", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
           {lightTypes.map((light, index) => (
-            <div key={index} style={{ background: "#1f2937", borderRadius: "12px", padding: "20px", border: "1px solid #374151" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: "10px" }}>{light.icon}</div>
+            <div key={index} style={{ background: "#1f2937", borderRadius: "12px", padding: "20px", border: "1px solid #374151", display: "flex", flexDirection: "column" }}>
+              {/* 🟢 NEW: Render the custom images with specific styling to look like nice thumbnails */}
+              <img 
+                src={light.image} 
+                alt={light.name} 
+                style={{ 
+                  width: "100%", 
+                  height: "160px", 
+                  objectFit: "cover", 
+                  borderRadius: "8px", 
+                  marginBottom: "16px",
+                  border: "1px solid #374151"
+                }} 
+              />
               <h3 style={{ margin: "0 0 10px 0", color: "#e5e7eb" }}>{light.name}</h3>
               <p style={{ color: "#9ca3af", lineHeight: "1.5", margin: 0 }}>{light.desc}</p>
             </div>
