@@ -53,7 +53,28 @@ const styles = `
     font-size: 1rem;
   }
 
-  /* 🟢 NEW DASHBOARD STYLES */
+  /* 🔴 NEW ALERT BANNER STYLES */
+  .alert-banner {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    border-left: 6px solid #ef4444;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: #f8fafc;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  /* Dashboard Styles */
   .weather-dashboard {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -100,7 +121,7 @@ const styles = `
     overflow: hidden;
     border: 2px solid #374151;
     box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    background: #e5e7eb; /* Light fallback for new map */
+    background: #e5e7eb; 
     position: relative;
     z-index: 1; 
   }
@@ -129,7 +150,6 @@ const styles = `
     border: 1px solid #374151;
   }
 
-  /* 🟢 MAP LEGEND STYLES */
   .map-legend {
     position: absolute;
     bottom: 24px;
@@ -139,7 +159,7 @@ const styles = `
     border: 1px solid #374151;
     padding: 12px 16px;
     border-radius: 12px;
-    z-index: 1000; /* This forces it to float above the map! */
+    z-index: 1000;
     color: #f3f4f6;
     font-size: 0.85rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -184,7 +204,6 @@ export default function LiveRadar() {
   const [apiKey, setApiKey] = useState(null);
   const [error, setError] = useState(null);
 
-  // 🟢 Access user's active weather & forecast from Context
   const { weather, forecast } = useContext(WeatherContext);
 
   const activeCoords = weather && weather.coord 
@@ -200,18 +219,43 @@ export default function LiveRadar() {
       });
   }, []);
 
-  // 🟢 --- DATA PROCESSING FOR DASHBOARD ---
+  // --- DATA PROCESSING FOR DASHBOARD & ALERTS ---
   let impactTip = "Conditions are generally mild. Standard watering schedules apply.";
   if (weather?.main?.temp > 32) impactTip = "It's very hot! Soil will dry out much faster today.";
   else if (weather?.main?.temp < 15) impactTip = "Cooler temperatures today. Be careful not to overwater.";
   else if (weather?.weather?.[0]?.main.includes("Rain")) impactTip = "Rain is expected! Great for outdoor plants.";
 
   const dailyData = [];
+  const systemAlerts = []; // 🟢 Array to hold extreme weather warnings
+
   if (forecast && forecast.list) {
     const seenDays = new Set();
+    let heatwaveFound = false;
+    let stormFound = false;
+
     forecast.list.forEach((slot) => {
       const date = new Date(slot.dt * 1000);
       const dayStr = date.toLocaleDateString("en-US", { weekday: "short" });
+      const fullDateStr = date.toLocaleDateString("en-US", { weekday: "long", hour: "numeric" });
+
+      // 🟢 EXTREME WEATHER DETECTION
+      // 1. Check for Typhoons / High Wind ( > 17 m/s is roughly 61 km/h )
+      if (slot.wind?.speed > 17 && !stormFound) {
+        systemAlerts.push(
+          `🌀 Tropical Storm/High Wind Warning: Speeds exceeding 60km/h expected around ${fullDateStr}. Secure outdoor plants and pots!`
+        );
+        stormFound = true; // Only alert once per 5-day cycle
+      }
+
+      // 2. Check for Heatwaves ( > 35°C )
+      if (slot.main?.temp > 35 && !heatwaveFound) {
+        systemAlerts.push(
+          `🔥 Heatwave Alert: Temperatures reaching ${Math.round(slot.main.temp)}°C expected around ${fullDateStr}. Prepare to shade and deeply hydrate plants.`
+        );
+        heatwaveFound = true;
+      }
+
+      // Populate Daily Graph Data
       if (!seenDays.has(dayStr) && seenDays.size < 5) {
         seenDays.add(dayStr);
         dailyData.push({
@@ -247,11 +291,23 @@ export default function LiveRadar() {
         </p>
       </div>
 
-      {/* 🟢 NEW: EMBEDDED WEATHER DASHBOARD */}
+      {/* 🟢 NEW: EXTREME WEATHER ALERTS BANNER */}
+      {systemAlerts.length > 0 && (
+        <div className="alert-banner">
+          <strong style={{ color: "#fca5a5", fontSize: "1.1rem", marginBottom: "4px" }}>
+            ⚠️ Extreme Weather Ahead
+          </strong>
+          {systemAlerts.map((alert, index) => (
+            <div key={index} className="alert-item">
+              <span>{alert}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {weather && (
         <div className="weather-dashboard">
           
-          {/* Main Temp & Condition */}
           <div className="stat-box" style={{ borderLeft: "4px solid #38bdf8" }}>
             <label>Current Weather</label>
             <div className="value">
@@ -265,7 +321,6 @@ export default function LiveRadar() {
             </span>
           </div>
 
-          {/* Wind & Humidity */}
           <div className="stat-box">
             <label>Wind & Humidity</label>
             <div className="value" style={{ fontSize: "1.2rem" }}>
@@ -276,7 +331,6 @@ export default function LiveRadar() {
             </div>
           </div>
 
-          {/* Garden Impact */}
           <div className="stat-box" style={{ gridColumn: "span 2" }}>
             <label>Garden Impact</label>
             <span style={{ color: "#e2e8f0", lineHeight: "1.5", fontSize: "14px" }}>
@@ -289,7 +343,6 @@ export default function LiveRadar() {
             )}
           </div>
 
-          {/* 5-Day Forecast Graph */}
           {dailyData.length > 0 && (
             <div className="stat-box" style={{ gridColumn: "1 / -1", background: "#0b1220" }}>
               <label style={{ marginBottom: "16px" }}>5-Day Forecast</label>
@@ -319,8 +372,6 @@ export default function LiveRadar() {
 
       {/* THE MAP */}
       <div className="map-wrapper">
-
-        {/* 🟢 THE NEW LEGEND */}
         <div className="map-legend">
           <div className="legend-title">Precipitation</div>
           <div className="legend-row">
@@ -349,13 +400,10 @@ export default function LiveRadar() {
             style={{ height: "600px", width: "100%" }}
           >
             <MapRecenter coords={activeCoords} />
-
-            {/* Base Map (Standard Light Mode) */}
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-
             <Marker position={activeCoords}>
               <Popup>
                 <strong style={{ color: "#34d399", fontSize: "14px" }}>
@@ -369,7 +417,6 @@ export default function LiveRadar() {
                 )}
               </Popup>
             </Marker>
-
             <LayersControl position="topright">
               <LayersControl.Overlay checked name="🌧️ Precipitation (Rain)">
                 <TileLayer
@@ -378,7 +425,6 @@ export default function LiveRadar() {
                   opacity={0.8}
                 />
               </LayersControl.Overlay>
-
               <LayersControl.Overlay name="☁️ Cloud Cover">
                 <TileLayer
                   attribution='&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>'
@@ -387,7 +433,6 @@ export default function LiveRadar() {
                 />
               </LayersControl.Overlay>
             </LayersControl>
-
           </MapContainer>
         ) : (
           <div style={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center", color: "#38bdf8" }}>
