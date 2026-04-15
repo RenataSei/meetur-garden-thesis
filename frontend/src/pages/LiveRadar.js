@@ -4,6 +4,25 @@ import L from "leaflet";
 import { WeatherAPI } from "../api";
 import { WeatherContext } from "../contexts/WeatherContext";
 import "leaflet/dist/leaflet.css";
+const { weather, forecast } = useContext(WeatherContext);
+
+// 🚨 TEMPORARY TEST DATA: REMOVE AFTER TESTING
+const testForecast = {
+  list: [
+    {
+      dt: Math.floor(Date.now() / 1000) + 86400, // Tomorrow
+      main: { temp: 38 }, // 🟢 Triggers Heatwave (> 35°C)
+      wind: { speed: 5 },
+      weather: [{ main: "Clear" }]
+    },
+    {
+      dt: Math.floor(Date.now() / 1000) + 172800, // Day after tomorrow
+      main: { temp: 28 },
+      wind: { speed: 22 }, // 🟢 Triggers Typhoon (> 17 m/s)
+      weather: [{ main: "Rain" }]
+    }
+  ]
+};
 
 // --- FIX FOR LEAFLET PINS IN REACT ---
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
@@ -228,12 +247,12 @@ export default function LiveRadar() {
   const dailyData = [];
   const systemAlerts = []; // 🟢 Array to hold extreme weather warnings
 
-  if (forecast && forecast.list) {
+  if (testForecast && testForecast.list) {
     const seenDays = new Set();
     let heatwaveFound = false;
     let stormFound = false;
 
-    forecast.list.forEach((slot) => {
+    testForecast.list.forEach((slot) => {
       const date = new Date(slot.dt * 1000);
       const dayStr = date.toLocaleDateString("en-US", { weekday: "short" });
       const fullDateStr = date.toLocaleDateString("en-US", { weekday: "long", hour: "numeric" });
