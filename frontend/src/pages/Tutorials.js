@@ -99,7 +99,7 @@ export default function Tutorials() {
                 alt={light.name} 
                 style={{ 
                   width: "100%", 
-                  height: "160px", 
+                  height: "200px", 
                   objectFit: "cover", 
                   borderRadius: "8px", 
                   marginBottom: "16px",
