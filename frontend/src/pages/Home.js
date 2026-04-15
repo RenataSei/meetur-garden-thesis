@@ -1196,10 +1196,10 @@ export default function Home() {
 
         <div className="footer-details">
           <strong>Visit Us</strong>
-          <span>📍 123 Botanical Way, Dasmariñas, Cavite, PH</span>
+          <span>📍 Km 44, Emilio Aguinaldo Highway, Bypass, Brgy. Tubuan 2, Silang, Cavite , Silang, PH</span>
           <span>📞 +63 (046) 123-4567</span>
           <a 
-            href="https://facebook.com" 
+            href="https://web.facebook.com/Dhoies.Garden2" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="footer-link"

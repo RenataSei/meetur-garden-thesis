@@ -129,12 +129,14 @@ const styles = `
   font-weight: 600;
   color: #4b5563;
 }
+
+/* 🟢 UPDATED: Bright Red Asterisk for required fields */
 .field-req {
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #9ca3af;
+  color: #ef4444; 
+  font-weight: bold;
+  margin-left: 2px;
 }
+
 .field-control {
   display: flex;
   flex-direction: column;
@@ -525,8 +527,11 @@ export default function PlantForm({
       return (
         <div className="field-row" key={key}>
           <div className="field-label">
-            <label htmlFor={key}>{label}</label>
-            {isRequired && <span className="field-req">Required</span>}
+            {/* 🟢 UPDATED to have the asterisk inline with the label text */}
+            <label htmlFor={key}>
+              {label}
+              {isRequired && <span className="field-req">*</span>}
+            </label>
           </div>
           <div className="field-control">
             {isAddingNewFamily ? (
@@ -586,8 +591,11 @@ export default function PlantForm({
     return (
       <div className="field-row" key={key}>
         <div className="field-label">
-          <label htmlFor={key}>{label}</label>
-          {isRequired && <span className="field-req">Required</span>}
+          {/* 🟢 UPDATED to have the asterisk inline with the label text */}
+          <label htmlFor={key}>
+            {label}
+            {isRequired && <span className="field-req">*</span>}
+          </label>
         </div>
         <div className="field-control">
           {isTextArea ? (
@@ -640,7 +648,7 @@ export default function PlantForm({
         <h1 className="plant-form-hero-title">{heroTitle}</h1>
         <p className="plant-form-hero-sub">{sub}</p>
         <p className="plant-form-hero-small">
-          Fields marked as required must be filled
+          Fields marked with <span style={{color: '#ef4444', fontWeight: 'bold'}}>*</span> must be filled
         </p>
       </div>
 
