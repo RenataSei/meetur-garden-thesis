@@ -139,6 +139,7 @@ export default function Register() {
                   className="auth-select"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
+                  style={{color:"black"}}
                 >
                   <option value="user">User</option>
                   
