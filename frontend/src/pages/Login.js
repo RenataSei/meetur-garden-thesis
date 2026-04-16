@@ -168,6 +168,7 @@ export default function Login() {
                       fontSize: "20px",
                       letterSpacing: "4px",
                       textAlign: "center",
+                      color: "black"
                     }}
                     required
                   />
