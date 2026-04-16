@@ -99,8 +99,8 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 500 * 1024) {
-      alert("Please choose an image smaller than 500KB");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Please choose an image smaller than 5MB");
       return;
     }
     setUploading(true);
