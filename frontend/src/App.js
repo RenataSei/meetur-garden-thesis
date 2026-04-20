@@ -57,7 +57,7 @@ export default function App() {
               </RequireAuth>
             }
           />
-          
+
           <Route
             path="/plants"
             element={
@@ -153,7 +153,7 @@ export default function App() {
             path="/admin-reports" 
             elements={
               <RequireAuth>
-                <AdminReport />
+                <AdminReports />
               </RequireAuth>
             }
           />
