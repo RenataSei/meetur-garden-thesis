@@ -9,37 +9,56 @@ export default function AdminReports() {
   const [activeTab, setActiveTab] = useState("clients");
 
   useEffect(() => {
-    // Fetch Users
+    if (!user || !user.token) return;
+
+    // Fetch Users safely
     fetch(`${API_BASE}/user/all`, {
       headers: { Authorization: `Bearer ${user.token}` }
     })
       .then(res => res.json())
-      .then(data => setUsersList(data))
-      .catch(err => console.error(err));
+      .then(data => {
+        // Only set if it's actually an array to prevent .filter crashes
+        if (Array.isArray(data)) {
+          setUsersList(data);
+        }
+      })
+      .catch(err => console.error("Error fetching users:", err));
 
-    // Fetch Plants
+    // Fetch Plants safely
     fetch(`${API_BASE}/plants`, {
       headers: { Authorization: `Bearer ${user.token}` }
     })
       .then(res => res.json())
       .then(data => {
-        // Sort plants exactly as requested: Family, then Common Name, then Scientific
-        const sortedPlants = data.plants?.sort((a, b) => {
-          if (a.family !== b.family) return a.family.localeCompare(b.family);
-          const nameA = a.common_name[0] || "";
-          const nameB = b.common_name[0] || "";
+        const plantsArray = Array.isArray(data.plants) ? data.plants : Array.isArray(data) ? data : [];
+        
+        // Safe Sorting (prevents crashes if a plant is missing a family or name)
+        const sortedPlants = plantsArray.sort((a, b) => {
+          const famA = a.family || "";
+          const famB = b.family || "";
+          if (famA !== famB) return famA.localeCompare(famB);
+          
+          const nameA = (a.common_name && a.common_name[0]) ? a.common_name[0] : "";
+          const nameB = (b.common_name && b.common_name[0]) ? b.common_name[0] : "";
           if (nameA !== nameB) return nameA.localeCompare(nameB);
-          return a.scientific_name.localeCompare(b.scientific_name);
+          
+          const sciA = a.scientific_name || "";
+          const sciB = b.scientific_name || "";
+          return sciA.localeCompare(sciB);
         });
-        setPlantsList(sortedPlants || []);
+        
+        setPlantsList(sortedPlants);
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error("Error fetching plants:", err));
   }, [user]);
 
-  // Function to trigger the browser's native print/save to PDF
   const handlePrint = () => {
     window.print();
   };
+
+  // Extra safety checks for rendering
+  const safeUsersList = Array.isArray(usersList) ? usersList : [];
+  const safePlantsList = Array.isArray(plantsList) ? plantsList : [];
 
   return (
     <div style={{ padding: "20px", color: "#f3f4f6", maxWidth: "1200px", margin: "0 auto" }}>
@@ -51,7 +70,6 @@ export default function AdminReports() {
           tr:hover { background: #374151; }
           .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
           
-          /* 🟢 Hide tabs and buttons when printing to PDF! */
           @media print {
             .no-print { display: none !important; }
             table { border: 1px solid black; }
@@ -68,14 +86,12 @@ export default function AdminReports() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="no-print" style={{ display: "flex", gap: "10px", borderBottom: "1px solid #374151", paddingBottom: "15px", marginBottom: "20px" }}>
         <button className="btn" style={{ background: activeTab === "clients" ? "#8fd081" : "transparent", color: activeTab === "clients" ? "black" : "white" }} onClick={() => setActiveTab("clients")}>Client Tracker</button>
         <button className="btn" style={{ background: activeTab === "plants" ? "#8fd081" : "transparent", color: activeTab === "plants" ? "black" : "white" }} onClick={() => setActiveTab("plants")}>Plant Report</button>
         <button className="btn" style={{ background: activeTab === "users" ? "#8fd081" : "transparent", color: activeTab === "users" ? "black" : "white" }} onClick={() => setActiveTab("users")}>Users Report</button>
       </div>
 
-      {/* 1. CLIENT TRACKER */}
       {activeTab === "clients" && (
         <div>
           <h3>Client Tracker</h3>
@@ -84,10 +100,10 @@ export default function AdminReports() {
               <tr><th>Name</th><th>Email</th><th>Business Name</th><th>Type</th></tr>
             </thead>
             <tbody>
-              {usersList.filter(u => u.accountType === "Client").map(client => (
+              {safeUsersList.filter(u => u.accountType === "Client").map(client => (
                 <tr key={client._id}>
-                  <td>{client.name}</td>
-                  <td>{client.email}</td>
+                  <td>{client.name || "N/A"}</td>
+                  <td>{client.email || "N/A"}</td>
                   <td>{client.businessName || "N/A"}</td>
                   <td><span style={{background: "#8fd081", color: "black", padding: "4px 8px", borderRadius: "4px", fontSize: "12px"}}>{client.accountType}</span></td>
                 </tr>
@@ -97,7 +113,6 @@ export default function AdminReports() {
         </div>
       )}
 
-      {/* 2. PLANT REPORT */}
       {activeTab === "plants" && (
         <div>
           <h3>Global Plant Database Report</h3>
@@ -106,11 +121,11 @@ export default function AdminReports() {
               <tr><th>Family</th><th>Common Name</th><th>Scientific Name</th></tr>
             </thead>
             <tbody>
-              {plantsList.map(plant => (
+              {safePlantsList.map(plant => (
                 <tr key={plant._id}>
-                  <td style={{ color: "#38bdf8" }}>{plant.family}</td>
-                  <td>{plant.common_name[0]}</td>
-                  <td style={{ fontStyle: "italic" }}>{plant.scientific_name}</td>
+                  <td style={{ color: "#38bdf8" }}>{plant.family || "N/A"}</td>
+                  <td>{(plant.common_name && plant.common_name[0]) ? plant.common_name[0] : "N/A"}</td>
+                  <td style={{ fontStyle: "italic" }}>{plant.scientific_name || "N/A"}</td>
                 </tr>
               ))}
             </tbody>
@@ -118,7 +133,6 @@ export default function AdminReports() {
         </div>
       )}
 
-      {/* 3. USERS REPORT */}
       {activeTab === "users" && (
         <div>
           <h3>All Users Report</h3>
@@ -127,12 +141,12 @@ export default function AdminReports() {
               <tr><th>Business</th><th>Name</th><th>Email</th><th>Role</th></tr>
             </thead>
             <tbody>
-              {usersList.map(u => (
+              {safeUsersList.map(u => (
                 <tr key={u._id}>
                   <td>{u.businessName || "N/A"}</td>
-                  <td>{u.name}</td>
-                  <td>{u.email}</td>
-                  <td style={{ color: u.role === 'admin' ? '#ef4444' : '#9ca3af' }}>{u.role.toUpperCase()}</td>
+                  <td>{u.name || "N/A"}</td>
+                  <td>{u.email || "N/A"}</td>
+                  <td style={{ color: u.role === 'admin' ? '#ef4444' : '#9ca3af' }}>{(u.role || "user").toUpperCase()}</td>
                 </tr>
               ))}
             </tbody>
