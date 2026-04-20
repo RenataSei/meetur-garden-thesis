@@ -60,8 +60,16 @@ export default function AdminReports() {
   const safeUsersList = Array.isArray(usersList) ? usersList : [];
   const safePlantsList = Array.isArray(plantsList) ? plantsList : [];
 
+  // --- TROUBLESHOOTING LOGS ---
+  console.log("🛠️ AdminReports is mounting!");
+  console.log("👤 User Object:", user ? "Exists" : "Null");
+  console.log("📑 Active Tab:", activeTab);
+  console.log("👥 Users Array Length:", safeUsersList.length);
+  console.log("🪴 Plants Array Length:", safePlantsList.length);
+  // ----------------------------
+
   return (
-    <div style={{ padding: "20px", color: "#f3f4f6", maxWidth: "1200px", margin: "0 auto" }}>
+    <div style={{ padding: "20px", color: "#f3f4f6", maxWidth: "1200px", margin: "0 auto", border: "5px solid red", minHeight: "500px" }}>
       <style>
         {`
           table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1f2937; border-radius: 8px; overflow: hidden; }
