@@ -63,18 +63,21 @@ const loginUser = async (req, res) => {
 
 // signup user
 const signupUser = async (req, res) => {
-  // Accept 'role' from the request body
-  const { email, password, role } = req.body;
+  // 🟢 NEW: Extract the new fields from the request body
+  const { name, businessName, accountType, email, password, role } = req.body;
 
   try {
-    // Pass role to the model
-    const user = await User.signup(email, password, role);
+    // 🟢 NEW: Pass all fields to the model in the correct order
+    const user = await User.signup(name, businessName, accountType, email, password, role);
     const token = createToken(user._id);
 
-    // --- NEW: Send the role and settings back to the frontend ---
+    // Send the data back to the frontend
     res
       .status(200)
       .json({
+        name: user.name,
+        businessName: user.businessName,
+        accountType: user.accountType,
         email,
         role: user.role,
         settings: user.settings,

@@ -6,6 +6,15 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
+    // 🟢 NEW: Name and Business Name
+    name: {
+      type: String,
+      required: true,
+    },
+    businessName: {
+      type: String,
+      default: "", // Optional
+    },
     email: {
       type: String,
       required: true,
@@ -21,17 +30,23 @@ const userSchema = new Schema(
     birthday: { type: Date, default: null },
 
     settings: {
-      // Removeed temperatureUnit since we are standardizing on Celsius
       alertsEnabled: { type: Boolean, default: true },
       hapticsEnabled: { type: Boolean, default: true },
-      // The manual location override field!
       customLocation: { type: String, default: "" },
     },
-    // --- Role Field ---
+
+    // 🟢 NEW: Account Type (Client vs Free User)
+    accountType: {
+      type: String,
+      enum: ["Free User", "Client"],
+      default: "Free User",
+    },
+
+    // --- Role Field (System Level Access) ---
     role: {
       type: String,
-      enum: ["user", "admin"], // Only allow these two values
-      default: "user", // Default to 'user' if not specified
+      enum: ["user", "admin"], 
+      default: "user", 
     },
 
     // --- 2FA Fields ---
@@ -57,17 +72,17 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-// Static signup method
-userSchema.statics.signup = async function (email, password, role) {
-  // Accept role here
-  if (!email || !password) {
-    throw new Error("All fields must be filled");
+// 🟢 UPDATED: Static signup method now accepts name, businessName, and accountType
+userSchema.statics.signup = async function (name, businessName, accountType, email, password, role) {
+  // Require name, email, and password
+  if (!name || !email || !password) {
+    throw new Error("Name, email, and password must be filled");
   }
   if (!validator.isEmail(email)) {
     throw new Error("Email is not valid");
   }
   if (!validator.isStrongPassword(password)) {
-    throw new Error("Password not strong enough");
+    throw new Error("Password not strong enough. Ensure it has a mix of uppercase, lowercase, numbers, and symbols.");
   }
 
   const exists = await this.findOne({ email });
@@ -78,13 +93,20 @@ userSchema.statics.signup = async function (email, password, role) {
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
 
-  // Save the user with the provided role (or default)
-  const user = await this.create({ email, password: hash, role });
+  // Save the user with the new fields
+  const user = await this.create({ 
+    name, 
+    businessName: businessName || "", 
+    accountType: accountType || "Free User", 
+    email, 
+    password: hash, 
+    role: role || "user" 
+  });
 
   return user;
 };
 
-// Static login method (unchanged, but returns the user doc)
+// Static login method (unchanged)
 userSchema.statics.login = async function (email, password) {
   if (!email || !password) {
     throw new Error("All fields must be filled");
@@ -103,13 +125,12 @@ userSchema.statics.login = async function (email, password) {
   return user;
 };
 
-// Static change password method
+// Static change password method (unchanged)
 userSchema.statics.changePassword = async function (
   _id,
   currentPassword,
   newPassword,
 ) {
-  // 1. Validation
   if (!currentPassword || !newPassword) {
     throw new Error("Both current and new passwords must be filled");
   }
@@ -117,19 +138,16 @@ userSchema.statics.changePassword = async function (
     throw new Error("New password is not strong enough");
   }
 
-  // 2. Find the user
   const user = await this.findById(_id);
   if (!user) {
     throw new Error("User not found");
   }
 
-  // 3. Verify the current password
   const match = await bcrypt.compare(currentPassword, user.password);
   if (!match) {
     throw new Error("Incorrect current password");
   }
 
-  // 4. Hash the new password and save
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(newPassword, salt);
 
