@@ -180,6 +180,7 @@ export default function Register() {
                   type="submit"
                   className="btn btn--primary"
                   disabled={loading}
+                  style={{ width: "100%" }}
                 >
                   {loading ? "Creating account..." : "Sign up"}
                 </button>
