@@ -54,18 +54,22 @@ export default function Profile() {
       const json = await response.json();
       if (!response.ok) throw new Error("Failed to save profile");
 
-      // Update Local Storage
+      // Update Local Storage and merge the data
       const storedUser = JSON.parse(localStorage.getItem("user"));
-      storedUser.nickname = json.nickname;
-      storedUser.birthday = json.birthday;
-      localStorage.setItem("user", JSON.stringify(storedUser));
+      const updatedUser = {
+        ...storedUser,
+        nickname: json.nickname,
+        birthday: json.birthday
+      };
+      
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // Update React Memory
+      // 🟢 THE FIX: Use the LOGIN action type to force a global refresh with the merged object
       dispatch({ 
-        type: "UPDATE_USER", 
-        payload: { nickname: json.nickname, birthday: json.birthday } 
+        type: "LOGIN", 
+        payload: updatedUser 
       });
-
+      
       setProfileMessage("✅ Profile updated successfully!");
       setTimeout(() => setProfileMessage(""), 3000);
     } catch (error) {
