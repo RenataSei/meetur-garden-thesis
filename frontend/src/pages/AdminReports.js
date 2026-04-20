@@ -17,10 +17,7 @@ export default function AdminReports() {
     })
       .then(res => res.json())
       .then(data => {
-        // Only set if it's actually an array to prevent .filter crashes
-        if (Array.isArray(data)) {
-          setUsersList(data);
-        }
+        if (Array.isArray(data)) setUsersList(data);
       })
       .catch(err => console.error("Error fetching users:", err));
 
@@ -32,7 +29,7 @@ export default function AdminReports() {
       .then(data => {
         const plantsArray = Array.isArray(data.plants) ? data.plants : Array.isArray(data) ? data : [];
         
-        // Safe Sorting (prevents crashes if a plant is missing a family or name)
+        // Safe Sorting
         const sortedPlants = plantsArray.sort((a, b) => {
           const famA = a.family || "";
           const famB = b.family || "";
@@ -56,20 +53,21 @@ export default function AdminReports() {
     window.print();
   };
 
-  // Extra safety checks for rendering
+  // --- DATA CALCULATIONS FOR DASHBOARD COUNTERS ---
   const safeUsersList = Array.isArray(usersList) ? usersList : [];
   const safePlantsList = Array.isArray(plantsList) ? plantsList : [];
-
-  // --- TROUBLESHOOTING LOGS ---
-  console.log("🛠️ AdminReports is mounting!");
-  console.log("👤 User Object:", user ? "Exists" : "Null");
-  console.log("📑 Active Tab:", activeTab);
-  console.log("👥 Users Array Length:", safeUsersList.length);
-  console.log("🪴 Plants Array Length:", safePlantsList.length);
-  // ----------------------------
+  
+  const totalUsers = safeUsersList.length;
+  const totalPlants = safePlantsList.length;
+  
+  // Using a Set to automatically filter out duplicate families
+  const uniqueFamiliesCount = new Set(
+    safePlantsList.map(plant => plant.family).filter(family => family) // filter removes null/undefined
+  ).size;
+  // ------------------------------------------------
 
   return (
-    <div style={{ padding: "20px", color: "#f3f4f6", maxWidth: "1200px", margin: "0 auto", border: "5px solid red", minHeight: "500px" }}>
+    <div style={{ padding: "20px", color: "#f3f4f6", maxWidth: "1200px", margin: "0 auto" }}>
       <style>
         {`
           table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1f2937; border-radius: 8px; overflow: hidden; }
@@ -78,11 +76,28 @@ export default function AdminReports() {
           tr:hover { background: #374151; }
           .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
           
+          /* Dashboard Cards Grid */
+          .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+          }
+          .metric-card {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          }
+
           @media print {
             .no-print { display: none !important; }
             table { border: 1px solid black; }
             th, td { color: black; border-bottom: 1px solid #ccc; }
             body { background: white; color: black; }
+            .dashboard-grid { display: flex; justify-content: space-between; gap: 10px; }
+            .metric-card { border: 1px solid black; background: white; color: black; box-shadow: none; width: 30%; }
+            .metric-card h4, .metric-card p { color: black !important; }
           }
         `}
       </style>
@@ -94,6 +109,30 @@ export default function AdminReports() {
         </button>
       </div>
 
+      {/* 🟢 NEW: DASHBOARD SUMMARY CARDS */}
+      <div className="dashboard-grid">
+        <div className="metric-card" style={{ borderTop: "4px solid #38bdf8" }}>
+          <h4 style={{ margin: 0, color: "#9ca3af", textTransform: "uppercase", fontSize: "0.85rem" }}>Registered Users</h4>
+          <p style={{ fontSize: "2.5rem", margin: "10px 0 0 0", color: "#f3f4f6", fontWeight: "bold" }}>
+            {totalUsers}
+          </p>
+        </div>
+
+        <div className="metric-card" style={{ borderTop: "4px solid #8fd081" }}>
+          <h4 style={{ margin: 0, color: "#9ca3af", textTransform: "uppercase", fontSize: "0.85rem" }}>Total Plants in DB</h4>
+          <p style={{ fontSize: "2.5rem", margin: "10px 0 0 0", color: "#f3f4f6", fontWeight: "bold" }}>
+            {totalPlants}
+          </p>
+        </div>
+
+        <div className="metric-card" style={{ borderTop: "4px solid #8b5cf6" }}>
+          <h4 style={{ margin: 0, color: "#9ca3af", textTransform: "uppercase", fontSize: "0.85rem" }}>Unique Families</h4>
+          <p style={{ fontSize: "2.5rem", margin: "10px 0 0 0", color: "#f3f4f6", fontWeight: "bold" }}>
+            {uniqueFamiliesCount}
+          </p>
+        </div>
+      </div>
+
       <div className="no-print" style={{ display: "flex", gap: "10px", borderBottom: "1px solid #374151", paddingBottom: "15px", marginBottom: "20px" }}>
         <button className="btn" style={{ background: activeTab === "clients" ? "#8fd081" : "transparent", color: activeTab === "clients" ? "black" : "white" }} onClick={() => setActiveTab("clients")}>Client Tracker</button>
         <button className="btn" style={{ background: activeTab === "plants" ? "#8fd081" : "transparent", color: activeTab === "plants" ? "black" : "white" }} onClick={() => setActiveTab("plants")}>Plant Report</button>
@@ -102,7 +141,7 @@ export default function AdminReports() {
 
       {activeTab === "clients" && (
         <div>
-          <h3>Client Tracker</h3>
+          <h3 className="no-print">Client Tracker</h3>
           <table>
             <thead>
               <tr><th>Name</th><th>Email</th><th>Business Name</th><th>Type</th></tr>
@@ -123,7 +162,7 @@ export default function AdminReports() {
 
       {activeTab === "plants" && (
         <div>
-          <h3>Global Plant Database Report</h3>
+          <h3 className="no-print">Global Plant Database Report</h3>
           <table>
             <thead>
               <tr><th>Family</th><th>Common Name</th><th>Scientific Name</th></tr>
@@ -143,7 +182,7 @@ export default function AdminReports() {
 
       {activeTab === "users" && (
         <div>
-          <h3>All Users Report</h3>
+          <h3 className="no-print">All Users Report</h3>
           <table>
             <thead>
               <tr><th>Business</th><th>Name</th><th>Email</th><th>Role</th></tr>
