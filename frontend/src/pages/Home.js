@@ -1,3 +1,5 @@
+// "Post-Defense" update. Version 1.1 of meeturgarden system 
+
 import { useEffect, useState, useContext } from "react";
 import { analyzePlantHealth } from "../utils/careEngine";
 import { Link, useSearchParams } from "react-router-dom";
