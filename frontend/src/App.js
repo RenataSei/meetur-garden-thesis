@@ -151,7 +151,7 @@ export default function App() {
 
           <Route
             path="/admin-reports" 
-            elements={
+            element={
               
                 <AdminReports />
               
