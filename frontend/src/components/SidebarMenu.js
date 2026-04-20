@@ -107,6 +107,14 @@ export default function SidebarMenu() {
           <Link className="menu-btn" to="/settings">Settings</Link>
           <Link className="menu-btn" to="/profile">View Profile</Link>
           <Link className="menu-btn" to="/radar">Live Radar</Link>
+          
+          {/* 🟢 NEW: Admin Reports Link - ONLY visible if user role is admin */}
+          {user && user.role === 'admin' && (
+            <Link className="menu-btn" to="/admin-reports" style={{ color: "#38bdf8", border: "1px solid #38bdf8" }}>
+              Admin Reports 📊
+            </Link>
+          )}
+
           {user && <Link className="menu-btn" to="/logout" style={{ color: "#ef4444" }}>Logout</Link>}
         </nav>
 

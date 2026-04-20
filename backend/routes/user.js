@@ -11,7 +11,8 @@ const {
   generate2FA, 
   verifyAndEnable2FA,
   forgotPassword, // NEW
-  resetPassword   // NEW
+  resetPassword,   // NEW
+  getAllUsers
 } = require('../controllers/userController');
 
 // login route
@@ -40,5 +41,8 @@ router.post('/2fa/generate', generate2FA);
 
 // verify and enable 2FA route
 router.post('/2fa/verify', verifyAndEnable2FA);
+
+// get all users (Admin only)
+router.get('/all', getAllUsers);
 
 module.exports = router;

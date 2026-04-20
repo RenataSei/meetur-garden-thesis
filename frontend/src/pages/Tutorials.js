@@ -59,6 +59,7 @@ export default function Tutorials() {
         >
           💧 Watering Guide
         </button>
+        <button onClick={() => setActiveTab("nfc")} style={tabStyle(activeTab === "nfc")}>📡 NFC Setup</button>
       </div>
 
       {/* --- TAB 1: PROPAGATION --- */}
@@ -152,6 +153,35 @@ export default function Tutorials() {
             </div>
           </div>
 
+        </div>
+      )}
+
+      {/* TAB 4: NFC TUTORIAL */}
+      {activeTab === "nfc" && (
+        <div style={{ animation: "fadeIn 0.3s ease", display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div style={{ background: "#1f2937", borderRadius: "12px", padding: "25px", border: "1px solid #374151" }}>
+            <h3 style={{ borderBottom: "1px solid #374151", paddingBottom: "10px", marginBottom: "15px", color: "#8b5cf6" }}>How to use NFC Plant Tags</h3>
+            <p style={{ color: "#9ca3af", lineHeight: "1.6" }}>
+              NFC (Near Field Communication) allows you to instantly open your plant's profile simply by tapping your phone to the physical pot. Watch the demo below to see how to scan and write tags!
+            </p>
+            
+            <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, borderRadius: "8px", overflow: "hidden", marginTop: "20px", border: "1px solid #374151" }}>
+              <iframe 
+                title="NFC Tutorial"
+                src="https://www.youtube.com/embed/jZqA0q5_V2c?si=R9T83qXU1k4rE2gN" 
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+                allowFullScreen
+              ></iframe>
+            </div>
+
+            <h4 style={{ color: "#f3f4f6", marginTop: "20px" }}>Quick Steps:</h4>
+            <ul style={{ color: "#9ca3af", lineHeight: "1.6", margin: 0, paddingLeft: "20px" }}>
+              <li>Ensure your phone's NFC is turned <strong>ON</strong> in settings.</li>
+              <li>Go to your virtual garden and click on a plant.</li>
+              <li>Click the purple <strong>"Link NFC 📡"</strong> button.</li>
+              <li>Hold your phone against a blank NFC tag to pair them!</li>
+            </ul>
+          </div>
         </div>
       )}
     </div>

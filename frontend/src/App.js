@@ -24,6 +24,7 @@ import Community from "./pages/Community";
 import LiveRadar from "./pages/LiveRadar";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import AdminReports from './pages/AdminReports'; 
 
 function RequireAuth({ children }) {
   const { user } = useAuthContext();
@@ -56,6 +57,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+          
           <Route
             path="/plants"
             element={
@@ -64,6 +66,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+
           <Route
             path="/plants/new"
             element={
@@ -72,6 +75,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+
           <Route
             path="/plants/:id"
             element={
@@ -80,6 +84,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+
           <Route
             path="/plants/:id/edit"
             element={
@@ -88,6 +93,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+
           <Route
             path="/settings"
             element={
@@ -96,6 +102,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+
           <Route
             path="/profile"
             element={
@@ -104,6 +111,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+
           {/* --- ADDED SCAN ROUTE --- */}
           <Route
             path="/scan"
@@ -113,6 +121,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+
           <Route
             path="/tutorials"
             element={
@@ -136,6 +145,15 @@ export default function App() {
             element={
               <RequireAuth>
                 <LiveRadar />
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/admin-reports" 
+            elements={
+              <RequireAuth>
+                <AdminReport />
               </RequireAuth>
             }
           />

@@ -289,6 +289,22 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// 🟢 NEW: Get all users for Admin Dashboard
+const getAllUsers = async (req, res) => {
+  // Security Check: Only Admins can see this data
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: "Access denied. Admins only." });
+  }
+
+  try {
+    // Fetch all users, excluding their hashed passwords for security
+    const users = await User.find({}).select("-password").sort({ createdAt: -1 });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Make sure to export the new functions at the bottom!
 module.exports = {
   signupUser,
@@ -299,4 +315,5 @@ module.exports = {
   verifyAndEnable2FA,
   forgotPassword, // Added
   resetPassword,  // Added
+  getAllUsers,
 };
