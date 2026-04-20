@@ -152,9 +152,9 @@ export default function App() {
           <Route
             path="/admin-reports" 
             element={
-              
+              <RequireAuth>
                 <AdminReports />
-              
+              </RequireAuth>
             }
           />
 
