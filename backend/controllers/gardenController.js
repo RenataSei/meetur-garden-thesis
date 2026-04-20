@@ -18,7 +18,8 @@ const getGarden = async (req, res) => {
 
 // 2. Add a plant to the user's garden
 const addToGarden = async (req, res) => {
-    const { plant_id, nickname } = req.body;
+    // 🟢 Extract the new fields from req.body
+    const { plant_id, nickname, placement, potType } = req.body;
     const user_id = req.user._id;
 
     if (!mongoose.Types.ObjectId.isValid(plant_id)) {
@@ -26,15 +27,13 @@ const addToGarden = async (req, res) => {
     }
 
     try {
-        const exists = await GardenItem.findOne({ user_id, plant_id });
-        if (exists) {
-            return res.status(400).json({ error: "Plant is already in your garden" });
-        }
-
+        
         const gardenItem = await GardenItem.create({
             user_id,
             plant_id,
-            nickname
+            nickname,
+            placement: placement || "Indoor", // Default fallback
+            potType: potType || "Plastic/Ceramic"
         });
 
         res.status(200).json(gardenItem);
@@ -90,15 +89,19 @@ const logAction = async (req, res) => {
             case 'move_shade':
                 updates.is_in_sun = false;
                 updates.last_sun_exposure = now;
+                // 🟢 ADDED: Automatically change placement to Indoor when shaded
+                updates.placement = "Indoor"; 
                 break;
             case 'move_inside':
-                updates.is_indoors = true;
+                // 🟢 UPDATED: Ensure we use 'placement' instead of the old boolean
+                updates.placement = "Indoor"; 
                 updates.is_in_sun = false;
                 break;
             case 'move_sun':
                 updates.is_in_sun = true;
                 updates.sun_start_time = now;
-                updates.is_indoors = false;
+                // 🟢 UPDATED: Automatically change placement to Outdoor when in sun
+                updates.placement = "Outdoor"; 
                 break;
             default:
                 return res.status(400).json({ error: "Unknown action type" });
@@ -123,7 +126,7 @@ const logAction = async (req, res) => {
 // 5. Update generic plant details (like Nickname or Image)
 const updateGardenItem = async (req, res) => {
     const { id } = req.params;
-    const { nickname, custom_image } = req.body; 
+    const { nickname, custom_image, placement, potType } = req.body; // 🟢 ADDED
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ error: "Invalid ID" });
@@ -133,6 +136,8 @@ const updateGardenItem = async (req, res) => {
         const updates = {};
         if (nickname) updates.nickname = nickname;
         if (custom_image) updates.custom_image = custom_image; 
+        if (placement) updates.placement = placement; // 🟢 ADDED
+        if (potType) updates.potType = potType;       // 🟢 ADDED
 
         const item = await GardenItem.findOneAndUpdate(
             { _id: id, user_id: req.user._id }, 

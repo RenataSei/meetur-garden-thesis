@@ -55,6 +55,10 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
   const [isEditing, setIsEditing] = useState(false);
   const [newNick, setNewNick] = useState(plant.nickname);
   const [newImage, setNewImage] = useState("");
+  
+  // 🟢 NEW: State for the dynamic engine inputs
+  const [newPlacement, setNewPlacement] = useState(plant.placement || "Indoor");
+  const [newPotType, setNewPotType] = useState(plant.potType || "Plastic/Ceramic");
   const [uploading, setUploading] = useState(false);
 
   const plantInfo = plant.plant_id || {};
@@ -78,6 +82,10 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
     const payload = {};
     if (newNick && newNick.trim()) payload.nickname = newNick;
     if (newImage) payload.custom_image = newImage;
+    // 🟢 NEW: Save placement and pot type
+    if (newPlacement) payload.placement = newPlacement;
+    if (newPotType) payload.potType = newPotType;
+
     await onUpdate(plant._id, payload);
     setIsEditing(false);
   }
@@ -148,19 +156,43 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
             )}
           </div>
 
-          <div className="modal-title-box">
+          <div className="modal-title-box" style={{ flex: 1 }}>
             {isEditing ? (
-              <div className="edit-column">
+              <div className="edit-column" style={{ width: "100%" }}>
                 <input
                   type="text"
                   value={newNick}
                   onChange={(e) => setNewNick(e.target.value)}
                   className="modal-input"
                   placeholder="Nickname..."
+                  style={{ width: "100%", boxSizing: "border-box" }}
                 />
+                
+                {/* 🟢 NEW: Edit Environment Options */}
+                <select 
+                  className="modal-input" 
+                  value={newPlacement} 
+                  onChange={(e) => setNewPlacement(e.target.value)}
+                  style={{ width: "100%", boxSizing: "border-box", appearance: "auto" }}
+                >
+                  <option value="Indoor">🏠 Indoor Plant</option>
+                  <option value="Outdoor">🌤️ Outdoor Plant</option>
+                </select>
+
+                <select 
+                  className="modal-input" 
+                  value={newPotType} 
+                  onChange={(e) => setNewPotType(e.target.value)}
+                  style={{ width: "100%", boxSizing: "border-box", appearance: "auto" }}
+                >
+                  <option value="Plastic/Ceramic">🪣 Plastic/Ceramic Pot</option>
+                  <option value="Terra Cotta">🪴 Terra Cotta Pot (Dries Faster)</option>
+                </select>
+
                 <button
                   onClick={handleSave}
                   className="btn btn--small btn--green"
+                  style={{ width: "100%" }}
                 >
                   Save Changes
                 </button>
@@ -176,9 +208,11 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
                 </button>
               </h2>
             )}
-            <p className="modal-species">
-              {plantInfo.common_name?.[0] || "Unknown Species"}
-            </p>
+            {!isEditing && (
+              <p className="modal-species">
+                {plantInfo.common_name?.[0] || "Unknown Species"}
+              </p>
+            )}
           </div>
         </div>
 
@@ -210,6 +244,16 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
               {formatTemp(plantInfo.ecological_descriptors?.temperature_range)}
             </small>
           </div>
+
+          {/* 🟢 NEW: Display Environment Attributes */}
+          {!isEditing && (
+            <div className="detail-box" style={{ gridColumn: "1 / -1", borderLeft: "3px solid #8b5cf6" }}>
+              <label>ENVIRONMENT & POT TYPE</label>
+              <span style={{ fontSize: "14px", color: "#e2e8f0", marginTop: "4px" }}>
+                {plant.placement === "Outdoor" ? "🌤️ Outdoor" : "🏠 Indoor"} • {plant.potType === "Terra Cotta" ? "🪴 Terra Cotta" : "🪣 Plastic/Ceramic"}
+              </span>
+            </div>
+          )}
 
           <div className="detail-box" style={{ gridColumn: "1 / -1" }}>
             <div
@@ -315,7 +359,7 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
       <style>
         {`
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); animation: fadeIn 0.2s ease; }
-        .modal-content { background: #111827; border: 2px solid #374151; width: 90%; max-width: 500px; border-radius: 16px; padding: 24px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-content { background: #111827; border: 2px solid #374151; width: 90%; max-width: 500px; border-radius: 16px; padding: 24px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; overflow-y: auto; }
         .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: #9ca3af; font-size: 24px; cursor: pointer; }
         .modal-header { display: flex; gap: 16px; align-items: center; margin-bottom: 24px; }
         .modal-icon { width: 80px; height: 80px; background: #1f2937; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid #374151; overflow: hidden; }
@@ -330,12 +374,12 @@ function PlantModal({ plant, weather, onClose, onUpdate, onAction, onRemove }) {
         .detail-box small { font-size: 11px; color: #6b7280; margin-top: 2px; }
         .modal-actions { display: flex; gap: 12px; }
         .btn--wide { flex: 1; justify-content: center; }
-        .modal-input { background: #374151; border: 1px solid #4b5563; color: white; padding: 4px 8px; border-radius: 4px; font-family: inherit; }
+        .modal-input { background: #374151; border: 1px solid #4b5563; color: white; padding: 6px 10px; border-radius: 4px; font-family: inherit; margin-bottom: 4px;}
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; }}
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; }}
-        .modal-icon-wrapper { position: relative; width: 80px; height: 80px; }
+        .modal-icon-wrapper { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
         .camera-btn { position: absolute; bottom: -5px; right: -5px; background: #3b82f6; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #111827; font-size: 14px; }
-        .edit-column { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+        .edit-column { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
         .water-bar-container { width: 100%; height: 10px; background: #111827; border-radius: 6px; overflow: hidden; border: 1px solid #374151; }
         .water-bar-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.5s ease; }
         `}
@@ -351,11 +395,11 @@ function WeatherModal({ weather, forecast, onClose }) {
   let impactTip =
     "Conditions are generally mild. Standard watering schedules apply.";
   if (weather.main.temp > 32)
-    impactTip = "It's very hot! Soil will dry out much faster today.";
+    impactTip = "It's very hot! Outdoor soil will dry out much faster today.";
   else if (weather.main.temp < 15)
     impactTip = "Cooler temperatures today. Be careful not to overwater.";
   else if (weather.weather[0].main.includes("Rain"))
-    impactTip = "Rain is expected! Great for outdoor plants.";
+    impactTip = "Rain is expected! Great for outdoor plants. Nature will handle the watering.";
 
   const dailyData = [];
   if (forecast && forecast.list) {
@@ -426,7 +470,7 @@ function WeatherModal({ weather, forecast, onClose }) {
             className="detail-box"
             style={{ gridColumn: "1 / -1", borderLeft: "3px solid #38bdf8" }}
           >
-            <label>GARDEN IMPACT</label>
+            <label>CARE ENGINE IMPACT</label>
             <span
               style={{
                 fontSize: "13px",
@@ -583,11 +627,11 @@ const marketingStyles = `
   .footer-link:hover { opacity: 0.8; text-decoration: underline; }
 
   @media (max-width: 768px) {
-    .carousel-container { height: 350px; } /* Give it a bit more room */
+    .carousel-container { height: 350px; } 
     .carousel-caption { bottom: 24px; left: 24px; right: 24px; text-align: center; }
     .carousel-caption h2 { font-size: 1.5rem; }
     .carousel-caption p { font-size: 0.9rem; }
-    .carousel-btn { width: 36px; height: 36px; font-size: 16px; } /* Smaller arrows */
+    .carousel-btn { width: 36px; height: 36px; font-size: 16px; } 
     .garden-footer { flex-direction: column; text-align: center; align-items: center; }
   }
 `;
@@ -596,7 +640,6 @@ const marketingStyles = `
 function MarketingShowcase() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Auto-advance carousel every 5 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev === CAROUSEL_IMAGES.length - 1 ? 0 : prev + 1));
@@ -789,7 +832,6 @@ function GardenDashboard({ user }) {
         />
       )}
 
-
       <div className="dashboard-bento">
         <div className="bento-stat bento-stat--green">
           <span className="bento-icon">🌱</span>
@@ -858,12 +900,12 @@ function GardenDashboard({ user }) {
                 style={{
                   marginTop: "16px",
                   fontSize: "14px",
-                  color: "black",
+                  color: "white",
                 }}
               >
                 Your garden is thriving!
               </p>
-              <p style={{ textTransform: "none" }}>
+              <p style={{ textTransform: "none", color: "#9ca3af" }}>
                 No plants need immediate action right now.
               </p>
             </div>
@@ -890,6 +932,10 @@ function GardenDashboard({ user }) {
                     <div className="quick-info">
                       <h4>
                         {item.nickname || item.cleanPlantInfo.common_name?.[0]}
+                        {/* 🟢 NEW: Add tiny icon to show if it's indoors/outdoors */}
+                        <span style={{ fontSize: "14px", marginLeft: "6px" }}>
+                          {item.placement === "Outdoor" ? "🌤️" : "🏠"}
+                        </span>
                       </h4>
                       <span
                         className="last-watered"
@@ -1022,7 +1068,13 @@ function GardenDashboard({ user }) {
                     onClick={() => setSelectedPlant(item)}
                   >
                     <div className="garden-card__header">
-                      <h3>{item.nickname}</h3>
+                      <h3>
+                        {item.nickname}
+                        {/* 🟢 NEW: Add tiny icon to show if it's indoors/outdoors */}
+                        <span style={{ fontSize: "14px", marginLeft: "6px" }}>
+                          {item.placement === "Outdoor" ? "🌤️" : "🏠"}
+                        </span>
+                      </h3>
                       <span className="species">{commonName}</span>
                     </div>
                     <div
@@ -1211,5 +1263,3 @@ export default function Home() {
     </main>
   );
 }
-
-

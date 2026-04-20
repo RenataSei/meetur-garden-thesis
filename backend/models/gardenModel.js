@@ -27,7 +27,19 @@ const gardenItemSchema = new Schema({
     last_sun_exposure: { type: Date },
     is_in_sun: { type: Boolean, default: false },
     sun_start_time: { type: Date },
-    is_indoors: { type: Boolean, default: true }
+    is_indoors: { type: Boolean, default: true },
+
+    // PHYSICAL ENVIRONMENT DATA
+    placement: {
+        type: String,
+        enum: ["Indoor", "Outdoor"],
+        default: "Indoor"
+    },
+    potType: {
+        type: String,
+        enum: ["Plastic/Ceramic", "Terra Cotta"],
+        default: "Plastic/Ceramic"
+    },
 
 }, { timestamps: true });
 
